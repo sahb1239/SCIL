@@ -4,12 +4,10 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using CommandLine;
-using Mono.Cecil;
-using SCIL.Instructions;
-using MethodBody = Mono.Cecil.Cil.MethodBody;
+using SCIL.Logger;
+using SCIL.Writer;
 
 namespace SCIL
 {
@@ -17,25 +15,16 @@ namespace SCIL
     {
         static void Main(string[] args)
         {
-            CommandLine.Parser.Default.ParseArguments<Options>(args)
-                .WithParsed<Options>(RunOptionsAndReturnExitCode)
-                .WithNotParsed<Options>(HandleParseError);
+            CommandLine.Parser.Default.ParseArguments<ConsoleOptions>(args)
+                .WithParsed<ConsoleOptions>(RunOptionsAndReturnExitCode);
         }
 
-        private static void HandleParseError(IEnumerable<Error> errs)
-        {
-            /*foreach (var err in errs)
-            {
-                Console.WriteLine(err);
-            }*/
-        }
-
-        private static void RunOptionsAndReturnExitCode(Options opts)
+        private static void RunOptionsAndReturnExitCode(ConsoleOptions opts)
         {
             Run(opts).GetAwaiter().GetResult();
         }
 
-        private static async Task Run(Options opts)
+        private static async Task Run(ConsoleOptions opts)
         {
             // Check input file
             var fileInfo = new FileInfo(opts.ApkFile);
@@ -64,11 +53,13 @@ namespace SCIL
                 .Cast<IInstructionEmitter>()
                 .ToList();
 
+            // Create logger
+            var logger = new ConsoleLogger(opts.Verbose, opts.Wait);
             
             // Detect if file is zip
             if (await ZipHelper.CheckSignature(fileInfo.FullName))
             {
-                await LoadZip(fileInfo, outputPathInfo, emitters);
+                await LoadZip(fileInfo, outputPathInfo, emitters, logger);
                 return;
             }
 
@@ -76,7 +67,8 @@ namespace SCIL
             throw new NotImplementedException();
         }
 
-        private static async Task LoadZip(FileInfo fileInfo, DirectoryInfo outputPathInfo, IEnumerable<IInstructionEmitter> emitters)
+        private static async Task LoadZip(FileInfo fileInfo, DirectoryInfo outputPathInfo,
+            IReadOnlyCollection<IInstructionEmitter> emitters, ILogger logger)
         {
             // Open zip file
             using (var zipFile = ZipFile.OpenRead(fileInfo.FullName))
@@ -94,84 +86,16 @@ namespace SCIL
                         // Set position 0
                         stream.Position = 0;
 
-                        await ReadAssembly(stream, assemblyPath, emitters).ConfigureAwait(false);
+                        await ProcessAssymbly(stream, assemblyPath, emitters, logger).ConfigureAwait(false);
                     }
                 }
             }
         }
 
-        private static async Task ReadAssembly(Stream stream, DirectoryInfo outputDirectory, IEnumerable<IInstructionEmitter> emitters)
+        private static async Task ProcessAssymbly(Stream stream, DirectoryInfo outputDirectory, IReadOnlyCollection<IInstructionEmitter> emitters, ILogger logger)
         {
-            using (var module = ModuleDefinition.ReadModule(stream))
-            {
-                await ReadModule(module, outputDirectory, emitters).ConfigureAwait(false);
-            }
-        }
-
-        private static async Task ReadModule(ModuleDefinition module, DirectoryInfo outputDirectory, IEnumerable<IInstructionEmitter> emitters)
-        {
-            foreach (var type in module.Types)
-            {
-                var typeDirectory = GetSubpathName(type, outputDirectory);
-
-                foreach (var methodDefinition in type.Methods)
-                {
-                    var file = new FileInfo(Path.Combine(typeDirectory.FullName, "method_" + GetSafePath(methodDefinition.Name)));
-
-                    var output = methodDefinition.HasBody ? ProcessCIL(type, methodDefinition.Body, emitters) : "";
-                    await File.WriteAllTextAsync(file.FullName, output).ConfigureAwait(false);
-                }
-            }
-        }
-
-        private static string ProcessCIL(TypeDefinition typeDefinition, MethodBody methodBody, IEnumerable<IInstructionEmitter> emitters)
-        {
-            StringBuilder builder = new StringBuilder();
-            foreach (var instruction in methodBody.Instructions)
-            {
-                bool foundEmitter = false;
-                foreach (var emitter in emitters)
-                {
-                    var emitterOutput = emitter.GetCode(typeDefinition, methodBody, instruction);
-                    if (emitterOutput == null)
-                        continue;
-
-                    foundEmitter = true;
-                    builder.AppendLine(emitterOutput);
-                    break;
-                }
-
-                if (!foundEmitter)
-                {
-                    Console.WriteLine($"Error: No emitter found for code {instruction.OpCode.Name}");
-                    Console.ReadKey();
-                }
-
-
-                /*
-                builder.Append($"{SimplifyOpCode(instruction)}");
-                if (instruction.Operand != null)
-                {
-                    builder.AppendLine($": {instruction.Operand}");
-                }
-                else
-                {
-                    builder.AppendLine();
-                }*/
-            }
-            return builder.ToString();
-        }
-
-        private static DirectoryInfo GetSubpathName(TypeDefinition type, DirectoryInfo outputDirectory)
-        {
-            var fullName = GetSafePath(type.FullName);
-
-            return outputDirectory.CreateSubdirectory(fullName);
-        }
-
-        private static string GetSafePath(string input)
-        {
-            return new string(input.Where(Char.IsLetterOrDigit).ToArray());
+            var moduleProcessor = new ModuleProcessor(emitters, new ModuleWriter(outputDirectory.FullName), logger);
+            await moduleProcessor.ProcessAssembly(stream);
         }
 
         private static bool FilterXamarinAssembliesDlls(ZipArchiveEntry entry)
@@ -179,5 +103,20 @@ namespace SCIL
             return entry.FullName.StartsWith("assemblies", StringComparison.OrdinalIgnoreCase) &&
                    entry.FullName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase);
         }
+    }
+
+    class ConsoleOptions
+    {
+        [Value(0, MetaName = "ApkFile", Required = true, HelpText = "Apk files to be processed.")]
+        public string ApkFile { get; set; }
+
+        [Value(1, MetaName = "OutputPath", Required = true, HelpText = "Output path")]
+        public string OutputPath { get; set; }
+
+        [Option("verbose", Required = false, HelpText = "Verbose output")]
+        public bool Verbose { get; set; }
+
+        [Option("wait",  Required = false, HelpText = "Wait for some error messages")]
+        public bool Wait { get; set; }
     }
 }
