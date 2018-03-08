@@ -56,6 +56,10 @@ namespace SCIL
             var emitterInterface = typeof(IInstructionEmitter);
             var emitters = Assembly.GetExecutingAssembly().DefinedTypes
                 .Where(e => e.ImplementedInterfaces.Any(i => i == emitterInterface))
+                .OrderBy(e =>
+                    e.CustomAttributes.Any(attr => typeof(EmitterOrderAttribute) == attr.AttributeType)
+                        ? e.GetCustomAttribute<EmitterOrderAttribute>().Order
+                        : 10)
                 .Select(Activator.CreateInstance)
                 .Cast<IInstructionEmitter>()
                 .ToList();

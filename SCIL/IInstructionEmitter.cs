@@ -1,7 +1,7 @@
 ﻿using Mono.Cecil;
 using Mono.Cecil.Cil;
 
-namespace SCIL.Instructions
+namespace SCIL
 {
     interface IInstructionEmitter
     {
