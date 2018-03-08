@@ -18,6 +18,10 @@ namespace SCIL.Instructions
                 case Code.Ldarga:
                 case Code.Ldarga_S:
                     return "ldarg";
+
+                case Code.Starg:
+                case Code.Starg_S:
+                    return "starg";
             }
 
             return null;
