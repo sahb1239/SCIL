@@ -24,24 +24,5 @@
             "request": "attach",
             "processId": "${command:pickProcess}"
         }
-    ,
-        {
-            "name": ".NET Core Launch (console)",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "build",
-            "program": "${workspaceFolder}/SCIL/bin/Debug/netcoreapp2.0/SCIL.dll",
-            "args": [],
-            "cwd": "${workspaceFolder}/SCIL",
-            "console": "internalConsole",
-            "stopAtEntry": false,
-            "internalConsoleOptions": "openOnSessionStart"
-        },
-        {
-            "name": ".NET Core Attach",
-            "type": "coreclr",
-            "request": "attach",
-            "processId": "${command:pickProcess}"
-        }
     ]
 }
