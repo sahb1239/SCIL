@@ -36,9 +36,9 @@ namespace SCIL.Analyzers
         public IEnumerable<string> GetOutput()
         {
             yield return "Number of instructions in modules:";
-            foreach (var instruction in GetInstructions())
+            foreach (var (moduleName, instructionsCount) in GetInstructions())
             {
-                yield return string.Join(": ", instruction.moduleName, instruction.instructionsCount);
+                yield return string.Join(": ", moduleName, instructionsCount);
             }
         }
 
