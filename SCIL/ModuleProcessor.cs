@@ -63,22 +63,14 @@ namespace SCIL
             StringBuilder builder = new StringBuilder();
             foreach (var instruction in methodBody.Instructions)
             {
-                bool foundEmitter = false;
                 foreach (var emitter in Emitters)
                 {
                     var emitterOutput = emitter.GetCode(typeDefinition, methodBody, instruction);
                     if (emitterOutput == null)
                         continue;
-                    
-                    foundEmitter = true;
+
                     builder.AppendLine(emitterOutput);
                     break;
-                }
-
-                if (!foundEmitter)
-                {
-                    Logger.Log($"Error: No emitter found for code {instruction.OpCode.Name}");
-                    Logger.Wait();
                 }
             }
             return builder.ToString();
