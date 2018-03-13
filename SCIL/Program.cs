@@ -108,12 +108,6 @@ namespace SCIL
 
         private static async Task AnalyzeFile(FileInfo fileInfo, IReadOnlyCollection<IInstructionEmitter> emitters, ILogger logger, IModuleWriter moduleWriter)
         {
-            // Reset analyzers
-            foreach (var analyzer in emitters.OfType<IInstructionAnalyzer>())
-            {
-                analyzer.Reset();
-            }
-
             // Detect if file is zip
             if (await ZipHelper.CheckSignature(fileInfo.FullName))
             {
@@ -123,12 +117,6 @@ namespace SCIL
             {
                 // TODO : Detect dll and exe
                 throw new NotImplementedException();
-            }
-
-            // Print analyzers
-            foreach (var analyzer in emitters.OfType<IInstructionAnalyzer>())
-            {
-                logger.Log(string.Join(Environment.NewLine, analyzer.GetOutput()));
             }
         }
 
