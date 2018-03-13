@@ -39,7 +39,8 @@ namespace SCIL
             foreach (var type in module.Types)
             {
                 Logger.Log($"Processing type {type.FullName}", true);
-                await ModuleWriter.WriteType(type).ConfigureAwait(false);
+
+                var typeModuleWriter = await ModuleWriter.GetTypeModuleWriter(type).ConfigureAwait(false);
 
                 foreach (var methodDefinition in type.Methods)
                 {
@@ -47,12 +48,12 @@ namespace SCIL
 
                     if (methodDefinition.HasBody)
                     {
-                        await ModuleWriter.WriteMethod(type, methodDefinition, ProcessCIL(type, methodDefinition.Body))
+                        await typeModuleWriter.WriteMethod(type, methodDefinition, ProcessCIL(type, methodDefinition.Body))
                             .ConfigureAwait(false);
                     }
                     else
                     {
-                        await ModuleWriter.WriteMethod(type, methodDefinition).ConfigureAwait(false);
+                        await typeModuleWriter.WriteMethod(type, methodDefinition).ConfigureAwait(false);
                     }
                 }
             }

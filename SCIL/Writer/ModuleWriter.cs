@@ -23,10 +23,10 @@ namespace SCIL.Writer
             return Task.FromResult((IModuleWriter) new ModuleWriter(Directory.CreateSubdirectory(name).FullName));
         }
 
-        public Task WriteType(TypeDefinition typeDefinition)
+        public Task<IModuleWriter> GetTypeModuleWriter(TypeDefinition typeDefinition)
         {
-            GetSubpathName(typeDefinition, Directory);
-            return Task.FromResult(0);
+            var typePath = GetSubpathName(typeDefinition, Directory);
+            return Task.FromResult((IModuleWriter) new ModuleWriter(typePath.FullName));
         }
 
         public Task WriteMethod(TypeDefinition typeDefinition, MethodDefinition methodDefinition) =>

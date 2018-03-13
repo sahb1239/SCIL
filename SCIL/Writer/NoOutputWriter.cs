@@ -13,9 +13,9 @@ namespace SCIL.Writer
             return Task.FromResult((IModuleWriter)this);
         }
 
-        public Task WriteType(TypeDefinition typeDefinition)
+        public Task<IModuleWriter> GetTypeModuleWriter(TypeDefinition typeDefinition)
         {
-            return Task.CompletedTask;
+            return Task.FromResult((IModuleWriter)this);
         }
 
         public Task WriteMethod(TypeDefinition typeDefinition, MethodDefinition methodDefinition)
