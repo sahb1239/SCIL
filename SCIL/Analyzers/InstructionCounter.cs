@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using SCIL.Logger;
 
 namespace SCIL.Analyzers
 {
     [EmitterOrder(0), IgnoreEmitter]
-    class InstructionCounter : IInstructionEmitter
+    class InstructionCounter : IInstructionEmitter, IInstructionAnalyzer
     {
         private readonly IDictionary<string, long> _count = new Dictionary<string, long>();
         public string GetCode(TypeDefinition typeDefinition, MethodBody methodBody, Instruction instruction)
@@ -28,6 +30,15 @@ namespace SCIL.Analyzers
         public void Reset()
         {
             _count.Clear();
+        }
+
+        public IEnumerable<string> GetOutput()
+        {
+            yield return "Number of instructions in modules:";
+            foreach (var instruction in GetInstructions())
+            {
+                yield return string.Join(": ", instruction.moduleName, instruction.instructionsCount);
+            }
         }
 
         public IEnumerable<(string moduleName, long instructionsCount)> GetInstructions()
