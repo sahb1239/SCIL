@@ -130,10 +130,13 @@ namespace SCIL
 
     class ConsoleOptions
     {
-        [Value(0, MetaName = "ApkFile", Required = true, HelpText = "Apk files to be processed.")]
-        public string ApkFile { get; set; }
+        [Option('f', "InputFile", Required = false, HelpText = "Apk files to be processed.")]
+        public string InputFile { get; set; }
 
-        [Value(1, MetaName = "OutputPath", Required = true, HelpText = "Output path")]
+        [Option('p', "InputPath", Required = false, HelpText = "Input path to search for apk or dll/exe files")]
+        public string InputPath { get; set; }
+
+        [Option('o', "OutputPath", Required = true, HelpText = "Output path")]
         public string OutputPath { get; set; }
 
         [Option("verbose", Required = false, HelpText = "Verbose output")]
