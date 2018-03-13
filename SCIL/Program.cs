@@ -181,10 +181,10 @@ namespace SCIL
         [Option("verbose", Required = false, HelpText = "Verbose output")]
         public bool Verbose { get; set; }
 
-        [Option("wait",  Required = false, HelpText = "Wait for some error messages")]
+        [Option('w', "wait",  Required = false, HelpText = "Wait for some error messages")]
         public bool Wait { get; set; }
 
-        [Option("countInstructions", Required = false, HelpText = "Count number of instructions for each module")]
+        [Option('c', "countInstructions", Required = false, HelpText = "Count number of instructions for each module")]
         public bool CountInstructions { get; set; }
     }
 }
