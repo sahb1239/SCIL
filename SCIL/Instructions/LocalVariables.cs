@@ -21,8 +21,7 @@ namespace SCIL.Instructions
                     {
                         return stloc(stByt);
                     }
-
-                    if (instruction.Operand is VariableDefinition stVar)
+                    else if (instruction.Operand is VariableDefinition stVar)
                     {
                         return stloc(stVar.Index);
                     }
@@ -38,8 +37,7 @@ namespace SCIL.Instructions
                     {
                         return ldloc(ldByt);
                     }
-
-                    if (instruction.Operand is VariableDefinition ldVar)
+                    else if (instruction.Operand is VariableDefinition ldVar)
                     {
                         return ldloc(ldVar.Index);
                     }
