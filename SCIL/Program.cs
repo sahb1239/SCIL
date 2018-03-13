@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using CommandLine;
+using SCIL.Analyzers;
 using SCIL.Logger;
 using SCIL.Writer;
 
@@ -16,7 +17,9 @@ namespace SCIL
         static void Main(string[] args)
         {
             CommandLine.Parser.Default.ParseArguments<ConsoleOptions>(args)
-                .WithParsed<ConsoleOptions>(RunOptionsAndReturnExitCode);
+                .WithParsed<ConsoleOptions>(RunOptionsAndReturnExitCode)
+                .WithNotParsed(error => {});
+            Console.ReadKey();
         }
 
         private static void RunOptionsAndReturnExitCode(ConsoleOptions opts)
@@ -44,7 +47,8 @@ namespace SCIL
             // Load instruction emitters
             var emitterInterface = typeof(IInstructionEmitter);
             var emitters = Assembly.GetExecutingAssembly().DefinedTypes
-                .Where(e => e.ImplementedInterfaces.Any(i => i == emitterInterface))
+                .Where(e => e.ImplementedInterfaces.Any(i => i == emitterInterface) &&
+                            e.CustomAttributes.All(attr => typeof(IgnoreEmitterAttribute) != attr.AttributeType))
                 .OrderBy(e =>
                     e.CustomAttributes.Any(attr => typeof(EmitterOrderAttribute) == attr.AttributeType)
                         ? e.GetCustomAttribute<EmitterOrderAttribute>().Order
@@ -53,6 +57,13 @@ namespace SCIL
                 .Cast<IInstructionEmitter>()
                 .ToList();
 
+            // Count instructions
+            var instructionCounter = new InstructionCounter();
+            if (opts.CountInstructions)
+            {
+                emitters.Insert(0, instructionCounter);
+            }
+
             // Create logger
             var logger = new ConsoleLogger(opts.Verbose, opts.Wait);
             
@@ -60,11 +71,23 @@ namespace SCIL
             if (await ZipHelper.CheckSignature(fileInfo.FullName))
             {
                 await LoadZip(fileInfo, outputPathInfo, emitters, logger);
-                return;
+            }
+            else
+            {
+                // TODO : Detect dll and exe
+                throw new NotImplementedException();
             }
 
-            // File is not a zip - detect dll and exe
-            throw new NotImplementedException();
+            // Print counter
+            if (opts.CountInstructions)
+            {
+                logger.Log("Number of instructions in modules:");
+                foreach (var modulecnt in instructionCounter.GetInstructions())
+                {
+                    Console.WriteLine(modulecnt.moduleName + ": " + modulecnt.instructionsCount);
+                }
+                logger.Wait();
+            }
         }
 
         private static async Task LoadZip(FileInfo fileInfo, DirectoryInfo outputPathInfo,
@@ -92,10 +115,10 @@ namespace SCIL
             }
         }
 
-        private static async Task ProcessAssymbly(Stream stream, DirectoryInfo outputDirectory, IReadOnlyCollection<IInstructionEmitter> emitters, ILogger logger)
+        private static Task ProcessAssymbly(Stream stream, DirectoryInfo outputDirectory, IReadOnlyCollection<IInstructionEmitter> emitters, ILogger logger)
         {
             var moduleProcessor = new ModuleProcessor(emitters, new ModuleWriter(outputDirectory.FullName), logger);
-            await moduleProcessor.ProcessAssembly(stream);
+            return moduleProcessor.ProcessAssembly(stream);
         }
 
         private static bool FilterXamarinAssembliesDlls(ZipArchiveEntry entry)
@@ -118,5 +141,8 @@ namespace SCIL
 
         [Option("wait",  Required = false, HelpText = "Wait for some error messages")]
         public bool Wait { get; set; }
+
+        [Option("countInstructions", Required = false, HelpText = "Count number of instructions for each module")]
+        public bool CountInstructions { get; set; }
     }
 }
