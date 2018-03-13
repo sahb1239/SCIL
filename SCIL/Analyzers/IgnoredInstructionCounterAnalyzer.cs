@@ -10,7 +10,7 @@ using Mono.Cecil.Cil;
 namespace SCIL.Analyzers
 {
     [EmitterOrder(1000)]
-    class IgnoredInstructionAnalyzer : IInstructionEmitter, IInstructionAnalyzer
+    class IgnoredInstructionCounterAnalyzer : IInstructionEmitter, IInstructionAnalyzer
     {
         private readonly IDictionary<string, long> _count = new ConcurrentDictionary<string, long>();
 

@@ -52,7 +52,7 @@ namespace SCIL
                 .ToList();
 
             // Count instructions
-            var instructionCounter = new InstructionCounter();
+            var instructionCounter = new TotalInstructionCounter();
             if (opts.CountInstructions)
             {
                 emitters.Insert(0, instructionCounter);
