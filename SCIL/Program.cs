@@ -128,6 +128,8 @@ namespace SCIL
                 var assemblies = zipFile.Entries.Where(FilterXamarinAssembliesDlls);
                 foreach (var assembly in assemblies)
                 {
+                    logger.Log("Loading zip entry: " + assembly.FullName);
+
                     using (var stream = new MemoryStream())
                     {
                         await assembly.Open().CopyToAsync(stream).ConfigureAwait(false);
