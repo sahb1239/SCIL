@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,7 +12,7 @@ namespace SCIL.Analyzers
     [EmitterOrder(0), IgnoreEmitter]
     class InstructionCounter : IInstructionEmitter, IInstructionAnalyzer
     {
-        private readonly IDictionary<string, long> _count = new Dictionary<string, long>();
+        private readonly IDictionary<string, long> _count = new ConcurrentDictionary<string, long>();
         public string GetCode(TypeDefinition typeDefinition, MethodBody methodBody, Instruction instruction)
         {
             var key = typeDefinition.Module.Name;
