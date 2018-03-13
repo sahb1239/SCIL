@@ -51,11 +51,14 @@ namespace SCIL.Instructions
                         return ldc(flo);
                     }
                     throw new ArgumentException(nameof(instruction.Operand));
+                case Code.Ldnull:
+                    return ldc("null");
             }
 
             return null;
         }
         private string ldc(long op) => "ldc " + op;
         private string ldc(double op) => "ldc " + op;
+        private string ldc(string op) => "ldc " + op;
     }
 }
