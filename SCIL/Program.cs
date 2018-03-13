@@ -81,7 +81,10 @@ namespace SCIL
                 var pathInfo = new DirectoryInfo(opts.InputPath);
                 if (pathInfo.Exists)
                 {
-                    foreach (var file in Directory.GetFiles(pathInfo.FullName, "*.apk", SearchOption.TopDirectoryOnly))
+                    foreach (var file in 
+                        Directory.GetFiles(pathInfo.FullName, "*.apk", SearchOption.TopDirectoryOnly)
+                            .Concat(Directory.GetFiles(pathInfo.FullName, "*.exe", SearchOption.TopDirectoryOnly))
+                            .Concat(Directory.GetFiles(pathInfo.FullName, "*.dll", SearchOption.TopDirectoryOnly)))
                     {
                         var fileInfo = new FileInfo(file);
                         await AnalyzeFile(fileInfo, outputPathInfo, emitters, logger);
