@@ -29,14 +29,6 @@ namespace SCIL
 
         private static async Task Run(ConsoleOptions opts)
         {
-            // Check input file
-            var fileInfo = new FileInfo(opts.ApkFile);
-            if (!fileInfo.Exists)
-            {
-                Console.WriteLine("File does not exists!");
-                return;
-            }
-
             // Check output path
             var outputPathInfo = new DirectoryInfo(opts.OutputPath);
             if (!outputPathInfo.Exists)
@@ -67,6 +59,53 @@ namespace SCIL
             // Create logger
             var logger = new ConsoleLogger(opts.Verbose, opts.Wait);
             
+            // Check for input file
+            if (!string.IsNullOrWhiteSpace(opts.InputFile))
+            {
+                // Check if path is input file
+                var fileInfo = new FileInfo(opts.InputFile);
+                if (fileInfo.Exists)
+                {
+                    await AnalyzeFile(fileInfo, outputPathInfo, emitters, logger);
+                }
+                else
+                {
+                    logger.Log($"File {opts.InputFile} not found");
+                }
+                return;
+            }
+
+            // Check for input path
+            if (!string.IsNullOrWhiteSpace(opts.InputPath))
+            {
+                var pathInfo = new DirectoryInfo(opts.InputPath);
+                if (pathInfo.Exists)
+                {
+                    foreach (var file in Directory.GetFiles(pathInfo.FullName, "*.apk", SearchOption.TopDirectoryOnly))
+                    {
+                        var fileInfo = new FileInfo(file);
+                        await AnalyzeFile(fileInfo, outputPathInfo, emitters, logger);
+                    }
+                }
+                else
+                {
+                    logger.Log($"Path {opts.InputPath} not found");
+                }
+
+                return;
+            }
+
+            logger.Log("Please select file or path");
+        }
+
+        private static async Task AnalyzeFile(FileInfo fileInfo, DirectoryInfo outputPathInfo, IReadOnlyCollection<IInstructionEmitter> emitters, ILogger logger)
+        {
+            // Reset analyzers
+            foreach (var analyzer in emitters.OfType<IInstructionAnalyzer>())
+            {
+                analyzer.Reset();
+            }
+
             // Detect if file is zip
             if (await ZipHelper.CheckSignature(fileInfo.FullName))
             {
@@ -78,15 +117,10 @@ namespace SCIL
                 throw new NotImplementedException();
             }
 
-            // Print counter
-            if (opts.CountInstructions)
+            // Print analyzers
+            foreach (var analyzer in emitters.OfType<IInstructionAnalyzer>())
             {
-                logger.Log("Number of instructions in modules:");
-                foreach (var modulecnt in instructionCounter.GetInstructions())
-                {
-                    Console.WriteLine(modulecnt.moduleName + ": " + modulecnt.instructionsCount);
-                }
-                logger.Wait();
+                logger.Log(string.Join(Environment.NewLine, analyzer.GetOutput()));
             }
         }
 
