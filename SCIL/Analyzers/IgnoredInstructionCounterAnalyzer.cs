@@ -41,6 +41,8 @@ namespace SCIL.Analyzers
             {
                 yield return instruction.Key + ": " + instruction.Value;
             }
+
+            yield return "Total ignored instructions: " + _count.Count;
         }
     }
 }
