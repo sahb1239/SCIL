@@ -18,6 +18,11 @@ namespace SCIL.Writer
                 Directory.Create();
         }
 
+        public Task<IModuleWriter> GetAssemblyModuleWriter(string name)
+        {
+            return Task.FromResult((IModuleWriter) new ModuleWriter(Directory.CreateSubdirectory(name).FullName));
+        }
+
         public Task WriteType(TypeDefinition typeDefinition)
         {
             GetSubpathName(typeDefinition, Directory);

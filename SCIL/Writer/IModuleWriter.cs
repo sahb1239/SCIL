@@ -5,6 +5,7 @@ namespace SCIL.Writer
 {
     interface IModuleWriter
     {
+        Task<IModuleWriter> GetAssemblyModuleWriter(string name);
         Task WriteType(TypeDefinition typeDefinition);
         Task WriteMethod(TypeDefinition typeDefinition, MethodDefinition methodDefinition);
         Task WriteMethod(TypeDefinition typeDefinition, MethodDefinition methodDefinition, string methodBody);
