@@ -19,7 +19,9 @@ namespace SCIL
             CommandLine.Parser.Default.ParseArguments<ConsoleOptions>(args)
                 .WithParsed<ConsoleOptions>(RunOptionsAndReturnExitCode)
                 .WithNotParsed(error => {});
+#if DEBUG
             Console.ReadKey();
+#endif
         }
 
         private static void RunOptionsAndReturnExitCode(ConsoleOptions opts)
