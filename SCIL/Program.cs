@@ -116,7 +116,8 @@ namespace SCIL
             else
             {
                 // TODO : Detect dll and exe
-                throw new NotImplementedException();
+                // Just jump out into the water and see if we survive (no exceptions)
+                await ProcessAssymbly(fileInfo.OpenRead(), moduleWriter, emitters, logger);
             }
         }
 
