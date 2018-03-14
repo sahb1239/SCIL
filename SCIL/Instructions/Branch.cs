@@ -1,4 +1,5 @@
-﻿using Mono.Cecil;
+﻿using System;
+using Mono.Cecil;
 using Mono.Cecil.Cil;
 
 namespace SCIL.Instructions
@@ -10,15 +11,27 @@ namespace SCIL.Instructions
             switch (instruction.OpCode.Code)
             {
                 case Code.Br:
-                case Code.Brtrue:
+                case Code.Br_S:
+                    // Load constant 1 (non zero)
+                    return "ldc 1" + Environment.NewLine + BrTrue(instruction);
+                case Code.Brtrue: // Branch to target if value is non-zero (true). (https://en.wikipedia.org/wiki/List_of_CIL_instructions)
                 case Code.Brtrue_S:
+                    return BrTrue(instruction); 
                 case Code.Brfalse:
                 case Code.Brfalse_S:
-                case Code.Br_S:
-                    return "br";
+                    return "neg" + Environment.NewLine + BrTrue(instruction);
             }
 
             return null;
+        }
+
+        private string BrTrue(Instruction instruction)
+        {
+            if (instruction.Operand is Instruction branchToInstruction)
+            {
+                return "brtrue " + branchToInstruction.Offset;
+            }
+            throw new NotSupportedException();
         }
 
     }
