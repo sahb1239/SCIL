@@ -45,14 +45,19 @@ namespace SCIL.Instructions
                     {
                         return ldc(doub);
                     }
-
-                    if (instruction.Operand is float flo)
+                    else if (instruction.Operand is float flo)
                     {
                         return ldc(flo);
                     }
                     throw new ArgumentException(nameof(instruction.Operand));
                 case Code.Ldnull:
                     return ldc("null");
+                case Code.Ldstr:
+                    if (instruction.Operand is string str)
+                    {
+                        return ldstr(str);
+                    }
+                    throw new ArgumentException(nameof(instruction.Operand));
             }
 
             return null;
@@ -60,5 +65,6 @@ namespace SCIL.Instructions
         private string ldc(long op) => "ldc " + op;
         private string ldc(double op) => "ldc " + op;
         private string ldc(string op) => "ldc " + op;
+        private string ldstr(string str) => "ldstr " + str;
     }
 }
