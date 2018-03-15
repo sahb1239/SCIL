@@ -67,6 +67,16 @@ namespace SCIL.Instructions
                         return stfld(stFldRef.FullName);
                     }
                     throw new ArgumentOutOfRangeException(nameof(instruction.Operand));
+                case Code.Stsfld:
+                    if (instruction.Operand is FieldDefinition stsFldDef)
+                    {
+                        return stsfld(stsFldDef.FullName);
+                    }
+                    else if (instruction.Operand is FieldReference stsFldRef)
+                    {
+                        return stsfld(stsFldRef.FullName);
+                    }
+                    throw new ArgumentOutOfRangeException(nameof(instruction.Operand));
             }
 
             return null;
@@ -76,7 +86,8 @@ namespace SCIL.Instructions
         private string ldflda(string field) => "ldflda " + field; //ldfld and ldflda seems to look a lot alike.
         private string ldftn(string method) => "ldftn " + method;
         private string ldsfld(string field) => "ldsfld " + field;
-        private string ldsflda(string field) => "ldsflda " + field; //ldfld and ldflda seems to look a lot alike.
-        private string stfld(string field) => "stfld " + field; 
+        private string ldsflda(string field) => "ldsflda " + field;
+        private string stfld(string field) => "stfld " + field;
+        private string stsfld(string field) => "stsfld " + field;
     }
 }

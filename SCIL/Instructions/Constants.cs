@@ -20,8 +20,16 @@ namespace SCIL.Instructions
                 case Code.Ldc_I4_6:
                 case Code.Ldc_I4_7:
                 case Code.Ldc_I4_8:
+                    if (instruction.Operand != null)
+                    {
+                        throw new ArgumentException(nameof(instruction.Operand));
+                    }
                     return ldc(instruction.OpCode.Value - 22);
                 case Code.Ldc_I4_M1:
+                    if (instruction.Operand != null)
+                    {
+                        throw new ArgumentException(nameof(instruction.Operand));
+                    }
                     return ldc(-1);
                 case Code.Ldc_I4:
                 case Code.Ldc_I4_S:

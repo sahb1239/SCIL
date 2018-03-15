@@ -1,4 +1,5 @@
-﻿using Mono.Cecil;
+﻿using System;
+using Mono.Cecil;
 using Mono.Cecil.Cil;
 
 namespace SCIL.Instructions
@@ -11,9 +12,17 @@ namespace SCIL.Instructions
             switch (instruction.OpCode.Code)
             {
                 case Code.Neg:
+                    if (instruction.Operand != null)
+                    {
+                        throw new ArgumentException(nameof(instruction.Operand));
+                    }
                     return uOp("neg");
 
                 case Code.Not:
+                    if (instruction.Operand != null)
+                    {
+                        throw new ArgumentException(nameof(instruction.Operand));
+                    }
                     return uOp("not");
             }
 

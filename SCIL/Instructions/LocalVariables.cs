@@ -14,6 +14,10 @@ namespace SCIL.Instructions
                 case Code.Stloc_1:
                 case Code.Stloc_2:
                 case Code.Stloc_3:
+                    if (instruction.Operand != null)
+                    {
+                        throw new ArgumentException(nameof(instruction.Operand));
+                    }
                     return stloc(instruction.OpCode.Value - 10);
                 case Code.Stloc:
                 case Code.Stloc_S:
@@ -30,6 +34,10 @@ namespace SCIL.Instructions
                 case Code.Ldloc_1:
                 case Code.Ldloc_2:
                 case Code.Ldloc_3:
+                    if (instruction.Operand != null)
+                    {
+                        throw new ArgumentException(nameof(instruction.Operand));
+                    }
                     return ldloc(instruction.OpCode.Value - 6);
                 case Code.Ldloc:
                 case Code.Ldloc_S:
