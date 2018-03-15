@@ -87,10 +87,12 @@ namespace SCIL
                 var pathInfo = new DirectoryInfo(opts.InputPath);
                 if (pathInfo.Exists)
                 {
+                    var searchOption = opts.Recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+
                     foreach (var file in 
-                        Directory.GetFiles(pathInfo.FullName, "*.apk", SearchOption.TopDirectoryOnly)
-                            .Concat(Directory.GetFiles(pathInfo.FullName, "*.exe", SearchOption.TopDirectoryOnly))
-                            .Concat(Directory.GetFiles(pathInfo.FullName, "*.dll", SearchOption.TopDirectoryOnly)))
+                        Directory.GetFiles(pathInfo.FullName, "*.apk", searchOption)
+                            .Concat(Directory.GetFiles(pathInfo.FullName, "*.exe", searchOption))
+                            .Concat(Directory.GetFiles(pathInfo.FullName, "*.dll", searchOption)))
                     {
                         var fileInfo = new FileInfo(file);
                         await AnalyzeFile(fileInfo, emitters, logger, moduleWriter);
@@ -231,6 +233,9 @@ namespace SCIL
 
         [Option('w', "wait",  Required = false, HelpText = "Wait for some error messages")]
         public bool Wait { get; set; }
+
+        [Option('r', "recursive", Required = false, HelpText = "Recursive search input path")]
+        public bool Recursive { get; set; }
 
         [Option('c', "countInstructions", Required = false, HelpText = "Count number of instructions for each module")]
         public bool CountInstructions { get; set; }
