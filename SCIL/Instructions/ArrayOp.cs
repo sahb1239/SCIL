@@ -78,6 +78,12 @@ namespace SCIL.Instructions
                         return ldelema(ldelemaTypeRef.FullName);
                     }
                     throw new ArgumentOutOfRangeException(nameof(instruction.Operand));
+                case Code.Newarr:
+                    if (instruction.Operand is TypeReference newarrRef)
+                    {
+                        return newarr(newarrRef.FullName);
+                    }
+                    throw new ArgumentOutOfRangeException(nameof(instruction.Operand));
             }
 
             return null;
@@ -86,5 +92,6 @@ namespace SCIL.Instructions
         private string stelem(string tok) => "stelem " + tok;
         private string ldelem(string tok) => "ldelem " + tok;
         private string ldelema(string tok) => "ldelema " + tok;
+        private string newarr(string type) => "newarr " + type;
     }
 }
