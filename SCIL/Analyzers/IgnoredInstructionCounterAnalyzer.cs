@@ -43,6 +43,7 @@ namespace SCIL.Analyzers
             }
 
             yield return "Total ignored instructions: " + _count.Count;
+            yield return "Total ignored instructions count: " + _count.Sum(e => e.Value);
         }
     }
 }
