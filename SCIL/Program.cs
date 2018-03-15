@@ -126,7 +126,7 @@ namespace SCIL
             // Open zip file
             using (var zipFile = ZipFile.OpenRead(fileInfo.FullName))
             {
-                var assemblies = zipFile.Entries.Where(FilterXamarinAssembliesDlls);
+                var assemblies = zipFile.Entries.Where(entry => FilterXamarinAssembliesDlls(entry) || FilterUnityAssembliesDlls(entry));
                 foreach (var assembly in assemblies)
                 {
                     logger.Log("Loading zip entry: " + assembly.FullName);
@@ -153,6 +153,12 @@ namespace SCIL
         private static bool FilterXamarinAssembliesDlls(ZipArchiveEntry entry)
         {
             return entry.FullName.StartsWith("assemblies", StringComparison.OrdinalIgnoreCase) &&
+                   entry.FullName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool FilterUnityAssembliesDlls(ZipArchiveEntry entry)
+        {
+            return entry.FullName.StartsWith("assets/bin/Data/Managed/", StringComparison.OrdinalIgnoreCase) &&
                    entry.FullName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase);
         }
     }
