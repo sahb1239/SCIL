@@ -34,6 +34,10 @@ namespace SCIL.Instructions
                     {
                         return stelem(genParm.FullName);
                     }
+                    else if (instruction.Operand is TypeReference typeRef)
+                    {
+                        return stelem(typeRef.FullName);
+                    }
                     throw new ArgumentOutOfRangeException(nameof(instruction.Operand));
                 case Code.Stelem_Ref:
                     return "stelem.ref";
