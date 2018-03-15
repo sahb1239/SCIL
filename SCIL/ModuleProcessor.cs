@@ -55,11 +55,13 @@ namespace SCIL
         {
             Logger.Log("Reading module", true);
 
+            var moduleWriter = await ModuleWriter.GetAssemblyModuleWriter(module.Name).ConfigureAwait(false);
+
             foreach (var type in module.Types)
             {
                 Logger.Log($"Processing type {type.FullName}", true);
 
-                var typeModuleWriter = await ModuleWriter.GetTypeModuleWriter(type).ConfigureAwait(false);
+                var typeModuleWriter = await moduleWriter.GetTypeModuleWriter(type).ConfigureAwait(false);
 
                 foreach (var methodDefinition in type.Methods)
                 {

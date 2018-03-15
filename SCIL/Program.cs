@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using CommandLine;
 using SCIL.Analyzers;
+using SCIL.Decompressor;
 using SCIL.Logger;
 using SCIL.Writer;
 
@@ -126,19 +127,67 @@ namespace SCIL
             // Open zip file
             using (var zipFile = ZipFile.OpenRead(fileInfo.FullName))
             {
-                var assemblies = zipFile.Entries.Where(entry => FilterXamarinAssembliesDlls(entry) || FilterUnityAssembliesDlls(entry));
+                var assemblies = zipFile.Entries.Where(entry => FilterXamarinAssembliesDlls(entry) || FilterUnityAssembliesDlls(entry)).ToList();
                 foreach (var assembly in assemblies)
                 {
                     logger.Log("Loading zip entry: " + assembly.FullName);
 
                     using (var stream = new MemoryStream())
                     {
-                        await assembly.Open().CopyToAsync(stream).ConfigureAwait(false);
+                        await assembly.Open().CopyToAsync(stream);
 
                         // Set position 0
                         stream.Position = 0;
 
-                        await ProcessAssymbly(stream, await moduleWriter.GetAssemblyModuleWriter(assembly.Name), emitters, logger).ConfigureAwait(false);
+                        await ProcessAssymbly(stream, moduleWriter, emitters, logger);
+                    }
+                }
+
+                // If no assemblies was found - try to find bundle
+                if (!assemblies.Any())
+                {
+                    logger.Log("No assemblies found in zip");
+
+                    var libmonodroidbundle = zipFile.Entries.Where(entry =>
+                            entry.FullName.StartsWith("lib", StringComparison.OrdinalIgnoreCase) &&
+                            entry.FullName.EndsWith("libmonodroid_bundle_app.so", StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+
+                    if (libmonodroidbundle.Any())
+                    {
+                        ZipArchiveEntry selectedLibMonoDroidBundle;
+                        if (libmonodroidbundle.Count() == 1)
+                        {
+                            selectedLibMonoDroidBundle = libmonodroidbundle.First();
+                        }
+                        else
+                        {
+                            selectedLibMonoDroidBundle =
+                                libmonodroidbundle.FirstOrDefault(e => e.FullName.Contains("armeabi-v7a")) ?? libmonodroidbundle.First();
+                        }
+
+                        // Read bundle
+                        logger.Log("Loading " + selectedLibMonoDroidBundle.FullName);
+                        using (var stream = new MemoryStream())
+                        {
+                            await selectedLibMonoDroidBundle.Open().CopyToAsync(stream);
+
+                            // Set position 0
+                            stream.Position = 0;
+
+                            var files = await XamarinBundleUnpack.GetGzippedAssemblies(stream.ToArray());
+                            foreach (var file in files)
+                            {
+                                using (var memStream = new MemoryStream(file))
+                                {
+                                    await ProcessAssymbly(memStream, moduleWriter, emitters, logger);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        logger.Log("libmonodroid_bundle_app.so not found");
                     }
                 }
             }
