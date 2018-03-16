@@ -28,6 +28,8 @@ namespace SCIL.Instructions
                 case Code.Rem:
                 case Code.Rem_Un:
                     return binOp("rem");
+                case Code.Ceq:
+                    return binOp("ceq");
 
                 case Code.And:
                     return binOp("and");

@@ -20,6 +20,12 @@ namespace SCIL.Instructions
                 case Code.Brfalse:
                 case Code.Brfalse_S:
                     return "neg" + Environment.NewLine + BrTrue(instruction);
+                case Code.Beq:
+                case Code.Beq_S:
+                    return "ceq" + Environment.NewLine + BrTrue(instruction);
+                case Code.Bne_Un:
+                case Code.Bne_Un_S:
+                    return "ceq" + Environment.NewLine + "neg" + Environment.NewLine + BrTrue(instruction);
             }
 
             return null;
