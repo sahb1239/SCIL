@@ -123,7 +123,7 @@ namespace SCIL
             {
                 // TODO : Detect dll and exe
                 // Just jump out into the water and see if we survive (no exceptions)
-                await ProcessAssymbly(fileInfo.OpenRead(), moduleWriter, emitters, logger);
+                await ProcessAssembly(fileInfo.OpenRead(), moduleWriter, emitters, logger);
             }
         }
 
@@ -144,7 +144,7 @@ namespace SCIL
                         // Set position 0
                         stream.Position = 0;
 
-                        await ProcessAssymbly(stream, moduleWriter, emitters, logger);
+                        await ProcessAssembly(stream, moduleWriter, emitters, logger);
                     }
                 }
 
@@ -185,7 +185,7 @@ namespace SCIL
                             {
                                 using (var memStream = new MemoryStream(file))
                                 {
-                                    await ProcessAssymbly(memStream, moduleWriter, emitters, logger);
+                                    await ProcessAssembly(memStream, moduleWriter, emitters, logger);
                                 }
                             }
                         }
@@ -198,7 +198,7 @@ namespace SCIL
             }
         }
 
-        private static Task ProcessAssymbly(Stream stream, IModuleWriter moduleWriter, IReadOnlyCollection<IInstructionEmitter> emitters, ILogger logger)
+        private static Task ProcessAssembly(Stream stream, IModuleWriter moduleWriter, IReadOnlyCollection<IInstructionEmitter> emitters, ILogger logger)
         {
             var moduleProcessor = new ModuleProcessor(emitters, moduleWriter, logger);
             return moduleProcessor.ProcessAssembly(stream);
@@ -228,7 +228,7 @@ namespace SCIL
         [Option('o', "OutputPath", Required = true, HelpText = "Output path")]
         public string OutputPath { get; set; }
 
-        [Option("noOutput", Required = false, HelpText = "Verbose output")]
+        [Option("noOutput", Required = false, HelpText = "No output")]
         public bool NoOutput { get; set; }
 
         [Option("verbose", Required = false, HelpText = "Verbose output")]
