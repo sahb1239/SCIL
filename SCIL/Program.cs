@@ -111,6 +111,9 @@ namespace SCIL
 
         private static async Task AnalyzeFile(FileInfo fileInfo, IReadOnlyCollection<IInstructionEmitter> emitters, ILogger logger, IModuleWriter moduleWriter)
         {
+            // Logging
+            logger.Log("Analyzing file " + fileInfo.FullName);
+
             // Detect if file is zip
             if (await ZipHelper.CheckSignature(fileInfo.FullName))
             {
