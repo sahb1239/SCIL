@@ -6,20 +6,20 @@ namespace SCIL.Instructions
 {
     class Branch : IInstructionEmitter
     {
-        public string GetCode(TypeDefinition typeDefinition, MethodBody methodBody, Instruction instruction)
+        public InstructionEmitterOutput GetCode(TypeDefinition typeDefinition, MethodBody methodBody, Instruction instruction)
         {
             switch (instruction.OpCode.Code)
             {
                 case Code.Br:
                 case Code.Br_S:
                     // Load constant 1 (non zero)
-                    return "ldc 1" + Environment.NewLine + BrTrue(instruction);
+                    return new InstructionEmitterOutput(typeDefinition, methodBody, instruction, "ldcStm({0}, 1)." + Environment.NewLine + BrTrue(instruction), true, 1);
                 case Code.Brtrue: // Branch to target if value is non-zero (true). (https://en.wikipedia.org/wiki/List_of_CIL_instructions)
                 case Code.Brtrue_S:
-                    return BrTrue(instruction); 
+                    return new InstructionEmitterOutput(typeDefinition, methodBody, instruction, BrTrue(instruction), false, 1);
                 case Code.Brfalse:
                 case Code.Brfalse_S:
-                    return "neg" + Environment.NewLine + BrTrue(instruction);
+                    return new InstructionEmitterOutput(typeDefinition, methodBody, instruction, "negStm({0})." + Environment.NewLine + BrTrue(instruction), true, 2);
                 case Code.Beq:
                 case Code.Beq_S:
                     return "ceq" + Environment.NewLine + BrTrue(instruction);
@@ -35,7 +35,7 @@ namespace SCIL.Instructions
         {
             if (instruction.Operand is Instruction branchToInstruction)
             {
-                return "brtrue " + branchToInstruction.Offset;
+                return "brtrueStm(" + branchToInstruction.Offset + ").";
             }
             throw new NotSupportedException();
         }
