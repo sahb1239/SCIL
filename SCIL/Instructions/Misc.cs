@@ -4,9 +4,9 @@ using Mono.Cecil.Cil;
 
 namespace SCIL.Instructions
 {
-    public class Misc:IInstructionEmitter
+    class Misc : IInstructionEmitter
     {
-        public string GetCode(TypeDefinition typeDefinition, MethodBody methodBody, Instruction instruction)
+        public InstructionEmitterOutput GetCode(TypeDefinition typeDefinition, MethodBody methodBody, Instruction instruction)
         {
             switch (instruction.OpCode.Code)
             {
@@ -15,13 +15,14 @@ namespace SCIL.Instructions
                     {
                         throw new ArgumentException(nameof(instruction.Operand));
                     }
-                    return "pop";
+
+                    return new InstructionEmitterOutput(typeDefinition, methodBody, instruction, "popStm({0})", false, 1);
                 case Code.Dup:
                     if (instruction.Operand != null)
                     {
                         throw new ArgumentException(nameof(instruction.Operand));
                     }
-                    return "dup";
+                    return new InstructionEmitterOutput(typeDefinition, methodBody, instruction, "dupStm({1}, {0})", true, 0, true);
             }
             return null;
         }

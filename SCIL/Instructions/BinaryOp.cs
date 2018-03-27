@@ -5,7 +5,7 @@ namespace SCIL.Instructions
 {
     class BinaryOp : IInstructionEmitter
     {
-        public string GetCode(TypeDefinition typeDefinition, MethodBody methodBody, Instruction instruction)
+        public InstructionEmitterOutput GetCode(TypeDefinition typeDefinition, MethodBody methodBody, Instruction instruction)
         {
             // Unsigned and overflow abstracted away
             switch (instruction.OpCode.Code)
@@ -13,35 +13,37 @@ namespace SCIL.Instructions
                 case Code.Add:
                 case Code.Add_Ovf:
                 case Code.Add_Ovf_Un:
-                    return binOp("add");
+                    return binOp("add", typeDefinition, methodBody, instruction);
                 case Code.Sub:
                 case Code.Sub_Ovf:
                 case Code.Sub_Ovf_Un:
-                    return binOp("sub");
+                    return binOp("sub", typeDefinition, methodBody, instruction);
                 case Code.Mul:
                 case Code.Mul_Ovf:
                 case Code.Mul_Ovf_Un:
-                    return binOp("mul");
+                    return binOp("mul", typeDefinition, methodBody, instruction);
                 case Code.Div:
                 case Code.Div_Un:
-                    return binOp("div");
+                    return binOp("div", typeDefinition, methodBody, instruction);
                 case Code.Rem:
                 case Code.Rem_Un:
-                    return binOp("rem");
+                    return binOp("rem", typeDefinition, methodBody, instruction);
                 case Code.Ceq:
-                    return binOp("ceq");
+                    return binOp("ceq", typeDefinition, methodBody, instruction);
 
                 case Code.And:
-                    return binOp("and");
+                    return binOp("and", typeDefinition, methodBody, instruction);
                 case Code.Or:
-                    return binOp("or");
+                    return binOp("or", typeDefinition, methodBody, instruction);
                 case Code.Xor:
-                    return binOp("xor");
+                    return binOp("xor", typeDefinition, methodBody, instruction);
             }
 
             return null;
         }
 
-        private string binOp(string op) => op;
+        private InstructionEmitterOutput binOp(string op, TypeDefinition typeDefinition, MethodBody methodBody,
+            Instruction instruction) => new InstructionEmitterOutput(typeDefinition, methodBody, instruction,
+            op + "Stm({2}, {1}, {0}).", true, 2);
     }
 }

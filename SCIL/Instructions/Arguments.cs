@@ -6,30 +6,27 @@ namespace SCIL.Instructions
 {
     class Arguments : IInstructionEmitter
     {
-        public string GetCode(TypeDefinition typeDefinition, MethodBody methodBody, Instruction instruction)
+        public InstructionEmitterOutput GetCode(TypeDefinition typeDefinition, MethodBody methodBody, Instruction instruction)
         {
             switch (instruction.OpCode.Code)
             {
                 case Code.Ldarg:
                 case Code.Ldarg_S:
-                    return ldarg(GetOperandIndex(methodBody, instruction));
+                    return new InstructionEmitterOutput(typeDefinition, methodBody, instruction, ldarg(GetOperandIndex(methodBody, instruction)), true, 0);
 
                 case Code.Ldarga:
                 case Code.Ldarga_S:
-                    return ldarga(GetOperandIndex(methodBody, instruction));
+                    return new InstructionEmitterOutput(typeDefinition, methodBody, instruction, ldarga(GetOperandIndex(methodBody, instruction)), true, 0);
 
                 case Code.Starg:
                 case Code.Starg_S:
-                    return starg(GetOperandIndex(methodBody, instruction));
+                    return new InstructionEmitterOutput(typeDefinition, methodBody, instruction, starg(GetOperandIndex(methodBody, instruction)), false, 1);
 
                 case Code.Ldarg_0:
-                    return ldarg(0);
                 case Code.Ldarg_1:
-                    return ldarg(1);
                 case Code.Ldarg_2:
-                    return ldarg(2);
                 case Code.Ldarg_3:
-                    return ldarg(3);
+                    return new InstructionEmitterOutput(typeDefinition, methodBody, instruction, ldarg((uint) (instruction.OpCode.Code - Code.Ldarg_0)), true, 0);
             }
 
             return null;
@@ -60,8 +57,8 @@ namespace SCIL.Instructions
             throw new NotImplementedException("Could not find operand index");
         }
 
-        private string ldarg(uint argNo) => "ldarg " + argNo;
-        private string ldarga(uint argNo) => "ldarga " + argNo;
-        private string starg(uint argNo) => "starg " + argNo;
+        private string ldarg(uint argNo) => "ldargStm({0}, " + argNo + ").";
+        private string ldarga(uint argNo) => "ldargaStm({0}, " + argNo + ").";
+        private string starg(uint argNo) => "stargStm({0}, " + argNo + ").";
     }
 }

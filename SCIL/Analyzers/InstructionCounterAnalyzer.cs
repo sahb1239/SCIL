@@ -10,7 +10,7 @@ namespace SCIL.Analyzers
     class InstructionCounterAnalyzer : IInstructionEmitter, IInstructionAnalyzer
     {
         private readonly IDictionary<string, long> _count = new ConcurrentDictionary<string, long>();
-        public string GetCode(TypeDefinition typeDefinition, MethodBody methodBody, Instruction instruction)
+        public InstructionEmitterOutput GetCode(TypeDefinition typeDefinition, MethodBody methodBody, Instruction instruction)
         {
             var key = instruction.OpCode.Name;
             if (_count.ContainsKey(key))

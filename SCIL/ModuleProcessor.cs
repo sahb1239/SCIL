@@ -82,20 +82,69 @@ namespace SCIL
         
         private string ProcessCIL(TypeDefinition typeDefinition, MethodBody methodBody)
         {
+            Dictionary<uint, List<string>> stackDirectory = new Dictionary<uint, List<string>>();
+            long currentStackIndex = 0;
+
             StringBuilder builder = new StringBuilder();
             foreach (var instruction in methodBody.Instructions)
             {
                 foreach (var emitter in Emitters)
                 {
-                    var emitterOutput = emitter.GetCode(typeDefinition, methodBody, instruction);
+                    InstructionEmitterOutput emitterOutput = emitter.GetCode(typeDefinition, methodBody, instruction);
                     if (emitterOutput == null)
                         continue;
+                    
+                    List<string> stackElements = new List<string>();
 
-                    builder.AppendLine(emitterOutput);
+                    // Update currentStackIndex
+                    for (int i = 0; i < emitterOutput.Pop; i++)
+                    {
+                        stackElements.Add(GetStackIndex((uint) --currentStackIndex, stackDirectory));
+                    }
+
+                    // Peek
+                    if (emitterOutput.Peek)
+                    {
+                        stackElements.Add(GetStackIndex((uint) currentStackIndex - 1, stackDirectory));
+                    }
+
+                    // Add push
+                    if (emitterOutput.Push)
+                    {
+                        stackElements.Add(SetStackIndex((uint)currentStackIndex++, stackDirectory));
+                    }
+
+                    string[] stackArray = stackElements.Select(e => "\"" + methodBody.Method.FullName + "__" + e + "\"").ToArray();
+
+                    // Append format
+                    var emitterFormatOutput = string.Format(emitterOutput.FlixStmFormatString, stackArray);
+
+                    builder.AppendLine(emitterFormatOutput);
                     break;
                 }
             }
             return builder.ToString();
+        }
+
+        private string GetStackIndex(uint index, IDictionary<uint, List<string>> stackDictionary)
+        {
+            return stackDictionary[index].Last();
+        }
+
+        private string SetStackIndex(uint index, IDictionary<uint, List<string>> stackDictionary)
+        {
+            if (stackDictionary.ContainsKey(index))
+            {
+                string indexName = $"{index}_{stackDictionary[index].Count}";
+                stackDictionary[index].Add(indexName);
+                return indexName;
+            }
+            else
+            {
+                string indexName = index.ToString();
+                stackDictionary.Add(index, new List<string>() {indexName});
+                return indexName;
+            }
         }
     }
 }

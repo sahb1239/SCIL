@@ -12,7 +12,7 @@ namespace SCIL.Analyzers
     class TotalInstructionCounter : IInstructionEmitter, IInstructionAnalyzer
     {
         private long _count = 0;
-        public string GetCode(TypeDefinition typeDefinition, MethodBody methodBody, Instruction instruction)
+        public InstructionEmitterOutput GetCode(TypeDefinition typeDefinition, MethodBody methodBody, Instruction instruction)
         {
             _count++;
 

@@ -7,6 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Instructions\ArrayOp.cs" />
+    <Compile Remove="Instructions\Branch.cs" />
+    <Compile Remove="Instructions\Field.cs" />
+    <Compile Remove="Instructions\LocalVariables.cs" />
+    <Compile Remove="Instructions\Methods.cs" />
+    <Compile Remove="Instructions\ObjectOp.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.2.1" />
     <PackageReference Include="Mono.Cecil" Version="0.10.0-beta7" />
     <PackageReference Include="ELFSharp" Version="1.2.1" />
