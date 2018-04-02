@@ -131,19 +131,20 @@ namespace SCIL
         public string PushStack()
         {
             var index = _stack.Count;
+            var methodName = _methodBody.Method.FullName;
 
             if (_poppedStack.Any())
             {
                 var pop = _poppedStack.Pop();
                 _stack.Push(pop);
 
-                string indexName = $"{index}_{pop.Count}";
+                string indexName = $"\"{methodName}_{index}_{pop.Count}\"";
                 pop.Add(indexName);
                 return indexName;
             }
             else
             {
-                string indexName = index.ToString();
+                string indexName = $"\"{methodName}_{index}\"";
                 _stack.Push(new List<string> { indexName });
                 return indexName;
             }
@@ -170,7 +171,8 @@ namespace SCIL
 
         public string StoreVar(uint varno)
         {
-            var indexName = $"{varno}_{_storeVar[varno].Count}";
+            var methodName = _methodBody.Method.FullName;
+            var indexName = $"\"{methodName}_{varno}_{_storeVar[varno].Count}\"";
             _storeVar[varno].Add(indexName);
             return indexName;
         }
