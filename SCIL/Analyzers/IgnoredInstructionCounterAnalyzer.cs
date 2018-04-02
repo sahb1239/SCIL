@@ -10,11 +10,11 @@ using Mono.Cecil.Cil;
 namespace SCIL.Analyzers
 {
     [EmitterOrder(1000)]
-    class IgnoredInstructionCounterAnalyzer : IInstructionEmitter, IInstructionAnalyzer
+    class IgnoredInstructionCounterAnalyzer : IFlixInstructionGenerator, IInstructionAnalyzer
     {
         private readonly IDictionary<string, long> _count = new ConcurrentDictionary<string, long>();
 
-        public InstructionEmitterOutput GetCode(TypeDefinition typeDefinition, MethodBody methodBody, Instruction instruction)
+        public string GetCode(MethodBody methodBody, Instruction instruction, IFlixInstructionProgramState programState)
         {
             var key = instruction.OpCode.Name;
             if (_count.ContainsKey(key))

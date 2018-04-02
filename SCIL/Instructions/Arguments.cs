@@ -4,29 +4,29 @@ using Mono.Cecil.Cil;
 
 namespace SCIL.Instructions
 {
-    class Arguments : IInstructionEmitter
+    class Arguments : IFlixInstructionGenerator
     {
-        public InstructionEmitterOutput GetCode(TypeDefinition typeDefinition, MethodBody methodBody, Instruction instruction)
+        public string GetCode(MethodBody methodBody, Instruction instruction, IFlixInstructionProgramState programState)
         {
             switch (instruction.OpCode.Code)
             {
                 case Code.Ldarg:
                 case Code.Ldarg_S:
-                    return new InstructionEmitterOutput(typeDefinition, methodBody, instruction, ldarg(GetOperandIndex(methodBody, instruction)), true, 0);
+                    return ldarg(GetOperandIndex(methodBody, instruction), programState);
 
                 case Code.Ldarga:
                 case Code.Ldarga_S:
-                    return new InstructionEmitterOutput(typeDefinition, methodBody, instruction, ldarga(GetOperandIndex(methodBody, instruction)), true, 0);
+                    return ldarga(GetOperandIndex(methodBody, instruction), programState);
 
                 case Code.Starg:
                 case Code.Starg_S:
-                    return new InstructionEmitterOutput(typeDefinition, methodBody, instruction, starg(GetOperandIndex(methodBody, instruction)), false, 1);
+                    return starg(GetOperandIndex(methodBody, instruction), programState);
 
                 case Code.Ldarg_0:
                 case Code.Ldarg_1:
                 case Code.Ldarg_2:
                 case Code.Ldarg_3:
-                    return new InstructionEmitterOutput(typeDefinition, methodBody, instruction, ldarg((uint) (instruction.OpCode.Code - Code.Ldarg_0)), true, 0);
+                    return ldarg((uint) (instruction.OpCode.Code - Code.Ldarg_0), programState);
             }
 
             return null;
@@ -57,8 +57,10 @@ namespace SCIL.Instructions
             throw new NotImplementedException("Could not find operand index");
         }
 
-        private string ldarg(uint argNo) => "ldargStm({0}, " + argNo + ").";
-        private string ldarga(uint argNo) => "ldargaStm({0}, " + argNo + ").";
-        private string starg(uint argNo) => "stargStm({0}, " + argNo + ").";
+        private string ldarg(uint argNo, IFlixInstructionProgramState programState) => $"ldargStm({programState.PushStack()}, {programState.GetArg(argNo)}).";
+        private string ldarga(uint argNo, IFlixInstructionProgramState programState) => $"ldargaStm({programState.PushStack()}, {programState.GetArg(argNo)}).";
+
+        private string starg(uint argNo, IFlixInstructionProgramState programState) =>
+            $"stargStm({programState.StoreArg(argNo)}, {programState.PopStack()}).";
     }
 }
