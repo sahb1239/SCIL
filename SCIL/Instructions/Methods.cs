@@ -4,9 +4,9 @@ using Mono.Cecil.Cil;
 
 namespace SCIL.Instructions
 {
-    public class Methods:IInstructionEmitter
+    class Methods : IFlixInstructionGenerator
     {
-        public string GetCode(TypeDefinition typeDefinition, MethodBody methodBody, Instruction instruction)
+        public string GetCode(MethodBody methodBody, Instruction instruction, IFlixInstructionProgramState programState)
         {
             switch (instruction.OpCode.Code)
             {
@@ -27,12 +27,12 @@ namespace SCIL.Instructions
                     {
                         throw new ArgumentException(nameof(instruction.Operand));
                     }
-                    return "ret";
+                    return "retStm().";
             }
 
             return null;
         }
-        private string call(string method) => "call " + method;
-        private string callvirt(string method) => "call " + method;
+        private string call(string method) => $"callStm({method}).";
+        private string callvirt(string method) => $"callvirtStm({method}).";
     }
 }
