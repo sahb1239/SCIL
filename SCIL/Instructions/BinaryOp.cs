@@ -3,9 +3,9 @@ using Mono.Cecil.Cil;
 
 namespace SCIL.Instructions
 {
-    class BinaryOp : IInstructionEmitter
+    class BinaryOp : IFlixInstructionGenerator
     {
-        public InstructionEmitterOutput GetCode(TypeDefinition typeDefinition, MethodBody methodBody, Instruction instruction)
+        public string GetCode(MethodBody methodBody, Instruction instruction, IFlixInstructionProgramState programState)
         {
             // Unsigned and overflow abstracted away
             switch (instruction.OpCode.Code)
@@ -13,37 +13,41 @@ namespace SCIL.Instructions
                 case Code.Add:
                 case Code.Add_Ovf:
                 case Code.Add_Ovf_Un:
-                    return binOp("add", typeDefinition, methodBody, instruction);
+                    return binOp("add", programState);
                 case Code.Sub:
                 case Code.Sub_Ovf:
                 case Code.Sub_Ovf_Un:
-                    return binOp("sub", typeDefinition, methodBody, instruction);
+                    return binOp("sub", programState);
                 case Code.Mul:
                 case Code.Mul_Ovf:
                 case Code.Mul_Ovf_Un:
-                    return binOp("mul", typeDefinition, methodBody, instruction);
+                    return binOp("mul", programState);
                 case Code.Div:
                 case Code.Div_Un:
-                    return binOp("div", typeDefinition, methodBody, instruction);
+                    return binOp("div", programState);
                 case Code.Rem:
                 case Code.Rem_Un:
-                    return binOp("rem", typeDefinition, methodBody, instruction);
+                    return binOp("rem", programState);
                 case Code.Ceq:
-                    return binOp("ceq", typeDefinition, methodBody, instruction);
+                    return binOp("ceq", programState);
 
                 case Code.And:
-                    return binOp("and", typeDefinition, methodBody, instruction);
+                    return binOp("and", programState);
                 case Code.Or:
-                    return binOp("or", typeDefinition, methodBody, instruction);
+                    return binOp("or", programState);
                 case Code.Xor:
-                    return binOp("xor", typeDefinition, methodBody, instruction);
+                    return binOp("xor", programState);
             }
 
             return null;
         }
 
-        private InstructionEmitterOutput binOp(string op, TypeDefinition typeDefinition, MethodBody methodBody,
-            Instruction instruction) => new InstructionEmitterOutput(typeDefinition, methodBody, instruction,
-            op + "Stm({2}, {1}, {0}).", true, 2);
+        private string binOp(string op, IFlixInstructionProgramState programState)
+        {
+            string pop2 = programState.PopStack(),
+                pop1 = programState.PopStack();
+
+            return $"{op}Stm({programState.PushStack()}, {pop2}, {pop1}).";
+        }
     }
 }
