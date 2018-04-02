@@ -13,16 +13,32 @@ namespace SCIL.Instructions
                 case Code.Call:
                     if (instruction.Operand is MethodReference callRef)
                     {
-                        return call(callRef.FullName);
+                        // Pop the number of arguments
+                        for (int i = 0; i < callRef.Parameters.Count; i++)
+                            programState.PopStack();
+
+                        if (callRef.ReturnType.FullName == "System.Void")
+                            programState.PushStack(); // Push a value - which will be popped
+                        return call(callRef.FullName, programState);
                     }
                     throw new ArgumentOutOfRangeException(nameof(instruction.Operand));
                 case Code.Callvirt:
                     if (instruction.Operand is MethodReference callVirtRef)
                     {
-                        return callvirt(callVirtRef.FullName);
+                        // Pop the number of arguments
+                        for (int i = 0; i < callVirtRef.Parameters.Count; i++)
+                            programState.PopStack();
+
+                        if (callVirtRef.ReturnType.FullName == "System.Void")
+                            programState.PushStack(); // Push a value - which will be popped
+
+                        return callvirt(callVirtRef.FullName, programState);
                     }
                     throw new ArgumentOutOfRangeException(nameof(instruction.Operand));
                 case Code.Ret:
+                    if (methodBody.Method.ReturnType.FullName == "System.Void")
+                        programState.PushStack(); // Push a value - which will be popped
+
                     if (instruction.Operand != null)
                     {
                         throw new ArgumentException(nameof(instruction.Operand));
@@ -32,7 +48,7 @@ namespace SCIL.Instructions
 
             return null;
         }
-        private string call(string method) => $"callStm({method}).";
-        private string callvirt(string method) => $"callvirtStm({method}).";
+        private string call(string method, IFlixInstructionProgramState programState) => $"callStm({method}, {programState.PushStack()}).";
+        private string callvirt(string method, IFlixInstructionProgramState programState) => $"callvirtStm({method}, {programState.PushStack()}).";
     }
 }
