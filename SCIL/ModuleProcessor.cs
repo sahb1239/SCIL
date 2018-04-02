@@ -172,8 +172,17 @@ namespace SCIL
         public string StoreVar(uint varno)
         {
             var methodName = _methodBody.Method.FullName;
-            var indexName = $"\"{methodName}_{varno}_{_storeVar[varno].Count}\"";
-            _storeVar[varno].Add(indexName);
+            string indexName;
+            if (_storeVar.ContainsKey(varno))
+            {
+                indexName = $"\"{methodName}_{varno}_{_storeVar[varno].Count}\"";
+                _storeVar[varno].Add(indexName);
+            }
+            else
+            {
+                indexName = $"\"{methodName}_{varno}\"";
+                _storeVar.Add(varno, new List<string> {indexName});
+            }
             return indexName;
         }
     }

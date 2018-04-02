@@ -9,8 +9,6 @@
   <ItemGroup>
     <Compile Remove="Instructions\ArrayOp.cs" />
     <Compile Remove="Instructions\Field.cs" />
-    <Compile Remove="Instructions\LocalVariables.cs" />
-    <Compile Remove="Instructions\ObjectOp.cs" />
   </ItemGroup>
 
   <ItemGroup>
