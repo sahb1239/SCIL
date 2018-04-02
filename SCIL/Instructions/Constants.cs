@@ -70,9 +70,9 @@ namespace SCIL.Instructions
 
             return null;
         }
-        private string ldc(long op, IFlixInstructionProgramState state) => $"ldcStm({state.PushStack()}, {op})";
-        private string ldc(double op, IFlixInstructionProgramState state) => $"ldcStm({state.PushStack()}, {op})";
-        private string ldc(string op, IFlixInstructionProgramState state) => $"ldcStm({state.PushStack()}, {op})";
-        private string ldstr(string str, IFlixInstructionProgramState state) => $"ldstrStm({state.PushStack()}, {str})";
+        private string ldc(long op, IFlixInstructionProgramState state) => $"ldcStm({state.PushStack()}, {op}).";
+        private string ldc(double op, IFlixInstructionProgramState state) => $"ldcStm({state.PushStack()}, {op}).";
+        private string ldc(string op, IFlixInstructionProgramState state) => $"ldcStm({state.PushStack()}, {op}).";
+        private string ldstr(string str, IFlixInstructionProgramState state) => $"ldstrStm({state.PushStack()}, {str}).";
     }
 }
