@@ -4,9 +4,9 @@ using Mono.Cecil.Cil;
 
 namespace SCIL.Instructions
 {
-    class UnaryOp : IInstructionEmitter
+    class UnaryOp : IFlixInstructionGenerator
     {
-        public string GetCode(TypeDefinition typeDefinition, MethodBody methodBody, Instruction instruction)
+        public string GetCode(MethodBody methodBody, Instruction instruction, IFlixInstructionProgramState programState)
         {
             // Unsigned and overflow abstracted away
             switch (instruction.OpCode.Code)
@@ -16,18 +16,21 @@ namespace SCIL.Instructions
                     {
                         throw new ArgumentException(nameof(instruction.Operand));
                     }
-                    return uOp("neg");
+
+                    var popNeg = programState.PopStack();
+                    return $"negStm({programState.PushStack()}, {popNeg}).";
 
                 case Code.Not:
                     if (instruction.Operand != null)
                     {
                         throw new ArgumentException(nameof(instruction.Operand));
                     }
-                    return uOp("not");
+
+                    var popNot = programState.PopStack();
+                    return $"notStm({programState.PushStack()}, {popNot}).";
             }
 
             return null;
         }
-        private string uOp(string op) => op;
     }
 }

@@ -4,9 +4,9 @@ using Mono.Cecil.Cil;
 
 namespace SCIL.Instructions
 {
-    public class LocalVariables:IInstructionEmitter
+    class LocalVariables : IFlixInstructionGenerator
     {
-        public string GetCode(TypeDefinition typeDefinition, MethodBody methodBody, Instruction instruction)
+        public string GetCode(MethodBody methodBody, Instruction instruction, IFlixInstructionProgramState programState)
         {
             switch (instruction.OpCode.Code)
             {
@@ -18,16 +18,16 @@ namespace SCIL.Instructions
                     {
                         throw new ArgumentException(nameof(instruction.Operand));
                     }
-                    return stloc(instruction.OpCode.Value - 10);
+                    return stloc(instruction.OpCode.Value - (int)Code.Stloc_0, programState);
                 case Code.Stloc:
                 case Code.Stloc_S:
                     if (instruction.Operand is sbyte stByt)
                     {
-                        return stloc(stByt);
+                        return stloc(stByt, programState);
                     }
                     else if (instruction.Operand is VariableDefinition stVar)
                     {
-                        return stloc(stVar.Index);
+                        return stloc(stVar.Index, programState);
                     }
                     throw new ArgumentOutOfRangeException(nameof(instruction.Operand));
                 case Code.Ldloc_0:
@@ -38,23 +38,23 @@ namespace SCIL.Instructions
                     {
                         throw new ArgumentException(nameof(instruction.Operand));
                     }
-                    return ldloc(instruction.OpCode.Value - 6);
+                    return ldloc(instruction.OpCode.Value - (int)Code.Ldloc_0, programState);
                 case Code.Ldloc:
                 case Code.Ldloc_S:
                     if (instruction.Operand is sbyte ldByt)
                     {
-                        return ldloc(ldByt);
+                        return ldloc(ldByt, programState);
                     }
                     else if (instruction.Operand is VariableDefinition ldVar)
                     {
-                        return ldloc(ldVar.Index);
+                        return ldloc(ldVar.Index, programState);
                     }
                     throw new ArgumentOutOfRangeException(nameof(instruction.Operand));
                 case Code.Ldloca:
                 case Code.Ldloca_S:
                     if (instruction.Operand is VariableDefinition ldlocaVar)
                     {
-                        return ldloca(ldlocaVar.Index);
+                        return ldloca(ldlocaVar.Index, programState);
                     }
                     throw new ArgumentOutOfRangeException(nameof(instruction.Operand));
             }
@@ -62,8 +62,8 @@ namespace SCIL.Instructions
             return null;
         }
 
-        private string stloc(int var) => "stloc " + var;
-        private string ldloc(int var) => "ldloc " + var;
-        private string ldloca(int var) => "ldloca " + var;
+        private string stloc(int var, IFlixInstructionProgramState programState) => $"stlocStm({programState.StoreVar((uint) var)}, {programState.PopStack()}).";
+        private string ldloc(int var, IFlixInstructionProgramState programState) => $"ldlocStm({programState.PushStack()}, {programState.GetVar((uint)var)}).";
+        private string ldloca(int var, IFlixInstructionProgramState programState) => $"ldlocaStm({programState.PushStack()}, {programState.GetVar((uint)var)}).";
     }
 }
