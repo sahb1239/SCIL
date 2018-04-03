@@ -35,6 +35,24 @@ namespace SCIL.Instructions
                         pushNeg = programState.PushStack();
                     return
                         $"ceqStm({push1Ceq}, {pop1Ceq}, {pop2Ceq}).{Environment.NewLine}negStm({pushNeg}, {popNegUn}).{Environment.NewLine}{BrTrue(instruction, programState)}";
+                case Code.Ble:
+                case Code.Ble_S:
+                case Code.Ble_Un:
+                case Code.Ble_Un_S:
+                    string pop1Clt = programState.PopStack(),
+                        pop2Clt = programState.PopStack(),
+                        push1Clt = programState.PushStack();
+                    return
+                        $"cltStm({push1Clt}, {pop1Clt}, {pop2Clt}.{Environment.NewLine}{BrTrue(instruction, programState)}";
+                case Code.Bge:
+                case Code.Bge_S:
+                case Code.Bge_Un:
+                case Code.Bge_Un_S:
+                    string pop1Cgt = programState.PopStack(),
+                        pop2Cgt = programState.PopStack(),
+                        push1Cgt = programState.PushStack();
+                    return
+                        $"cgtStm({push1Cgt}, {pop1Cgt}, {pop2Cgt}.{Environment.NewLine}{BrTrue(instruction, programState)}";
             }
 
             return null;

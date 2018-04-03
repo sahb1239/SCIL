@@ -28,9 +28,15 @@ namespace SCIL.Instructions
                 case Code.Rem:
                 case Code.Rem_Un:
                     return binOp("rem", programState);
+                case Code.Clt:
+                case Code.Clt_Un:
+                    return binOp("clt", programState);
+                case Code.Cgt:
+                case Code.Cgt_Un:
+                    return binOp("cgt", programState);
                 case Code.Ceq:
                     return binOp("ceq", programState);
-
+                    
                 case Code.And:
                     return binOp("and", programState);
                 case Code.Or:
