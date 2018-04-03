@@ -185,5 +185,15 @@ namespace SCIL
             }
             return indexName;
         }
+
+        public string GetField(string fieldName)
+        {
+            return fieldName;
+        }
+
+        public string StoreField(string fieldName)
+        {
+            return fieldName;
+        }
     }
 }

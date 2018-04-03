@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <Compile Remove="Instructions\ArrayOp.cs" />
-    <Compile Remove="Instructions\Field.cs" />
   </ItemGroup>
 
   <ItemGroup>

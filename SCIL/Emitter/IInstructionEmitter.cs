@@ -22,6 +22,9 @@ namespace SCIL
 
         string GetVar(uint varno);
         string StoreVar(uint varno);
+
+        string GetField(string fieldName);
+        string StoreField(string fieldName);
     }
 
     public class ProgramStateException : Exception
