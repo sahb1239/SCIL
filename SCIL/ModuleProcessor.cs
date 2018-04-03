@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using CSharpx;
 using Mono.Cecil;
@@ -166,6 +167,12 @@ namespace SCIL
 
         public string GetVar(uint varno)
         {
+            if (!_storeVar.ContainsKey(varno))
+            {
+                // Not good..
+                // It could be a struct and therefore we just bury our head in the sand and stores the variable
+                return StoreVar(varno);
+            }
             return _storeVar[varno].Last();
         }
 
