@@ -63,7 +63,11 @@ namespace SCIL
             var logger = new ConsoleLogger(opts.Verbose, opts.Wait);
 
             // Create module writer
-            IModuleWriter moduleWriter = opts.NoOutput ? (IModuleWriter) new NoOutputWriter() : new ModuleWriter(outputPathInfo.FullName);
+            IModuleWriter moduleWriter = opts.NoOutput ? 
+                (IModuleWriter) new NoOutputWriter() 
+                : opts.SingleFile ? 
+                (IModuleWriter) new SingleFileWriter(outputPathInfo.FullName) 
+                : new ModuleWriter(outputPathInfo.FullName);
             
             // Check for input file
             if (!string.IsNullOrWhiteSpace(opts.InputFile))
@@ -72,7 +76,7 @@ namespace SCIL
                 var fileInfo = new FileInfo(opts.InputFile);
                 if (fileInfo.Exists)
                 {
-                    await AnalyzeFile(fileInfo, emitters, logger, moduleWriter);
+                    await AnalyzeFile(fileInfo, emitters, logger, moduleWriter, opts);
                 }
                 else
                 {
@@ -95,7 +99,7 @@ namespace SCIL
                             .Concat(Directory.GetFiles(pathInfo.FullName, "*.dll", searchOption)))
                     {
                         var fileInfo = new FileInfo(file);
-                        await AnalyzeFile(fileInfo, emitters, logger, moduleWriter);
+                        await AnalyzeFile(fileInfo, emitters, logger, moduleWriter, opts);
                     }
                 }
                 else
@@ -109,7 +113,7 @@ namespace SCIL
             logger.Log("Please select file or path");
         }
 
-        private static async Task AnalyzeFile(FileInfo fileInfo, IReadOnlyCollection<IInstructionEmitter> emitters, ILogger logger, IModuleWriter moduleWriter)
+        private static async Task AnalyzeFile(FileInfo fileInfo, IReadOnlyCollection<IInstructionEmitter> emitters, ILogger logger, IModuleWriter moduleWriter, ConsoleOptions opts)
         {
             // Logging
             logger.Log("Analyzing file " + fileInfo.FullName);
@@ -117,7 +121,7 @@ namespace SCIL
             // Detect if file is zip
             if (await ZipHelper.CheckSignature(fileInfo.FullName))
             {
-                await LoadZip(fileInfo, emitters, logger, moduleWriter);
+                await LoadZip(fileInfo, emitters, logger, moduleWriter, opts);
             }
             else
             {
@@ -127,7 +131,7 @@ namespace SCIL
             }
         }
 
-        private static async Task LoadZip(FileInfo fileInfo, IReadOnlyCollection<IInstructionEmitter> emitters, ILogger logger, IModuleWriter moduleWriter)
+        private static async Task LoadZip(FileInfo fileInfo, IReadOnlyCollection<IInstructionEmitter> emitters, ILogger logger, IModuleWriter moduleWriter, ConsoleOptions opts)
         {
             // Open zip file
             using (var zipFile = ZipFile.OpenRead(fileInfo.FullName))
@@ -135,16 +139,23 @@ namespace SCIL
                 var assemblies = zipFile.Entries.Where(entry => FilterXamarinAssembliesDlls(entry) || FilterUnityAssembliesDlls(entry)).ToList();
                 foreach (var assembly in assemblies)
                 {
-                    logger.Log("Loading zip entry: " + assembly.FullName);
-
-                    using (var stream = new MemoryStream())
+                    if (opts.Excluded.Contains(assembly.Name))
                     {
-                        await assembly.Open().CopyToAsync(stream);
+                        logger.Log("Skipping excluded assembly: " + assembly.Name);
+                    }
+                    else
+                    {
+                        logger.Log("Loading zip entry: " + assembly.FullName);
 
-                        // Set position 0
-                        stream.Position = 0;
+                        using (var stream = new MemoryStream())
+                        {
+                            await assembly.Open().CopyToAsync(stream);
 
-                        await ProcessAssembly(stream, moduleWriter, emitters, logger);
+                            // Set position 0
+                            stream.Position = 0;
+
+                            await ProcessAssembly(stream, moduleWriter, emitters, logger);
+                        }
                     }
                 }
 
@@ -228,11 +239,17 @@ namespace SCIL
         [Option('o', "OutputPath", Required = true, HelpText = "Output path")]
         public string OutputPath { get; set; }
 
+        [Option('e', "excluded", Required = false, HelpText = "Assemblies to exclude")]
+        public IEnumerable<string> Excluded { get; set; }
+
         [Option("noOutput", Required = false, HelpText = "No output")]
         public bool NoOutput { get; set; }
 
         [Option("verbose", Required = false, HelpText = "Verbose output")]
         public bool Verbose { get; set; }
+
+        [Option('s', "singlefile", Required = false, HelpText = "Write output to a single file")]
+        public bool SingleFile { get; set; }
 
         [Option('w', "wait",  Required = false, HelpText = "Wait for some error messages")]
         public bool Wait { get; set; }
