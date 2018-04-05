@@ -1,12 +1,11 @@
 ﻿using System;
-using Mono.Cecil;
 using Mono.Cecil.Cil;
 
 namespace SCIL.Instructions
 {
-    public class Misc:IInstructionEmitter
+    class Misc : IFlixInstructionGenerator
     {
-        public string GetCode(TypeDefinition typeDefinition, MethodBody methodBody, Instruction instruction)
+        public string GetCode(MethodBody methodBody, Instruction instruction, IFlixInstructionProgramState programState)
         {
             switch (instruction.OpCode.Code)
             {
@@ -15,13 +14,16 @@ namespace SCIL.Instructions
                     {
                         throw new ArgumentException(nameof(instruction.Operand));
                     }
-                    return "pop";
+                    
+                    return $"popStm({programState.PopStack()}).";
                 case Code.Dup:
                     if (instruction.Operand != null)
                     {
                         throw new ArgumentException(nameof(instruction.Operand));
                     }
-                    return "dup";
+
+                    var peek = programState.PeekStack();
+                    return $"dupStm({programState.PushStack()}, {peek}).";
             }
             return null;
         }

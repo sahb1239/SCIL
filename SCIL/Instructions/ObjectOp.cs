@@ -4,16 +4,16 @@ using Mono.Cecil.Cil;
 
 namespace SCIL.Instructions
 {
-    public class ObjectOp:IInstructionEmitter
+    class ObjectOp: IFlixInstructionGenerator
     {
-        public string GetCode(TypeDefinition typeDefinition, MethodBody methodBody, Instruction instruction)
+        public string GetCode(MethodBody methodBody, Instruction instruction, IFlixInstructionProgramState programState)
         {
             switch (instruction.OpCode.Code)
             {
                 case Code.Newobj:
                     if (instruction.Operand is MethodReference callRef)
                     {
-                        return newobj(callRef.FullName);
+                        return newobj(callRef.FullName, programState);
                     }
                     throw new ArgumentOutOfRangeException(nameof(instruction.Operand));
             }
@@ -21,6 +21,6 @@ namespace SCIL.Instructions
             return null;
         }
 
-        private string newobj(string method) => "newobj " + method;
+        private string newobj(string method, IFlixInstructionProgramState programState) => $"newobjStm({programState.PushStack()}, \"{method}\").";
     }
 }

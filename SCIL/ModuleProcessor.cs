@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using CSharpx;
 using Mono.Cecil;
@@ -15,17 +16,17 @@ namespace SCIL
 {
     class ModuleProcessor
     {
-        public IReadOnlyCollection<IInstructionEmitter> Emitters { get; }
+        public IReadOnlyCollection<IFlixInstructionGenerator> Generators { get; }
         public IModuleWriter ModuleWriter { get; }
         public ILogger Logger { get; }
 
         private Lazy<IReadOnlyCollection<IInstructionAnalyzer>> Analyzers =>
             new Lazy<IReadOnlyCollection<IInstructionAnalyzer>>(() =>
-                new ReadOnlyCollection<IInstructionAnalyzer>(Emitters.OfType<IInstructionAnalyzer>().ToList()));
+                new ReadOnlyCollection<IInstructionAnalyzer>(Generators.OfType<IInstructionAnalyzer>().ToList()));
 
-        public ModuleProcessor(IReadOnlyCollection<IInstructionEmitter> emitters, IModuleWriter moduleWriter, ILogger logger)
+        public ModuleProcessor(IReadOnlyCollection<IFlixInstructionGenerator> generators, IModuleWriter moduleWriter, ILogger logger)
         {
-            Emitters = emitters;
+            Generators = generators;
             ModuleWriter = moduleWriter;
             Logger = logger;
         }
@@ -69,7 +70,7 @@ namespace SCIL
 
                     if (methodDefinition.HasBody)
                     {
-                        await typeModuleWriter.WriteMethod(type, methodDefinition, ProcessCIL(type, methodDefinition.Body))
+                        await typeModuleWriter.WriteMethod(type, methodDefinition, ProcessCIL(methodDefinition.Body))
                             .ConfigureAwait(false);
                     }
                     else
@@ -80,22 +81,126 @@ namespace SCIL
             }
         }
         
-        private string ProcessCIL(TypeDefinition typeDefinition, MethodBody methodBody)
+        private string ProcessCIL(MethodBody methodBody)
         {
+            var methodState = new FlixInstructionProgramState(methodBody);
+
             StringBuilder builder = new StringBuilder();
             foreach (var instruction in methodBody.Instructions)
             {
-                foreach (var emitter in Emitters)
+                foreach (var emitter in Generators)
                 {
-                    var emitterOutput = emitter.GetCode(typeDefinition, methodBody, instruction);
-                    if (emitterOutput == null)
+                    string output = emitter.GetCode(methodBody, instruction, methodState);
+                    if (output == null)
                         continue;
 
-                    builder.AppendLine(emitterOutput);
+                    builder.AppendLine(output);
                     break;
                 }
             }
             return builder.ToString();
+        }
+    }
+
+    public class FlixInstructionProgramState : IFlixInstructionProgramState
+    {
+        private readonly MethodBody _methodBody;
+
+        private readonly Stack<List<string>> _stack = new Stack<List<string>>();
+        private readonly Stack<List<string>> _poppedStack = new Stack<List<string>>();
+
+        private readonly IDictionary<uint, List<string>> _argList = new Dictionary<uint, List<string>>();
+        private readonly IDictionary<uint, List<string>> _storeVar = new Dictionary<uint, List<string>>();
+
+        public FlixInstructionProgramState(MethodBody methodBody)
+        {
+            _methodBody = methodBody;
+        }
+
+        public string PeekStack()
+        {
+            return _stack.Peek().Last();
+        }
+
+        public string PopStack()
+        {
+            var popped = _stack.Pop();
+            _poppedStack.Push(popped);
+            return popped.Last();
+        }
+
+        public string PushStack()
+        {
+            var index = _stack.Count;
+            var methodName = _methodBody.Method.FullName;
+
+            if (_poppedStack.Any())
+            {
+                var pop = _poppedStack.Pop();
+                _stack.Push(pop);
+
+                string indexName = $"\"{methodName}_{index}_{pop.Count}\"";
+                pop.Add(indexName);
+                return indexName;
+            }
+            else
+            {
+                string indexName = $"\"{methodName}_{index}\"";
+                _stack.Push(new List<string> { indexName });
+                return indexName;
+            }
+        }
+
+        public string GetArg(uint argno)
+        {
+            return argno.ToString();
+            //return _argList[argno].Last();
+        }
+
+        public string StoreArg(uint argno)
+        {
+            return argno.ToString();
+            var indexName = $"{argno}_{_argList[argno].Count}";
+            _argList[argno].Add(indexName);
+            return indexName;
+        }
+
+        public string GetVar(uint varno)
+        {
+            if (!_storeVar.ContainsKey(varno))
+            {
+                // Not good..
+                // It could be a struct and therefore we just bury our head in the sand and stores the variable
+                return StoreVar(varno);
+            }
+            return _storeVar[varno].Last();
+        }
+
+        public string StoreVar(uint varno)
+        {
+            var methodName = _methodBody.Method.FullName;
+            string indexName;
+            if (_storeVar.ContainsKey(varno))
+            {
+                indexName = $"\"{methodName}_{varno}_{_storeVar[varno].Count}\"";
+                _storeVar[varno].Add(indexName);
+            }
+            else
+            {
+                indexName = $"\"{methodName}_{varno}\"";
+                _storeVar.Add(varno, new List<string> {indexName});
+            }
+            return indexName;
+        }
+
+        public string GetField(string fieldName)
+        {
+            return fieldName;
+        }
+
+        public string StoreField(string fieldName)
+        {
+            return fieldName;
         }
     }
 }

@@ -9,10 +9,10 @@ using SCIL.Logger;
 namespace SCIL.Analyzers
 {
     [EmitterOrder(0), IgnoreEmitter]
-    class TotalInstructionCounter : IInstructionEmitter, IInstructionAnalyzer
+    class TotalInstructionCounter : IFlixInstructionGenerator, IInstructionAnalyzer
     {
         private long _count = 0;
-        public string GetCode(TypeDefinition typeDefinition, MethodBody methodBody, Instruction instruction)
+        public string GetCode(MethodBody methodBody, Instruction instruction, IFlixInstructionProgramState programState)
         {
             _count++;
 
