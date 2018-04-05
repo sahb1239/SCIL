@@ -27,5 +27,9 @@ namespace SCIL.Writer
         {
             return Task.CompletedTask;
         }
+
+        public void Dispose()
+        {
+        }
     }
 }

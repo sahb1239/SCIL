@@ -56,26 +56,29 @@ namespace SCIL
         {
             Logger.Log("Reading module", true);
 
-            var moduleWriter = await ModuleWriter.GetAssemblyModuleWriter(module.Name).ConfigureAwait(false);
+            using (var moduleWriter = await ModuleWriter.GetAssemblyModuleWriter(module.Name).ConfigureAwait(false)) {
 
-            foreach (var type in module.Types)
-            {
-                Logger.Log($"Processing type {type.FullName}", true);
-
-                var typeModuleWriter = await moduleWriter.GetTypeModuleWriter(type).ConfigureAwait(false);
-
-                foreach (var methodDefinition in type.Methods)
+                foreach (var type in module.Types)
                 {
-                    Logger.Log($"Processing method {methodDefinition.Name}", true);
+                    Logger.Log($"Processing type {type.FullName}", true);
 
-                    if (methodDefinition.HasBody)
+                    using (var typeModuleWriter = await moduleWriter.GetTypeModuleWriter(type).ConfigureAwait(false))
                     {
-                        await typeModuleWriter.WriteMethod(type, methodDefinition, ProcessCIL(methodDefinition.Body))
-                            .ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        await typeModuleWriter.WriteMethod(type, methodDefinition).ConfigureAwait(false);
+                        foreach (var methodDefinition in type.Methods)
+                        {
+                            Logger.Log($"Processing method {methodDefinition.Name}", true);
+
+                            if (methodDefinition.HasBody)
+                            {
+                                await typeModuleWriter
+                                    .WriteMethod(type, methodDefinition, ProcessCIL(methodDefinition.Body))
+                                    .ConfigureAwait(false);
+                            }
+                            else
+                            {
+                                await typeModuleWriter.WriteMethod(type, methodDefinition).ConfigureAwait(false);
+                            }
+                        }
                     }
                 }
             }

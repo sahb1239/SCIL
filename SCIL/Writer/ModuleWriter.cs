@@ -51,5 +51,9 @@ namespace SCIL.Writer
         {
             return new string(input.Where(Char.IsLetterOrDigit).ToArray());
         }
+
+        public void Dispose()
+        {
+        }
     }
 }

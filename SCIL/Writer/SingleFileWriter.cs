@@ -6,35 +6,39 @@ using Mono.Cecil;
 
 namespace SCIL.Writer
 {
-    class SingleFileWriter : IModuleWriter
+    class SingleFileWriter : IModuleWriter, IDisposable
     {
-        public FileInfo File { get; }
-        public SingleFileWriter(string path)
+        public StreamWriter FileStream { get; }
+        private string OutputPath { get; }
+        private bool ShouldDispose { get; } = true;
+
+        public SingleFileWriter(string path) : this(path, "output.txt")
         {
-            File = new FileInfo(Path.Combine(path, "output.txt"));
-            File.Create();
         }
 
-        public async Task<IModuleWriter> GetAssemblyModuleWriter(string name)
+        private SingleFileWriter(string path, string assembly)
         {
-            using (StreamWriter stream =
-            new StreamWriter(File.FullName, true))
-            {
-                await stream.WriteLineAsync("assembly_" + name);
-            }
+            var file = new FileInfo(Path.Combine(path, assembly));
+            FileStream = File.AppendText(file.FullName);
+            OutputPath = path;
+        }
 
-            return await Task.FromResult((IModuleWriter)this);
+        private SingleFileWriter(SingleFileWriter fileWriter)
+        {
+            ShouldDispose = false;
+            FileStream = fileWriter.FileStream;
+            OutputPath = fileWriter.OutputPath;
+        }
+
+        public Task<IModuleWriter> GetAssemblyModuleWriter(string name)
+        {
+            return Task.FromResult((IModuleWriter) new SingleFileWriter(OutputPath, GetSafePath(name)));
         }
 
         public async Task<IModuleWriter> GetTypeModuleWriter(TypeDefinition typeDefinition)
         {
-            using (StreamWriter stream =
-            new StreamWriter(File.FullName, true))
-            {
-                await stream.WriteLineAsync("type_" + typeDefinition.FullName);
-            }
-
-            return await Task.FromResult((IModuleWriter)this);
+            await FileStream.WriteLineAsync("type_" + typeDefinition.FullName).ConfigureAwait(false);
+            return new SingleFileWriter(this);
         }
 
         public Task WriteMethod(TypeDefinition typeDefinition, MethodDefinition methodDefinition) =>
@@ -42,12 +46,19 @@ namespace SCIL.Writer
 
         public async Task WriteMethod(TypeDefinition typeDefinition, MethodDefinition methodDefinition, string methodBody)
         {
-            using (StreamWriter stream =
-            new StreamWriter(File.FullName, true))
-            {
-                await stream.WriteLineAsync("method_" + methodDefinition.FullName).ConfigureAwait(false);
-                await stream.WriteAsync(methodBody.TrimEnd() + "\n").ConfigureAwait(false);
-            }
+            await FileStream.WriteLineAsync("method_" + methodDefinition.FullName).ConfigureAwait(false);
+            await FileStream.WriteAsync(methodBody.TrimEnd() + "\n").ConfigureAwait(false);
+        }
+
+        private static string GetSafePath(string input)
+        {
+            return new string(input.Where(Char.IsLetterOrDigit).ToArray());
+        }
+
+        public void Dispose()
+        {
+            if (ShouldDispose)
+                FileStream?.Dispose();
         }
     }
 }

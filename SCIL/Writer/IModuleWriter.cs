@@ -1,9 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Mono.Cecil;
 
 namespace SCIL.Writer
 {
-    interface IModuleWriter
+    interface IModuleWriter : IDisposable
     {
         Task<IModuleWriter> GetAssemblyModuleWriter(string name);
         Task<IModuleWriter> GetTypeModuleWriter(TypeDefinition typeDefinition);
