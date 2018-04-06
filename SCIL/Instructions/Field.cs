@@ -82,12 +82,12 @@ namespace SCIL.Instructions
             return null;
         }
 
-        private string ldfld(string field, IFlixInstructionProgramState programState) => $"ldfldStm({programState.PushStack()}, {programState.GetField(field)}).";
-        private string ldflda(string field, IFlixInstructionProgramState programState) => $"ldfldaStm({programState.PushStack()}, {programState.GetField(field)})."; //ldfld and ldflda seems to look a lot alike.
+        private string ldfld(string field, IFlixInstructionProgramState programState) => $"LdfldStm({programState.PushStack()}, {programState.GetField(field)}).";
+        private string ldflda(string field, IFlixInstructionProgramState programState) => $"LdfldaStm({programState.PushStack()}, {programState.GetField(field)})."; //ldfld and ldflda seems to look a lot alike.
         private string ldftn(string method, IFlixInstructionProgramState programState) => null; //$"ldftnStm({method}";
-        private string ldsfld(string field, IFlixInstructionProgramState programState) => $"ldsfldStm({programState.PushStack()}, {programState.GetField(field)}).";
-        private string ldsflda(string field, IFlixInstructionProgramState programState) => $"ldsfldaStm({programState.PushStack()}, {programState.GetField(field)}).";
-        private string stfld(string field, IFlixInstructionProgramState programState) => $"stfldStm({programState.GetField(field)}, {programState.PopStack()}).";
-        private string stsfld(string field, IFlixInstructionProgramState programState) => $"stsfldStm({programState.GetField(field)}, {programState.PopStack()}).";
+        private string ldsfld(string field, IFlixInstructionProgramState programState) => $"LdsfldStm({programState.PushStack()}, {programState.GetField(field)}).";
+        private string ldsflda(string field, IFlixInstructionProgramState programState) => $"LdsfldaStm({programState.PushStack()}, {programState.GetField(field)}).";
+        private string stfld(string field, IFlixInstructionProgramState programState) => $"StfldStm({programState.GetField(field)}, {programState.PopStack()}).";
+        private string stsfld(string field, IFlixInstructionProgramState programState) => $"StsfldStm({programState.GetField(field)}, {programState.PopStack()}).";
     }
 }

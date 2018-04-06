@@ -57,10 +57,10 @@ namespace SCIL.Instructions
             throw new NotImplementedException("Could not find operand index");
         }
 
-        private string ldarg(uint argNo, IFlixInstructionProgramState programState) => $"ldargStm({programState.PushStack()}, {programState.GetArg(argNo)}).";
-        private string ldarga(uint argNo, IFlixInstructionProgramState programState) => $"ldargaStm({programState.PushStack()}, {programState.GetArg(argNo)}).";
+        private string ldarg(uint argNo, IFlixInstructionProgramState programState) => $"LdargStm({programState.PushStack()}, {programState.GetArg(argNo)}).";
+        private string ldarga(uint argNo, IFlixInstructionProgramState programState) => $"LdargaStm({programState.PushStack()}, {programState.GetArg(argNo)}).";
 
         private string starg(uint argNo, IFlixInstructionProgramState programState) =>
-            $"stargStm({programState.StoreArg(argNo)}, {programState.PopStack()}).";
+            $"StargStm({programState.StoreArg(argNo)}, {programState.PopStack()}).";
     }
 }

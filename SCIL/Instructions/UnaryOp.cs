@@ -18,7 +18,7 @@ namespace SCIL.Instructions
                     }
 
                     var popNeg = programState.PopStack();
-                    return $"negStm({programState.PushStack()}, {popNeg}).";
+                    return $"NegStm({programState.PushStack()}, {popNeg}).";
 
                 case Code.Not:
                     if (instruction.Operand != null)
@@ -27,7 +27,7 @@ namespace SCIL.Instructions
                     }
 
                     var popNot = programState.PopStack();
-                    return $"notStm({programState.PushStack()}, {popNot}).";
+                    return $"NotStm({programState.PushStack()}, {popNot}).";
             }
 
             return null;

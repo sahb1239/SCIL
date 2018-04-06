@@ -14,13 +14,13 @@ namespace SCIL.Instructions
                 case Code.Call:
                     if (instruction.Operand is MethodReference callRef)
                     {
-                        return call("call", programState, callRef);
+                        return call("Call", programState, callRef);
                     }
                     throw new ArgumentOutOfRangeException(nameof(instruction.Operand));
                 case Code.Callvirt:
                     if (instruction.Operand is MethodReference callVirtRef)
                     {
-                        return call("callvirt", programState, callVirtRef);
+                        return call("Callvirt", programState, callVirtRef);
                     }
                     throw new ArgumentOutOfRangeException(nameof(instruction.Operand));
                 case Code.Ret:
@@ -31,7 +31,7 @@ namespace SCIL.Instructions
                     {
                         throw new ArgumentException(nameof(instruction.Operand));
                     }
-                    return $"retStm(\"RET_{methodBody.Method.FullName}\").";
+                    return $"RetStm(\"RET_{methodBody.Method.FullName}\").";
             }
 
             return null;
@@ -56,14 +56,14 @@ namespace SCIL.Instructions
                 }
 
                 output.AppendLine(
-                    $"stargStm({programState.GetStoreArg(methodDefinition, parameterIndex)}, {programState.PopStack()}).");
+                    $"StargStm({programState.GetStoreArg(methodDefinition, parameterIndex)}, {programState.PopStack()}).");
             }
 
             // Add this to arguments
             if (method.HasThis)
             {
                 output.AppendLine(
-                    $"stargStm({programState.GetStoreArg(methodDefinition, 0)}, {programState.PopStack()}).");
+                    $"StargStm({programState.GetStoreArg(methodDefinition, 0)}, {programState.PopStack()}).");
             }
 
             // Add call statement
@@ -76,7 +76,7 @@ namespace SCIL.Instructions
             }
             else
             {
-                output.AppendLine($"dupStm({programState.PushStack()}, \"RET_{methodDefinition.FullName}\").");
+                output.AppendLine($"DupStm({programState.PushStack()}, \"RET_{methodDefinition.FullName}\").");
             }
 
             return output.ToString();

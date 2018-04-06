@@ -21,6 +21,6 @@ namespace SCIL.Instructions
             return null;
         }
 
-        private string newobj(string method, IFlixInstructionProgramState programState) => $"newobjStm({programState.PushStack()}, \"{method}\").";
+        private string newobj(string method, IFlixInstructionProgramState programState) => $"NewobjStm({programState.PushStack()}, \"{method}\").";
     }
 }

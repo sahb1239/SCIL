@@ -15,7 +15,7 @@ namespace SCIL.Instructions
                         throw new ArgumentException(nameof(instruction.Operand));
                     }
                     
-                    return $"popStm({programState.PopStack()}).";
+                    return $"PopStm({programState.PopStack()}).";
                 case Code.Dup:
                     if (instruction.Operand != null)
                     {
@@ -23,7 +23,7 @@ namespace SCIL.Instructions
                     }
 
                     var peek = programState.PeekStack();
-                    return $"dupStm({programState.PushStack()}, {peek}).";
+                    return $"DupStm({programState.PushStack()}, {peek}).";
             }
             return null;
         }

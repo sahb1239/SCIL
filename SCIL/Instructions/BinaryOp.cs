@@ -13,36 +13,36 @@ namespace SCIL.Instructions
                 case Code.Add:
                 case Code.Add_Ovf:
                 case Code.Add_Ovf_Un:
-                    return binOp("add", programState);
+                    return binOp("Add", programState);
                 case Code.Sub:
                 case Code.Sub_Ovf:
                 case Code.Sub_Ovf_Un:
-                    return binOp("sub", programState);
+                    return binOp("Sub", programState);
                 case Code.Mul:
                 case Code.Mul_Ovf:
                 case Code.Mul_Ovf_Un:
-                    return binOp("mul", programState);
+                    return binOp("Mul", programState);
                 case Code.Div:
                 case Code.Div_Un:
-                    return binOp("div", programState);
+                    return binOp("Div", programState);
                 case Code.Rem:
                 case Code.Rem_Un:
-                    return binOp("rem", programState);
+                    return binOp("Rem", programState);
                 case Code.Clt:
                 case Code.Clt_Un:
-                    return binOp("clt", programState);
+                    return binOp("Clt", programState);
                 case Code.Cgt:
                 case Code.Cgt_Un:
-                    return binOp("cgt", programState);
+                    return binOp("Cgt", programState);
                 case Code.Ceq:
-                    return binOp("ceq", programState);
+                    return binOp("Ceq", programState);
                     
                 case Code.And:
-                    return binOp("and", programState);
+                    return binOp("And", programState);
                 case Code.Or:
-                    return binOp("or", programState);
+                    return binOp("Or", programState);
                 case Code.Xor:
-                    return binOp("xor", programState);
+                    return binOp("Xor", programState);
             }
 
             return null;

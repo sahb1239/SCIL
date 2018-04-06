@@ -62,8 +62,8 @@ namespace SCIL.Instructions
             return null;
         }
 
-        private string stloc(int var, IFlixInstructionProgramState programState) => $"stlocStm({programState.StoreVar((uint) var)}, {programState.PopStack()}).";
-        private string ldloc(int var, IFlixInstructionProgramState programState) => $"ldlocStm({programState.PushStack()}, {programState.GetVar((uint)var)}).";
-        private string ldloca(int var, IFlixInstructionProgramState programState) => $"ldlocaStm({programState.PushStack()}, {programState.GetVar((uint)var)}).";
+        private string stloc(int var, IFlixInstructionProgramState programState) => $"StlocStm({programState.StoreVar((uint) var)}, {programState.PopStack()}).";
+        private string ldloc(int var, IFlixInstructionProgramState programState) => $"LdlocStm({programState.PushStack()}, {programState.GetVar((uint)var)}).";
+        private string ldloca(int var, IFlixInstructionProgramState programState) => $"LdlocaStm({programState.PushStack()}, {programState.GetVar((uint)var)}).";
     }
 }
