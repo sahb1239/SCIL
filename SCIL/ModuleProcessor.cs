@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using CSharpx;
 using Mono.Cecil;
@@ -156,16 +155,35 @@ namespace SCIL
 
         public string GetArg(uint argno)
         {
-            return argno.ToString();
-            //return _argList[argno].Last();
+            if (!_argList.ContainsKey(argno))
+            {
+                // Not good..
+                return StoreArg(argno);
+            }
+            return _argList[argno].Last();
         }
 
         public string StoreArg(uint argno)
         {
-            return argno.ToString();
-            var indexName = $"{argno}_{_argList[argno].Count}";
-            _argList[argno].Add(indexName);
+            var methodName = _methodBody.Method.FullName;
+            string indexName;
+            if (_argList.ContainsKey(argno))
+            {
+                indexName = $"\"{methodName}_{argno}_{_argList[argno].Count}\"";
+                _argList[argno].Add(indexName);
+            }
+            else
+            {
+                indexName = $"\"{methodName}_{argno}\"";
+                _argList.Add(argno, new List<string> { indexName });
+            }
             return indexName;
+        }
+
+        public string GetStoreArg(MethodDefinition method, uint argno)
+        {
+            var methodName = method.FullName;
+            return $"\"{methodName}_{argno}\"";
         }
 
         public string GetVar(uint varno)

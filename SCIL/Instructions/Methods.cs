@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -13,26 +14,13 @@ namespace SCIL.Instructions
                 case Code.Call:
                     if (instruction.Operand is MethodReference callRef)
                     {
-                        // Pop the number of arguments
-                        for (int i = 0; i < callRef.Parameters.Count; i++)
-                            programState.PopStack();
-
-                        if (callRef.ReturnType.FullName == "System.Void")
-                            programState.PushStack(); // Push a value - which will be popped
-                        return call(callRef.FullName, programState);
+                        return call("call", programState, callRef);
                     }
                     throw new ArgumentOutOfRangeException(nameof(instruction.Operand));
                 case Code.Callvirt:
                     if (instruction.Operand is MethodReference callVirtRef)
                     {
-                        // Pop the number of arguments
-                        for (int i = 0; i < callVirtRef.Parameters.Count; i++)
-                            programState.PopStack();
-
-                        if (callVirtRef.ReturnType.FullName == "System.Void")
-                            programState.PushStack(); // Push a value - which will be popped
-
-                        return callvirt(callVirtRef.FullName, programState);
+                        return call("callvirt", programState, callVirtRef);
                     }
                     throw new ArgumentOutOfRangeException(nameof(instruction.Operand));
                 case Code.Ret:
@@ -43,12 +31,55 @@ namespace SCIL.Instructions
                     {
                         throw new ArgumentException(nameof(instruction.Operand));
                     }
-                    return "retStm().";
+                    return $"retStm(\"RET_{methodBody.Method.FullName}\").";
             }
 
             return null;
         }
-        private string call(string method, IFlixInstructionProgramState programState) => $"callStm({method}, {programState.PushStack()}).";
-        private string callvirt(string method, IFlixInstructionProgramState programState) => $"callvirtStm({method}, {programState.PushStack()}).";
+        private string call(string callType, IFlixInstructionProgramState programState, MethodReference method)
+        {
+            MethodDefinition methodDefinition = method.Resolve();
+
+            StringBuilder output = new StringBuilder();
+
+            // Pop the number of arguments
+            for (int i = method.Parameters.Count - 1; i >= 0 ; i--)
+            {
+                uint parameterIndex;
+                if (method.HasThis)
+                {
+                    parameterIndex = (uint) i + 1;
+                }
+                else
+                {
+                    parameterIndex = (uint) i;
+                }
+
+                output.AppendLine(
+                    $"stargStm({programState.GetStoreArg(methodDefinition, parameterIndex)}, {programState.PopStack()}).");
+            }
+
+            // Add this to arguments
+            if (method.HasThis)
+            {
+                output.AppendLine(
+                    $"stargStm({programState.GetStoreArg(methodDefinition, 0)}, {programState.PopStack()}).");
+            }
+
+            // Add call statement
+            output.AppendLine($"{callType}Stm({method.FullName}, {programState.PushStack()}).");
+
+            // Add return value
+            if (method.ReturnType.FullName == "System.Void")
+            {
+                programState.PushStack(); // Push a value - which will be popped
+            }
+            else
+            {
+                output.AppendLine($"dupStm({programState.PushStack()}, \"RET_{methodDefinition.FullName}\").");
+            }
+
+            return output.ToString();
+        }
     }
 }

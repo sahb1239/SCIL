@@ -37,7 +37,7 @@ namespace SCIL.Writer
 
         public async Task<IModuleWriter> GetTypeModuleWriter(TypeDefinition typeDefinition)
         {
-            await FileStream.WriteLineAsync("type_" + typeDefinition.FullName).ConfigureAwait(false);
+            await FileStream.WriteLineAsync("// type_" + typeDefinition.FullName).ConfigureAwait(false);
             return new SingleFileWriter(this);
         }
 
@@ -46,7 +46,7 @@ namespace SCIL.Writer
 
         public async Task WriteMethod(TypeDefinition typeDefinition, MethodDefinition methodDefinition, string methodBody)
         {
-            await FileStream.WriteLineAsync("method_" + methodDefinition.FullName).ConfigureAwait(false);
+            await FileStream.WriteLineAsync("// method_" + methodDefinition.FullName).ConfigureAwait(false);
             await FileStream.WriteAsync(methodBody.TrimEnd() + "\n").ConfigureAwait(false);
         }
 
