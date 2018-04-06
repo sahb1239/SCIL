@@ -67,7 +67,7 @@ namespace SCIL.Instructions
             }
 
             // Add call statement
-            output.AppendLine($"{callType}Stm({method.FullName}, {programState.PushStack()}).");
+            output.AppendLine($"{callType}Stm(\"{method.FullName}\", {programState.PushStack()}).");
 
             // Add return value
             if (method.ReturnType.FullName == "System.Void")

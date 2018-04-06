@@ -216,12 +216,12 @@ namespace SCIL
 
         public string GetField(string fieldName)
         {
-            return fieldName;
+            return $"\"{fieldName}\"";
         }
 
         public string StoreField(string fieldName)
         {
-            return fieldName;
+            return $"\"{fieldName}\"";
         }
     }
 }
