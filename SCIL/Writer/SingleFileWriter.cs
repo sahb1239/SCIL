@@ -12,8 +12,9 @@ namespace SCIL.Writer
         private string OutputPath { get; }
         private bool ShouldDispose { get; } = true;
 
-        public SingleFileWriter(string path) : this(path, "output.txt")
+        public SingleFileWriter(string path)
         {
+            OutputPath = path;
         }
 
         private SingleFileWriter(string path, string assembly)
