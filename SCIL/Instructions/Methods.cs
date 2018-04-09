@@ -76,7 +76,7 @@ namespace SCIL.Instructions
             }
             else
             {
-                output.AppendLine($"DupStm({programState.PushStack()}, \"RET_{method.FullName}\").");
+                //output.AppendLine($"DupStm({programState.PushStack()}, \"RET_{method.FullName}\").");
             }
 
             return output.ToString().TrimEnd();
