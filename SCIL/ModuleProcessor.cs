@@ -30,7 +30,7 @@ namespace SCIL
             Logger = logger;
         }
 
-        public async Task ProcessAssembly(Stream stream)
+        public async Task ProcessAssembly(Stream stream, IEnumerable<string> excluded)
         {
             // Resetting analyzers
             Logger.Log("Resetting analyzers", true);
@@ -40,9 +40,16 @@ namespace SCIL
             Logger.Log("Loading module", true);
             using (var module = ModuleDefinition.ReadModule(stream))
             {
-                Logger.Log("Results from module " + module.Name);
-
-                await ReadModule(module).ConfigureAwait(false);
+                if (excluded.Contains(module.Name))
+                {
+                    Logger.Log("Skipping excluded module: " + module.Name);
+                    return;
+                }
+                else
+                {
+                    Logger.Log("Results from module " + module.Name);
+                    await ReadModule(module).ConfigureAwait(false);
+                }
             }
 
             // Print output from analyzers
