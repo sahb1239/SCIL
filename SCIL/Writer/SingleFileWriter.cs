@@ -19,7 +19,7 @@ namespace SCIL.Writer
 
         private SingleFileWriter(string path, string assembly)
         {
-            var file = new FileInfo(Path.Combine(path, assembly, ".flix"));
+            var file = new FileInfo(Path.Combine(path, assembly + ".flix"));
             FileStream = File.CreateText(file.FullName);
             OutputPath = path;
         }
