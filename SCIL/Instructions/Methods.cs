@@ -65,7 +65,7 @@ namespace SCIL.Instructions
             }
 
             // Add call statement
-            output.AppendLine($"{callType}Stm({programState.PushStack()}, \"RET_{method.FullName}\").");
+            output.AppendLine($"{callType}Stm({programState.PushStack()}, \"RET_{method.FullName}\", \"{method.FullName}\").");
 
             // Add return value
             if (method.ReturnType.FullName == "System.Void")
