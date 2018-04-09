@@ -22,10 +22,10 @@ namespace SCIL.Instructions
                             //Console.WriteLine();
 
                             break;
-                        case ExceptionHandlerType.Filter:
+                        /*case ExceptionHandlerType.Filter:
                             break;
                         case ExceptionHandlerType.Fault:
-                            break;
+                            break;*/
                     }
             }
         }
