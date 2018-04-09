@@ -67,19 +67,21 @@ namespace SCIL.Instructions
             }
 
             // Add call statement
-            output.AppendLine($"{callType}Stm(\"{method.FullName}\", {programState.PushStack()}).");
+            output.AppendLine($"{callType}Stm({programState.PushStack()}, \"RET_{methodDefinition.FullName}\")."); // \"{method.FullName}\"
 
             // Add return value
             if (method.ReturnType.FullName == "System.Void")
             {
-                programState.PushStack(); // Push a value - which will be popped
+                output.AppendLine("// System.Void: Pop stack");
+                programState.PopStack();
+                //programState.PushStack(); // Push a value - which will be popped
             }
             else
             {
-                output.AppendLine($"DupStm({programState.PushStack()}, \"RET_{methodDefinition.FullName}\").");
+                //output.AppendLine($"DupStm({programState.PushStack()}, \"RET_{methodDefinition.FullName}\").");
             }
 
-            return output.ToString();
+            return output.ToString().TrimEnd();
         }
     }
 }
