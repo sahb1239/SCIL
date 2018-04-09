@@ -73,6 +73,7 @@ namespace SCIL.Instructions
         private string ldc(long op, IFlixInstructionProgramState state) => $"LdcStm({state.PushStack()}, {op}).";
         private string ldc(double op, IFlixInstructionProgramState state) => $"LdcStm({state.PushStack()}, {op}).";
         private string ldc(string op, IFlixInstructionProgramState state) => $"LdcStm({state.PushStack()}, {op}).";
-        private string ldstr(string str, IFlixInstructionProgramState state) => $"LdstrStm({state.PushStack()}, {str}).";
+        private string ldstr(string str, IFlixInstructionProgramState state) => $"LdstrStm({state.PushStack()}, \"{EscapeStr(str)}\").";
+        private string EscapeStr(string str) => str.Replace("\\", "\\\\").Replace("\"", "\\\""); // TODO: Find other special chars, newlines etc
     }
 }
