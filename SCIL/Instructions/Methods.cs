@@ -38,8 +38,6 @@ namespace SCIL.Instructions
         }
         private string call(string callType, IFlixInstructionProgramState programState, MethodReference method)
         {
-            MethodDefinition methodDefinition = method.Resolve();
-
             StringBuilder output = new StringBuilder();
 
             // Pop the number of arguments
@@ -56,14 +54,14 @@ namespace SCIL.Instructions
                 }
 
                 output.AppendLine(
-                    $"StargStm({programState.GetStoreArg(methodDefinition, parameterIndex)}, {programState.PopStack()}).");
+                    $"StargStm({programState.GetStoreArg(method, parameterIndex)}, {programState.PopStack()}).");
             }
 
             // Add this to arguments
             if (method.HasThis)
             {
                 output.AppendLine(
-                    $"StargStm({programState.GetStoreArg(methodDefinition, 0)}, {programState.PopStack()}).");
+                    $"StargStm({programState.GetStoreArg(method, 0)}, {programState.PopStack()}).");
             }
 
             // Add call statement
@@ -76,7 +74,7 @@ namespace SCIL.Instructions
             }
             else
             {
-                output.AppendLine($"DupStm({programState.PushStack()}, \"RET_{methodDefinition.FullName}\").");
+                output.AppendLine($"DupStm({programState.PushStack()}, \"RET_{method.FullName}\").");
             }
 
             return output.ToString();

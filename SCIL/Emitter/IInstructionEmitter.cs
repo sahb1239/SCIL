@@ -17,7 +17,7 @@ namespace SCIL
 
         string GetArg(uint argno);
         string StoreArg(uint argno);
-        string GetStoreArg(MethodDefinition method, uint argno);
+        string GetStoreArg(MethodReference method, uint argno);
 
         string GetVar(uint varno);
         string StoreVar(uint varno);
