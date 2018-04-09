@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27428.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SCIL", "SCIL\SCIL.csproj", "{18B67811-D3B0-48A7-A903-42D2CF63D24F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SCIL", "SCIL\SCIL.csproj", "{18B67811-D3B0-48A7-A903-42D2CF63D24F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleCILProgram", "SimpleCILProgram\SimpleCILProgram.csproj", "{A50D778B-7A47-4439-A2E4-CEA33E95B67D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{18B67811-D3B0-48A7-A903-42D2CF63D24F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{18B67811-D3B0-48A7-A903-42D2CF63D24F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{18B67811-D3B0-48A7-A903-42D2CF63D24F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A50D778B-7A47-4439-A2E4-CEA33E95B67D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A50D778B-7A47-4439-A2E4-CEA33E95B67D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A50D778B-7A47-4439-A2E4-CEA33E95B67D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A50D778B-7A47-4439-A2E4-CEA33E95B67D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
