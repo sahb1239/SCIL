@@ -35,7 +35,7 @@ namespace SCIL.Writer
         public async Task WriteMethod(TypeDefinition typeDefinition, MethodDefinition methodDefinition, string methodBody)
         {
             var directory = GetSubpathName(typeDefinition, Directory);
-            var fileInfo = new FileInfo(Path.Combine(directory.FullName, "method_" + GetSafePath(methodDefinition.Name)));
+            var fileInfo = new FileInfo(Path.Combine(directory.FullName, "method_" + GetSafePath(methodDefinition.Name) + ".flix"));
 
             await File.WriteAllTextAsync(fileInfo.FullName, methodBody.TrimEnd()).ConfigureAwait(false);
         }
