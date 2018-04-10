@@ -17,7 +17,8 @@ namespace SCIL.Flix
         public FlixExecutor(ILogger logger)
         {
             _logger = logger;
-            _tempPath = Path.GetTempPath();
+            _tempPath = Path.Combine(Path.GetTempPath(), "SCIL");
+            Directory.CreateDirectory(_tempPath);
 
             // Extract
             ExtractFlix();
