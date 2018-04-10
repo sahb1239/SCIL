@@ -286,3 +286,7 @@ __pycache__/
 *.btm.cs
 *.odx.cs
 *.xsd.cs
+
+# Ignore Flix output files
+SCIL/target/flix/
+SCIL/Output/
