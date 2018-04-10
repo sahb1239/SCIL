@@ -1,0 +1,3 @@
+[submodule "SCIL/Analysis"]
+	path = SCIL/Analysis
+	url = https://github.com/mclc/Shared-Project-SW10-deis2037.git
