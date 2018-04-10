@@ -71,7 +71,7 @@ namespace SCIL.Instructions
 
             return null;
         }
-        private string ldc(long op, IFlixInstructionProgramState state) => $"LdcStm({state.PushStack()}, {op.ToString("F", new CultureInfo("en-US"))}f32).";
+        private string ldc(long op, IFlixInstructionProgramState state) => $"LdcStm({state.PushStack()}, {op.ToString("D", new CultureInfo("en-US"))}i32).";
         private string ldc(double op, IFlixInstructionProgramState state) => $"LdcStm({state.PushStack()}, {op.ToString("F", new CultureInfo("en-US"))}f32).";
         private string ldc(string op, IFlixInstructionProgramState state) => $"LdcStm({state.PushStack()}, {op}).";
         private string ldstr(string str, IFlixInstructionProgramState state) => $"LdstrStm({state.PushStack()}, \"{EscapeStr(str)}\").";
