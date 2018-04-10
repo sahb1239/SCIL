@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using CommandLine;
 using SCIL.Analyzers;
 using SCIL.Decompressor;
+using SCIL.Flix;
 using SCIL.Logger;
 using SCIL.Writer;
 
@@ -63,57 +64,64 @@ namespace SCIL
             var logger = new ConsoleLogger(opts.Verbose, opts.Wait);
 
             // Create module writer
-            IModuleWriter moduleWriter = opts.NoOutput ? 
-                (IModuleWriter) new NoOutputWriter() 
-                : opts.SingleFile ? 
-                (IModuleWriter) new SingleFileWriter(outputPathInfo.FullName) 
-                : new ModuleWriter(outputPathInfo.FullName);
-            
-            // Check for input file
-            if (!string.IsNullOrWhiteSpace(opts.InputFile))
+            using (IModuleWriter moduleWriter = opts.NoOutput ? (IModuleWriter) new NoOutputWriter()
+                : opts.SingleFile ? (IModuleWriter) new SingleFileWriter(outputPathInfo.FullName)
+                : new ModuleWriter(outputPathInfo.FullName))
             {
-                // Check if path is input file
-                var fileInfo = new FileInfo(opts.InputFile);
-                if (fileInfo.Exists)
-                {
-                    await AnalyzeFile(fileInfo, emitters, logger, moduleWriter, opts);
-                }
-                else
-                {
-                    logger.Log($"File {opts.InputFile} not found");
-                }
-                return;
-            }
 
-            // Check for input path
-            if (!string.IsNullOrWhiteSpace(opts.InputPath))
-            {
-                var pathInfo = new DirectoryInfo(opts.InputPath);
-                if (pathInfo.Exists)
+                // Create flix executor
+                using (var executor = new FlixExecutor(logger))
                 {
-                    var searchOption = opts.Recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
 
-                    foreach (var file in 
-                        Directory.GetFiles(pathInfo.FullName, "*.apk", searchOption)
-                            .Concat(Directory.GetFiles(pathInfo.FullName, "*.exe", searchOption))
-                            .Concat(Directory.GetFiles(pathInfo.FullName, "*.dll", searchOption)))
+                    // Check for input file
+                    if (!string.IsNullOrWhiteSpace(opts.InputFile))
                     {
-                        var fileInfo = new FileInfo(file);
-                        await AnalyzeFile(fileInfo, emitters, logger, moduleWriter, opts);
+                        // Check if path is input file
+                        var fileInfo = new FileInfo(opts.InputFile);
+                        if (fileInfo.Exists)
+                        {
+                            await AnalyzeFile(fileInfo, emitters, logger, moduleWriter, executor, opts);
+                        }
+                        else
+                        {
+                            logger.Log($"File {opts.InputFile} not found");
+                        }
+
+                        return;
                     }
-                }
-                else
-                {
-                    logger.Log($"Path {opts.InputPath} not found");
-                }
 
-                return;
+                    // Check for input path
+                    if (!string.IsNullOrWhiteSpace(opts.InputPath))
+                    {
+                        var pathInfo = new DirectoryInfo(opts.InputPath);
+                        if (pathInfo.Exists)
+                        {
+                            var searchOption =
+                                opts.Recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+
+                            foreach (var file in
+                                Directory.GetFiles(pathInfo.FullName, "*.apk", searchOption)
+                                    .Concat(Directory.GetFiles(pathInfo.FullName, "*.exe", searchOption))
+                                    .Concat(Directory.GetFiles(pathInfo.FullName, "*.dll", searchOption)))
+                            {
+                                var fileInfo = new FileInfo(file);
+                                await AnalyzeFile(fileInfo, emitters, logger, moduleWriter, executor, opts);
+                            }
+                        }
+                        else
+                        {
+                            logger.Log($"Path {opts.InputPath} not found");
+                        }
+
+                        return;
+                    }
+
+                    logger.Log("Please select file or path");
+                }
             }
-
-            logger.Log("Please select file or path");
         }
 
-        private static async Task AnalyzeFile(FileInfo fileInfo, IReadOnlyCollection<IFlixInstructionGenerator> emitters, ILogger logger, IModuleWriter moduleWriter, ConsoleOptions opts)
+        private static async Task AnalyzeFile(FileInfo fileInfo, IReadOnlyCollection<IFlixInstructionGenerator> emitters, ILogger logger, IModuleWriter moduleWriter, IExecutor executor, ConsoleOptions opts)
         {
             // Logging
             logger.Log("Analyzing file " + fileInfo.FullName);
@@ -128,6 +136,12 @@ namespace SCIL
                 // TODO : Detect dll and exe
                 // Just jump out into the water and see if we survive (no exceptions)
                 await ProcessAssembly(fileInfo.OpenRead(), moduleWriter, emitters, logger);
+            }
+
+            // Execute
+            if (!opts.NoFlix)
+            {
+                executor.Execute(moduleWriter.GetCreatedFilesAndReset(), opts.FlixArgs.ToArray());
             }
         }
 
@@ -247,6 +261,12 @@ namespace SCIL
 
         [Option("verbose", Required = false, HelpText = "Verbose output")]
         public bool Verbose { get; set; }
+
+        [Option("NoFlix", Required = false, HelpText = "Disable running flix")]
+        public bool NoFlix { get; set; }
+
+        [Option("FlixArgs", Required = false, HelpText = "Additional flix args")]
+        public IEnumerable<string> FlixArgs { get; set; }
 
         [Option('s', "singlefile", Required = false, HelpText = "Write output to a single file")]
         public bool SingleFile { get; set; }
