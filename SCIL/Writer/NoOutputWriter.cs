@@ -8,6 +8,11 @@ namespace SCIL.Writer
 {
     class NoOutputWriter : IModuleWriter
     {
+        public IEnumerable<string> GetCreatedFilesAndReset()
+        {
+            return new List<string>();
+        }
+
         public Task<IModuleWriter> GetAssemblyModuleWriter(string name)
         {
             return Task.FromResult((IModuleWriter)this);

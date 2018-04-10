@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,6 +17,11 @@ namespace SCIL.Writer
 
             if (!Directory.Exists)
                 Directory.Create();
+        }
+
+        public IEnumerable<string> GetCreatedFilesAndReset()
+        {
+            throw new NotSupportedException();
         }
 
         public Task<IModuleWriter> GetAssemblyModuleWriter(string name)
