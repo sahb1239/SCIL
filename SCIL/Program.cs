@@ -129,13 +129,13 @@ namespace SCIL
             // Detect if file is zip
             if (await ZipHelper.CheckSignature(fileInfo.FullName))
             {
-                await LoadZip(fileInfo, emitters, logger, moduleWriter, opts);
+                await LoadZip(fileInfo, emitters, logger, moduleWriter, opts.Excluded);
             }
             else
             {
                 // TODO : Detect dll and exe
                 // Just jump out into the water and see if we survive (no exceptions)
-                await ProcessAssembly(fileInfo.OpenRead(), moduleWriter, emitters, logger);
+                await ProcessAssembly(fileInfo.OpenRead(), moduleWriter, emitters, logger, opts.Excluded);
             }
 
             // Execute
@@ -145,7 +145,7 @@ namespace SCIL
             }
         }
 
-        private static async Task LoadZip(FileInfo fileInfo, IReadOnlyCollection<IFlixInstructionGenerator> emitters, ILogger logger, IModuleWriter moduleWriter, ConsoleOptions opts)
+        private static async Task LoadZip(FileInfo fileInfo, IReadOnlyCollection<IFlixInstructionGenerator> emitters, ILogger logger, IModuleWriter moduleWriter, IEnumerable<string> excluded)
         {
             // Open zip file
             using (var zipFile = ZipFile.OpenRead(fileInfo.FullName))
@@ -153,11 +153,6 @@ namespace SCIL
                 var assemblies = zipFile.Entries.Where(entry => FilterXamarinAssembliesDlls(entry) || FilterUnityAssembliesDlls(entry)).ToList();
                 foreach (var assembly in assemblies)
                 {
-                    if (opts.Excluded.Contains(assembly.Name))
-                    {
-                        logger.Log("Skipping excluded assembly: " + assembly.Name);
-                    }
-                    else
                     {
                         logger.Log("Loading zip entry: " + assembly.FullName);
 
@@ -168,7 +163,7 @@ namespace SCIL
                             // Set position 0
                             stream.Position = 0;
 
-                            await ProcessAssembly(stream, moduleWriter, emitters, logger);
+                            await ProcessAssembly(stream, moduleWriter, emitters, logger, excluded);
                         }
                     }
                 }
@@ -210,7 +205,7 @@ namespace SCIL
                             {
                                 using (var memStream = new MemoryStream(file))
                                 {
-                                    await ProcessAssembly(memStream, moduleWriter, emitters, logger);
+                                    await ProcessAssembly(memStream, moduleWriter, emitters, logger, excluded);
                                 }
                             }
                         }
@@ -223,10 +218,10 @@ namespace SCIL
             }
         }
 
-        private static Task ProcessAssembly(Stream stream, IModuleWriter moduleWriter, IReadOnlyCollection<IFlixInstructionGenerator> emitters, ILogger logger)
+        private static Task ProcessAssembly(Stream stream, IModuleWriter moduleWriter, IReadOnlyCollection<IFlixInstructionGenerator> emitters, ILogger logger, IEnumerable<string> excluded)
         {
             var moduleProcessor = new ModuleProcessor(emitters, moduleWriter, logger);
-            return moduleProcessor.ProcessAssembly(stream);
+            return moduleProcessor.ProcessAssembly(stream, excluded);
         }
 
         private static bool FilterXamarinAssembliesDlls(ZipArchiveEntry entry)
