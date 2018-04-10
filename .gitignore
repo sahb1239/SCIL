@@ -290,3 +290,4 @@ __pycache__/
 # Ignore Flix output files
 SCIL/target/flix/
 SCIL/Output/
+Output/
