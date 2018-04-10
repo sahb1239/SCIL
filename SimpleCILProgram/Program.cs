@@ -40,6 +40,11 @@ namespace SimpleCILProgram
 
             Console.WriteLine(branchedValue);
 
+            Console.WriteLine("Write some text: ");
+            var directlyReadValue = Console.ReadLine();
+
+            Console.WriteLine(directlyReadValue);
+
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();
         }
