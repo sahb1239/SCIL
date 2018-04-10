@@ -28,6 +28,18 @@ namespace SimpleCILProgram
             Console.WriteLine($"{input1} * {input2} = {input1 * input2}");
             Console.WriteLine($"{input1} / {input2} = {input1 / input2}");
 
+            int branchedValue;
+            if (input1 == 42)
+            {
+                branchedValue = input2;
+            }
+            else
+            {
+                branchedValue = 2;
+            }
+
+            Console.WriteLine(branchedValue);
+
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();
         }
