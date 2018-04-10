@@ -10,16 +10,6 @@
                 "${workspaceFolder}/SCIL/SCIL.csproj"
             ],
             "problemMatcher": "$msCompile"
-        },
-        {
-            "label": "build",
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "build",
-                "${workspaceFolder}/SCIL/SCIL.csproj"
-            ],
-            "problemMatcher": "$msCompile"
         }
     ]
 }
