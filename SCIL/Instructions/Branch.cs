@@ -34,7 +34,7 @@ namespace SCIL.Instructions
                         popNegUn = programState.PopStack(),
                         pushNeg = programState.PushStack();
                     return
-                        $"CeqStm({push1Ceq}, {pop1Ceq}, {pop2Ceq}).{Environment.NewLine}negStm({pushNeg}, {popNegUn}).{Environment.NewLine}{BrTrue(instruction, programState)}";
+                        $"CeqStm({push1Ceq}, {pop1Ceq}, {pop2Ceq}).{Environment.NewLine}NegStm({pushNeg}, {popNegUn}).{Environment.NewLine}{BrTrue(instruction, programState)}";
                 case Code.Ble:
                 case Code.Ble_S:
                 case Code.Ble_Un:
@@ -43,7 +43,7 @@ namespace SCIL.Instructions
                         pop2Clt = programState.PopStack(),
                         push1Clt = programState.PushStack();
                     return
-                        $"CltStm({push1Clt}, {pop1Clt}, {pop2Clt}.{Environment.NewLine}{BrTrue(instruction, programState)}";
+                        $"CltStm({push1Clt}, {pop1Clt}, {pop2Clt}).{Environment.NewLine}{BrTrue(instruction, programState)}";
                 case Code.Bge:
                 case Code.Bge_S:
                 case Code.Bge_Un:
@@ -52,7 +52,7 @@ namespace SCIL.Instructions
                         pop2Cgt = programState.PopStack(),
                         push1Cgt = programState.PushStack();
                     return
-                        $"CgtStm({push1Cgt}, {pop1Cgt}, {pop2Cgt}.{Environment.NewLine}{BrTrue(instruction, programState)}";
+                        $"CgtStm({push1Cgt}, {pop1Cgt}, {pop2Cgt}).{Environment.NewLine}{BrTrue(instruction, programState)}";
             }
 
             return null;

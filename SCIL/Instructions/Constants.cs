@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -70,8 +71,8 @@ namespace SCIL.Instructions
 
             return null;
         }
-        private string ldc(long op, IFlixInstructionProgramState state) => $"LdcStm({state.PushStack()}, {op}).";
-        private string ldc(double op, IFlixInstructionProgramState state) => $"LdcStm({state.PushStack()}, {op}).";
+        private string ldc(long op, IFlixInstructionProgramState state) => $"LdcStm({state.PushStack()}, {op.ToString("F", new CultureInfo("en-US"))}f32).";
+        private string ldc(double op, IFlixInstructionProgramState state) => $"LdcStm({state.PushStack()}, {op.ToString("F", new CultureInfo("en-US"))}f32).";
         private string ldc(string op, IFlixInstructionProgramState state) => $"LdcStm({state.PushStack()}, {op}).";
         private string ldstr(string str, IFlixInstructionProgramState state) => $"LdstrStm({state.PushStack()}, \"{EscapeStr(str)}\").";
         private string EscapeStr(string str) => str.Replace("\\", "\\\\").Replace("\"", "\\\""); // TODO: Find other special chars, newlines etc
