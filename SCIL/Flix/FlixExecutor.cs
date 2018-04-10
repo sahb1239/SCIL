@@ -112,10 +112,11 @@ namespace SCIL.Flix
             }
         }
 
-        public void Execute(IEnumerable<string> files)
+        public void Execute(IEnumerable<string> files, params string[] args)
         {
             ExecuteFlix(files.Select(QuotePath)
                 .Concat(new List<string>() {"--print Sources,Sinks,TaintListStack,TaintListLocalVar,TaintListArg"})
+                .Concat(args)
                 .ToArray());
         }
     }

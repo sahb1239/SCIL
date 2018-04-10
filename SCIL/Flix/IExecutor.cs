@@ -5,6 +5,6 @@ namespace SCIL.Flix
 {
     internal interface IExecutor : IDisposable
     {
-        void Execute(IEnumerable<string> files);
+        void Execute(IEnumerable<string> files, params string[] args);
     }
 }
