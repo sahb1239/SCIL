@@ -47,6 +47,15 @@ namespace SimpleCILProgram
 
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();
+
+            try
+            {
+                throw new ArgumentException();
+            }
+            catch (ArgumentException)
+            {
+                Console.WriteLine("Do something here");
+            }
         }
     }
 }
