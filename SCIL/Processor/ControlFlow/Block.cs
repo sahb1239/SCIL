@@ -25,12 +25,12 @@ namespace SCIL
 
         public bool CanConcat(Block block)
         {
-            if (this.Targets.Count() != 1)
+            if (this.Targets.Count != 1)
                 return false;
             if (this.Targets.First() != block)
                 return false;
 
-            if (block.Sources.Count() != 1)
+            if (block.Sources.Count != 1)
                 return false;
             if (block.Sources.First() != this)
                 return false;
@@ -62,11 +62,25 @@ namespace SCIL
             }
         }
 
-        public IEnumerable<Node> Nodes => _nodes;
+        public void ReplaceNode(Node node, params Node[] newNodes)
+        {
+            // Get node
+            var index = _nodes.IndexOf(node);
+            if (index == -1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(node), "Node not found");
+            }
 
-        public IEnumerable<Block> Targets => _targets.AsReadOnly();
+            // Remove and insert new nodes at index
+            _nodes.RemoveAt(index);
+            _nodes.InsertRange(index, newNodes);
+        }
 
-        public IEnumerable<Block> Sources => _sources.AsReadOnly();
+        public IReadOnlyCollection<Node> Nodes => _nodes.AsReadOnly();
+
+        public IReadOnlyCollection<Block> Targets => _targets.AsReadOnly();
+
+        public IReadOnlyCollection<Block> Sources => _sources.AsReadOnly();
 
         public override string ToString()
         {

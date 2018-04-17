@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using Mono.Cecil.Cil;
 
 namespace SCIL
 {
     public class Node
     {
+        private readonly List<string> _popStackNames = new List<string>();
+        private readonly List<string> _pushStackNames = new List<string>();
+
         public Node(Instruction instruction, Block block)
         {
             Instruction = instruction ?? throw new ArgumentNullException(nameof(instruction));
@@ -13,6 +17,88 @@ namespace SCIL
 
         public Instruction Instruction { get; }
         public Block Block { get; set; }
+
+        public OpCode Code => OverrideOpCode ?? Instruction.OpCode;
+        public OpCode? OverrideOpCode { get; set; }
+
+        public (int popNames, int pushNames) GetRequiredNames()
+        {
+            int pop;
+            switch (Code.StackBehaviourPop)
+            {
+                case StackBehaviour.Pop0:
+                    pop = 0;
+                    break;
+                case StackBehaviour.Pop1:
+                case StackBehaviour.Popi:
+                    pop = 1;
+                    break;
+                case StackBehaviour.Pop1_pop1:
+                case StackBehaviour.Popi_pop1:
+                case StackBehaviour.Popi_popi:
+                case StackBehaviour.Popi_popr4:
+                case StackBehaviour.Popi_popr8:
+                    pop = 2;
+                    break;
+                case StackBehaviour.Popref_popi_popi:
+                case StackBehaviour.Popref_popi_popr4:
+                case StackBehaviour.Popref_popi_popr8:
+                case StackBehaviour.Popref_popi_popi8:
+                case StackBehaviour.Popref_popi_popref:
+                    pop = 3;
+                    break;
+                default:
+                    throw new NotImplementedException($"StackBehaviour on pop {Code.StackBehaviourPop} not implemented");
+            }
+
+            int push;
+            switch (Code.StackBehaviourPush)
+            {
+                case StackBehaviour.Push0:
+                    push = 0;
+                    break;
+                case StackBehaviour.Push1:
+                case StackBehaviour.Pushi:
+                case StackBehaviour.Pushi8:
+                case StackBehaviour.Pushr4:
+                case StackBehaviour.Pushr8:
+                case StackBehaviour.Pushref:
+                    push = 1;
+                    break;
+                case StackBehaviour.Push1_push1:
+                    push = 2;
+                    break;
+                default:
+                    throw new NotImplementedException($"StackBehaviour on push {Code.StackBehaviourPush} not implemented");
+            }
+
+            return (pop, push);
+        }
+
+        public void SetPopStackNames(params string[] names)
+        {
+            var required = GetRequiredNames();
+            if (required.popNames != names.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(names), $"{required.popNames} names is required");
+            }
+            _popStackNames.Clear();
+            _popStackNames.AddRange(names);
+        }
+
+        public void SetPushStackNames(params string[] names)
+        {
+            var required = GetRequiredNames();
+            if (required.pushNames != names.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(names), $"{required.pushNames} names is required");
+            }
+            _pushStackNames.Clear();
+            _pushStackNames.AddRange(names);
+        }
+
+        public IReadOnlyCollection<string> PopStackNames => _popStackNames.AsReadOnly();
+        public IReadOnlyCollection<string> PushStackNames => _pushStackNames.AsReadOnly();
 
         public override string ToString()
         {
