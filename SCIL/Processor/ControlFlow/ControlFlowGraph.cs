@@ -32,6 +32,7 @@ namespace SCIL
                 switch (node.Instruction.OpCode.FlowControl)
                 {
                     case FlowControl.Call:
+                        // TODO: Add call target
                     case FlowControl.Next:
                         block.AddTarget(blocks[index + 1]);
                         break;
