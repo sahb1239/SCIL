@@ -3,18 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Mono.Cecil.Cil;
+using SCIL.Processor.Nodes.Visitor;
 
-namespace SCIL
+namespace SCIL.Processor.Nodes
 {
-    public class Block
+    public class Block : Element
     {
         private readonly List<Block> _targets = new List<Block>();
         private readonly List<Block> _sources = new List<Block>();
-        private readonly List<Node> _nodes = new List<Node>();
+        private readonly List<SCIL.Node> _nodes = new List<SCIL.Node>();
 
         public Block(params Instruction[] instructions)
         {
-            _nodes.AddRange(instructions.Select(instruction => new Node(instruction, this)));
+            _nodes.AddRange(instructions.Select(instruction => new SCIL.Node(instruction, this)));
         }
 
         public void AddTarget(Block target)
@@ -62,7 +63,28 @@ namespace SCIL
             }
         }
 
-        public void ReplaceNode(Node node, params Node[] newNodes)
+        public void Replace(Block startBlock)
+        {
+            // Move sources to new block
+            foreach (var source in _sources)
+            {
+                // Remove source from old start block
+                var index = source._targets.IndexOf(this);
+                source._targets.RemoveAt(index);
+                source._targets.Add(startBlock);
+
+                // Add source to new startBlock
+                startBlock._sources.Add(source);
+            }
+
+            // Clear local sources and targets
+            _sources.Clear();
+            _targets.Clear();
+
+            // Targets is the new blocks own responsibility
+        }
+
+        public void ReplaceNode(SCIL.Node node, params SCIL.Node[] newNodes)
         {
             // Get node
             var index = _nodes.IndexOf(node);
@@ -76,7 +98,7 @@ namespace SCIL
             _nodes.InsertRange(index, newNodes);
         }
 
-        public IReadOnlyCollection<Node> Nodes => _nodes.AsReadOnly();
+        public IReadOnlyCollection<SCIL.Node> Nodes => _nodes.AsReadOnly();
 
         public IReadOnlyCollection<Block> Targets => _targets.AsReadOnly();
 
@@ -142,6 +164,13 @@ namespace SCIL
             }
 
             return sb.ToString();
+        }
+
+        public override void Accept(IVisitor visitor)
+        {
+            visitor.Visit(this);
+            foreach (var node in Nodes)
+                visitor.Visit((Node) node);
         }
     }
 }

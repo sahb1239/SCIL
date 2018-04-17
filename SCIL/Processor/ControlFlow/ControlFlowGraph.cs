@@ -4,12 +4,13 @@ using System.Diagnostics;
 using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using SCIL.Processor.Nodes;
 
 namespace SCIL
 {
-    class ControlFlowGraph
+    public class ControlFlowGraph
     {
-        public static Block GenerateBlock(MethodDefinition method)
+        public static Method GenerateBlock(MethodDefinition method)
         {
             // Generate blocks
             var blocks = method.Body.Instructions.Select(instruction => new Block(instruction)).ToList();
@@ -121,7 +122,36 @@ namespace SCIL
                 }
             }
 
-            return startBlock;
+            // Calculate reachable blocks
+            var reachableBlocks = new List<Block>();
+            var pendingBlocks = new List<Block> {startBlock};
+
+            while (pendingBlocks.Any())
+            {
+                // Get first pending and remove it from the pending list
+                var pendingBlock = pendingBlocks.First();
+                pendingBlocks.RemoveAt(0);
+
+                // Detect if we not have already processed the block
+                if (!reachableBlocks.Contains(pendingBlock))
+                {
+                    continue;
+                }
+
+                // Add to reachableBlocks
+                reachableBlocks.Add(pendingBlock);
+
+                // Add all targets to pendingBlocks
+                foreach (var target in pendingBlock.Targets)
+                {
+                    pendingBlocks.Add(target);
+                }
+            }
+
+            // Get method block
+            var methodBlock = new Method(method, reachableBlocks);
+
+            return methodBlock;
         }
 
         

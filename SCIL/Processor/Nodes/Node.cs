@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using Mono.Cecil.Cil;
+using SCIL.Processor.Nodes;
+using SCIL.Processor.Nodes.Visitor;
 
 namespace SCIL
 {
-    public class Node
+    public class Node : Element
     {
         private readonly List<string> _popStackNames = new List<string>();
         private readonly List<string> _pushStackNames = new List<string>();
@@ -20,6 +22,15 @@ namespace SCIL
 
         public OpCode Code => OverrideOpCode ?? Instruction.OpCode;
         public OpCode? OverrideOpCode { get; set; }
+
+        public object Operand => OverrideOperand ?? Instruction.Operand;
+        public object OverrideOperand { get; set; }
+
+
+        public void Replace(params Node[] nodes)
+        {
+            this.Block.ReplaceNode(this, nodes);
+        }
 
         public (int popNames, int pushNames) GetRequiredNames()
         {
@@ -103,6 +114,11 @@ namespace SCIL
         public override string ToString()
         {
             return Instruction.ToString();
+        }
+
+        public override void Accept(IVisitor visitor)
+        {
+            visitor.Visit(this);
         }
     }
 }
