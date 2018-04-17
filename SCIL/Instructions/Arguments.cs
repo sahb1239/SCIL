@@ -61,6 +61,6 @@ namespace SCIL.Instructions
         private string ldarga(uint argNo, IFlixInstructionProgramState programState) => $"LdargaStm({programState.PushStack()}, {programState.GetArg(argNo)}).";
 
         private string starg(uint argNo, IFlixInstructionProgramState programState) =>
-            $"StargStm({programState.StoreArg(argNo)}, {programState.PopStack()}).";
+            $"StargStm({programState.StoreArg(argNo)}, {programState.PopStack()}, {argNo}).";
     }
 }

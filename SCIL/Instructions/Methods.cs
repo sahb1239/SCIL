@@ -54,14 +54,14 @@ namespace SCIL.Instructions
                 }
 
                 output.AppendLine(
-                    $"StargStm({programState.GetStoreArg(method, parameterIndex)}, {programState.PopStack()}).");
+                    $"StargStm({programState.GetStoreArg(method, parameterIndex)}, {programState.PopStack()}, {parameterIndex}).");
             }
 
             // Add this to arguments
             if (method.HasThis)
             {
                 output.AppendLine(
-                    $"StargStm({programState.GetStoreArg(method, 0)}, {programState.PopStack()}).");
+                    $"StargStm({programState.GetStoreArg(method, 0)}, {programState.PopStack()}, 0).");
             }
 
             // Add call statement
