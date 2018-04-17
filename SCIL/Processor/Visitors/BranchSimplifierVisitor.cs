@@ -5,7 +5,7 @@ using SCIL.Processor.Nodes.Visitor;
 
 namespace SCIL.Processor.Visitors
 {
-    [RegistrerVisitor(RegistrerVisitor.RewriterOrder)]
+    [RegistrerRewriter]
     public class BranchSimplifierVisitor : BaseVisitor
     {
         public override void Visit(Node node)

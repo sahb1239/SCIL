@@ -3,30 +3,30 @@
 namespace SCIL.Processor
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-    public class RegistrerVisitor : Attribute
+    public class RegistrerVisitorAttribute : Attribute
     {
         public const uint RewriterOrder = 10;
 
-        public RegistrerVisitor()
+        public RegistrerVisitorAttribute()
         {
         }
 
-        public RegistrerVisitor(uint order)
+        public RegistrerVisitorAttribute(uint order)
         {
             Order = order;
         }
 
-        public RegistrerVisitor(bool ignored)
+        public RegistrerVisitorAttribute(bool ignored)
         {
             Ignored = ignored;
         }
 
-        public RegistrerVisitor(string name)
+        public RegistrerVisitorAttribute(string name)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
         }
 
-        public RegistrerVisitor(uint order, string name)
+        public RegistrerVisitorAttribute(uint order, string name)
         {
             Order = order;
             Name = name ?? throw new ArgumentNullException(nameof(name));
