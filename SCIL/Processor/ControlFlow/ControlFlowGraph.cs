@@ -63,6 +63,31 @@ namespace SCIL
                 }
             }
 
+            // Analyze the exception handlers and add as target for each
+            foreach (var handler in method.Body.ExceptionHandlers)
+            {
+                // TODO: Filter is not avalible in C# and is therefore not handled here
+                // Get target block
+                Instruction catchInstructionStart = handler.HandlerStart;
+                Block catchInstructionBlock =
+                    blocks.Single(bl => bl.Nodes.Any(e => e.Instruction == catchInstructionStart));
+
+                Instruction currentInstruction = handler.TryStart;
+                do
+                {
+                    // Get currentInstruction block
+                    var currentInstructionBlock =
+                        blocks.Single(bl => bl.Nodes.Any(e => e.Instruction == currentInstruction));
+
+                    // Add target
+                    currentInstructionBlock.AddTarget(catchInstructionBlock);
+
+                    // Set next instruction
+                    if (currentInstruction.Next == null) break;
+                    currentInstruction = currentInstruction.Next;
+                } while (currentInstruction.Previous == null || currentInstruction != handler.TryEnd);
+            }
+
             // Remove all which cannot be targeted (remove dead code)
             // Only very simple dead code is removed
             // Skip first since it does not have any sources (maybe)
@@ -98,81 +123,6 @@ namespace SCIL
             return startBlock;
         }
 
-        public class Node
-        {
-            public Node(Instruction instruction, Block block)
-            {
-                Instruction = instruction ?? throw new ArgumentNullException(nameof(instruction));
-                Block = block ?? throw new ArgumentNullException(nameof(block));
-            }
-
-            public Instruction Instruction { get; }
-            public Block Block { get; set; }
-        }
-
-        public class Block
-        {
-            private readonly List<Block> _targets = new List<Block>();
-            private readonly List<Block> _sources = new List<Block>();
-            private readonly List<Node> _nodes = new List<Node>();
-
-            public Block(params Instruction[] instructions)
-            {
-                _nodes.AddRange(instructions.Select(instruction => new Node(instruction, this)));
-            }
-
-            public void AddTarget(Block target)
-            {
-                _targets.Add(target);
-                target._sources.Add(this);
-            }
-
-            public bool CanConcat(Block block)
-            {
-                if (this.Targets.Count() != 1)
-                    return false;
-                if (this.Targets.First() != block)
-                    return false;
-
-                if (block.Sources.Count() != 1)
-                    return false;
-                if (block.Sources.First() != this)
-                    return false;
-
-                return true;
-            }
-
-            public void ConcatBlock(Block block)
-            {
-                if (!CanConcat(block))
-                    throw new InvalidOperationException("Cannot concat with the block");
-
-                // Add nodes to this block
-                _nodes.AddRange(block.Nodes);
-
-                // Update all nodes and set block to this block
-                _nodes.ForEach(node => node.Block = this);
-
-                // Clear our targets
-                _targets.Clear();
-                _targets.AddRange(block.Targets);
-
-                // Update next sources
-                foreach (var target in _targets)
-                {
-                    // Remove our old source
-                    target._sources.Remove(block);
-                    target._sources.Add(this);
-                }
-            }
-
-            public IEnumerable<Node> Nodes => _nodes;
-
-            public IEnumerable<Block> Targets => _targets.AsReadOnly();
-
-            public IEnumerable<Block> Sources => _sources.AsReadOnly();
-        }
+        
     }
-
-   
 }
