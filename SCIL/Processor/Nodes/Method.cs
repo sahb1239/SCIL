@@ -25,10 +25,6 @@ namespace SCIL.Processor.Nodes
         public override void Accept(IVisitor visitor)
         {
             visitor.Visit(this);
-            foreach (var block in Blocks)
-            {
-                visitor.Visit(block);
-            }
         }
     }
 }
