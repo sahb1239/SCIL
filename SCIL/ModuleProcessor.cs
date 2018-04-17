@@ -190,7 +190,7 @@ namespace SCIL
         public string GetStoreArg(MethodReference method, uint argno)
         {
             var methodName = method.FullName;
-            return $"\"{methodName}_{argno}\"";
+            return $"\"{methodName}\"";
         }
 
         public string GetVar(uint varno)
