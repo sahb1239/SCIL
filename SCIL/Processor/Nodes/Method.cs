@@ -9,17 +9,18 @@ namespace SCIL.Processor.Nodes
     {
         private readonly List<Block> _blocks = new List<Block>();
 
-        public Method(MethodDefinition method, IEnumerable<Block> blocks)
+        public Method(MethodDefinition method, Block startBlock, IEnumerable<Block> blocks)
         {
             Definition = method ?? throw new ArgumentNullException(nameof(method));
+            StartBlock = startBlock ?? throw new ArgumentNullException(nameof(startBlock));
 
             if (blocks == null) throw new ArgumentNullException(nameof(blocks));
             _blocks.AddRange(blocks);
         }
 
         public IReadOnlyCollection<Block> Blocks => _blocks.AsReadOnly();
-
         public MethodDefinition Definition { get; }
+        public Block StartBlock { get; }
 
         public override void Accept(IVisitor visitor)
         {

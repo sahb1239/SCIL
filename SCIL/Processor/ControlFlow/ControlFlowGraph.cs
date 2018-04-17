@@ -149,8 +149,7 @@ namespace SCIL
             }
 
             // Get method block
-            var methodBlock = new Method(method, reachableBlocks);
-
+            var methodBlock = new Method(method, startBlock, reachableBlocks);
             return methodBlock;
         }
 
