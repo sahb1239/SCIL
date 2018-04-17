@@ -112,7 +112,7 @@ namespace SCIL
 
             public override string ToString()
             {
-                return Instruction.Offset.ToString();
+                return Instruction.ToString();
             }
         }
 
