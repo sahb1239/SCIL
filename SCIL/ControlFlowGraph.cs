@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -108,6 +109,11 @@ namespace SCIL
 
             public Instruction Instruction { get; }
             public Block Block { get; set; }
+
+            public override string ToString()
+            {
+                return Instruction.Offset.ToString();
+            }
         }
 
         public class Block
@@ -171,6 +177,68 @@ namespace SCIL
             public IEnumerable<Block> Targets => _targets.AsReadOnly();
 
             public IEnumerable<Block> Sources => _sources.AsReadOnly();
+
+            public override string ToString()
+            {
+                StringBuilder sb = new StringBuilder();
+                foreach (var node in _nodes)
+                {
+                    sb.AppendLine(node.ToString());
+                }
+
+                if (_targets.Count > 1)
+                {
+                    // Convert targets to string
+                    List<string[]> targetStrings = _targets.Select(e => e.ToString().Split(Environment.NewLine)).ToList();
+
+                    // Get the target with the max number of strings in it
+                    int maxLengthTargets = targetStrings.Max(t => t.Length);
+
+                    // Add string builders
+                    var stringBuilders = new List<StringBuilder>();
+                    for(int i = 0; i < maxLengthTargets; i++)
+                        stringBuilders.Add(new StringBuilder());
+
+                    // Add each target
+                    for (int targetIndex = 0; targetIndex < targetStrings.Count; targetIndex++)
+                    {
+                        string[] target = targetStrings[targetIndex];
+
+                        // Get target line max length
+                        int targetMaxLength = target.Max(e => e.Length);
+
+                        // Add start char to stringBuilder
+                        stringBuilders.ForEach(s => s.Append("|"));
+
+                        // Loop throug all length
+                        for (int lineIndex = 0; lineIndex < maxLengthTargets; lineIndex++)
+                        {
+                            stringBuilders[lineIndex].Append(' ');
+                            if (target.Count() - 1 < lineIndex)
+                            {
+                                stringBuilders[lineIndex].Append(' ', targetMaxLength);
+                            }
+                            else
+                            {
+                                stringBuilders[lineIndex].Append(target[lineIndex].PadLeft(targetMaxLength));
+                            }
+                        }
+
+                    }
+
+                    // Add end char to stringBuilder
+                    stringBuilders.ForEach(s => s.Append("|"));
+
+                    // Add all stringBuilders to base builder
+                    stringBuilders.ForEach(s => sb.AppendLine(s.ToString()));
+                }
+                else if (_targets.Count == 1)
+                {
+                    sb.AppendLine(_targets.First().ToString());
+                }
+
+                return sb.ToString();
+            }
         }
     }
 
