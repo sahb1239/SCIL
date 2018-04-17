@@ -133,7 +133,7 @@ namespace SCIL
                 pendingBlocks.RemoveAt(0);
 
                 // Detect if we not have already processed the block
-                if (!reachableBlocks.Contains(pendingBlock))
+                if (reachableBlocks.Contains(pendingBlock))
                 {
                     continue;
                 }
