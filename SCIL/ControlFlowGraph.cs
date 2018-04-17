@@ -64,6 +64,31 @@ namespace SCIL
                 }
             }
 
+            // Analyze the exception handlers and add as target for each
+            foreach (var handler in method.Body.ExceptionHandlers)
+            {
+                // TODO: Filter is not avalible in C# and is therefore not handled here
+                // Get target block
+                Instruction catchInstructionStart = handler.HandlerStart;
+                Block catchInstructionBlock =
+                    blocks.Single(bl => bl.Nodes.Any(e => e.Instruction == catchInstructionStart));
+
+                Instruction currentInstruction = handler.TryStart;
+                do
+                {
+                    // Get currentInstruction block
+                    var currentInstructionBlock =
+                        blocks.Single(bl => bl.Nodes.Any(e => e.Instruction == currentInstruction));
+
+                    // Add target
+                    currentInstructionBlock.AddTarget(catchInstructionBlock);
+
+                    // Set next instruction
+                    if (currentInstruction.Next == null) break;
+                    currentInstruction = currentInstruction.Next;
+                } while (currentInstruction.Previous == null || currentInstruction != handler.TryEnd);
+            }
+
             // Remove all which cannot be targeted (remove dead code)
             // Only very simple dead code is removed
             // Skip first since it does not have any sources (maybe)
