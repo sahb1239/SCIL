@@ -5,7 +5,7 @@ using Mono.Cecil.Cil;
 
 namespace SCIL.Instructions
 {
-    class Ignored : IFlixInstructionGenerator
+    class Ignored : IOldFlixInstructionGenerator
     {
         public string GetCode(MethodBody methodBody, Instruction instruction, IFlixInstructionProgramState programState)
         {

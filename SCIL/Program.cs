@@ -41,7 +41,7 @@ namespace SCIL
             }
 
             // Load instruction emitters
-            var emitterInterface = typeof(IFlixInstructionGenerator);
+            var emitterInterface = typeof(IOldFlixInstructionGenerator);
             var emitters = Assembly.GetExecutingAssembly().DefinedTypes
                 .Where(e => e.ImplementedInterfaces.Any(i => i == emitterInterface) &&
                             e.CustomAttributes.All(attr => typeof(IgnoreEmitterAttribute) != attr.AttributeType))
@@ -50,7 +50,7 @@ namespace SCIL
                         ? e.GetCustomAttribute<EmitterOrderAttribute>().Order
                         : 10)
                 .Select(Activator.CreateInstance)
-                .Cast<IFlixInstructionGenerator>()
+                .Cast<IOldFlixInstructionGenerator>()
                 .ToList();
 
             // Count instructions
@@ -121,7 +121,7 @@ namespace SCIL
             }
         }
 
-        private static async Task AnalyzeFile(FileInfo fileInfo, IReadOnlyCollection<IFlixInstructionGenerator> emitters, ILogger logger, IModuleWriter moduleWriter, IExecutor executor, ConsoleOptions opts)
+        private static async Task AnalyzeFile(FileInfo fileInfo, IReadOnlyCollection<IOldFlixInstructionGenerator> emitters, ILogger logger, IModuleWriter moduleWriter, IExecutor executor, ConsoleOptions opts)
         {
             // Logging
             logger.Log("Analyzing file " + fileInfo.FullName);
@@ -145,7 +145,7 @@ namespace SCIL
             }
         }
 
-        private static async Task LoadZip(FileInfo fileInfo, IReadOnlyCollection<IFlixInstructionGenerator> emitters, ILogger logger, IModuleWriter moduleWriter, IEnumerable<string> excluded)
+        private static async Task LoadZip(FileInfo fileInfo, IReadOnlyCollection<IOldFlixInstructionGenerator> emitters, ILogger logger, IModuleWriter moduleWriter, IEnumerable<string> excluded)
         {
             // Open zip file
             using (var zipFile = ZipFile.OpenRead(fileInfo.FullName))
@@ -218,7 +218,7 @@ namespace SCIL
             }
         }
 
-        private static Task ProcessAssembly(Stream stream, IModuleWriter moduleWriter, IReadOnlyCollection<IFlixInstructionGenerator> emitters, ILogger logger, IEnumerable<string> excluded)
+        private static Task ProcessAssembly(Stream stream, IModuleWriter moduleWriter, IReadOnlyCollection<IOldFlixInstructionGenerator> emitters, ILogger logger, IEnumerable<string> excluded)
         {
             var moduleProcessor = new ModuleProcessor(emitters, moduleWriter, logger);
             return moduleProcessor.ProcessAssembly(stream, excluded);

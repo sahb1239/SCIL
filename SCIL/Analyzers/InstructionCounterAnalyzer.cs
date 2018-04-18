@@ -7,7 +7,7 @@ using Mono.Cecil.Cil;
 namespace SCIL.Analyzers
 {
     [EmitterOrder(0), IgnoreEmitter]
-    class InstructionCounterAnalyzer : IFlixInstructionGenerator, IInstructionAnalyzer
+    class InstructionCounterAnalyzer : IOldFlixInstructionGenerator, IInstructionAnalyzer
     {
         private readonly IDictionary<string, long> _count = new ConcurrentDictionary<string, long>();
         public string GetCode(MethodBody methodBody, Instruction instruction, IFlixInstructionProgramState programState)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Mono.Cecil;
 using Mono.Cecil.Cil;
 using SCIL.Processor.Nodes;
 using SCIL.Processor.Nodes.Visitor;
@@ -20,7 +21,7 @@ namespace SCIL
         public Instruction Instruction { get; }
         public Block Block { get; set; }
 
-        public OpCode Code => OverrideOpCode ?? Instruction.OpCode;
+        public OpCode OpCode => OverrideOpCode ?? Instruction.OpCode;
         public OpCode? OverrideOpCode { get; set; }
 
         public object Operand => OverrideOperand ?? Instruction.Operand;
@@ -35,7 +36,7 @@ namespace SCIL
         public (int popNames, int pushNames) GetRequiredNames()
         {
             int pop;
-            switch (Code.StackBehaviourPop)
+            switch (OpCode.StackBehaviourPop)
             {
                 case StackBehaviour.Pop0:
                     pop = 0;
@@ -59,11 +60,11 @@ namespace SCIL
                     pop = 3;
                     break;
                 default:
-                    throw new NotImplementedException($"StackBehaviour on pop {Code.StackBehaviourPop} not implemented");
+                    throw new NotImplementedException($"StackBehaviour on pop {OpCode.StackBehaviourPop} not implemented");
             }
 
             int push;
-            switch (Code.StackBehaviourPush)
+            switch (OpCode.StackBehaviourPush)
             {
                 case StackBehaviour.Push0:
                     push = 0;
@@ -80,7 +81,7 @@ namespace SCIL
                     push = 2;
                     break;
                 default:
-                    throw new NotImplementedException($"StackBehaviour on push {Code.StackBehaviourPush} not implemented");
+                    throw new NotImplementedException($"StackBehaviour on push {OpCode.StackBehaviourPush} not implemented");
             }
 
             return (pop, push);
@@ -110,6 +111,13 @@ namespace SCIL
 
         public IReadOnlyCollection<string> PopStackNames => _popStackNames.AsReadOnly();
         public IReadOnlyCollection<string> PushStackNames => _pushStackNames.AsReadOnly();
+        public uint ArgumentNumber { get; set; }
+        public string ArgumentName => ArgumentNumber.ToString();
+
+        public FieldReference FieldReference => Operand as FieldReference;
+        public string FieldName => FieldReference.FullName;
+
+        public string VariableName => ((long) Operand).ToString();
 
         public override string ToString()
         {

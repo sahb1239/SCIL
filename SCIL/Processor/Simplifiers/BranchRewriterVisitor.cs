@@ -6,12 +6,12 @@ using SCIL.Processor.Nodes.Visitor;
 namespace SCIL.Processor.Visitors
 {
     [RegistrerRewriter]
-    public class BranchSimplifierVisitor : BaseVisitor
+    public class BranchRewriterVisitor : BaseVisitor
     {
         public override void Visit(Node node)
         {
             List<Node> newNodes = new List<Node>();
-            switch (node.Code.Code)
+            switch (node.OpCode.Code)
             {
                 case Code.Br:
                 case Code.Br_S:

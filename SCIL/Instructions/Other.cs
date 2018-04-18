@@ -6,7 +6,7 @@ using Mono.Cecil.Cil;
 namespace SCIL.Instructions
 {
     [EmitterOrder(150)]
-    class Other : IFlixInstructionGenerator
+    class Other : IOldFlixInstructionGenerator
     {
         public string GetCode(MethodBody methodBody, Instruction instruction, IFlixInstructionProgramState programState)
         {

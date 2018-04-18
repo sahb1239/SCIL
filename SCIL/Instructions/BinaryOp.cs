@@ -3,7 +3,7 @@ using Mono.Cecil.Cil;
 
 namespace SCIL.Instructions
 {
-    class BinaryOp : IFlixInstructionGenerator
+    class BinaryOp : IOldFlixInstructionGenerator
     {
         public string GetCode(MethodBody methodBody, Instruction instruction, IFlixInstructionProgramState programState)
         {

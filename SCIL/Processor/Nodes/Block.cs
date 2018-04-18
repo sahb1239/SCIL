@@ -103,6 +103,7 @@ namespace SCIL.Processor.Nodes
         public IReadOnlyCollection<Block> Targets => _targets.AsReadOnly();
 
         public IReadOnlyCollection<Block> Sources => _sources.AsReadOnly();
+        public Method Method { get; set; }
 
         public override string ToString()
         {

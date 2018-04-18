@@ -1,10 +1,9 @@
 ﻿using System;
-using Mono.Cecil;
 using Mono.Cecil.Cil;
 
 namespace SCIL.Instructions
 {
-    class UnaryOp : IFlixInstructionGenerator
+    class UnaryOp : IOldFlixInstructionGenerator
     {
         public string GetCode(MethodBody methodBody, Instruction instruction, IFlixInstructionProgramState programState)
         {

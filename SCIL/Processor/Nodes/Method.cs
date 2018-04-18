@@ -16,6 +16,9 @@ namespace SCIL.Processor.Nodes
 
             if (blocks == null) throw new ArgumentNullException(nameof(blocks));
             _blocks.AddRange(blocks);
+
+            // Update method for each block
+            _blocks.ForEach(block => block.Method = this);
         }
 
         public IReadOnlyCollection<Block> Blocks => _blocks.AsReadOnly();

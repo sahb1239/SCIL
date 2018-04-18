@@ -9,13 +9,14 @@ using CSharpx;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using SCIL.Logger;
+using SCIL.Processor.Visitors;
 using SCIL.Writer;
 
 namespace SCIL
 {
     class ModuleProcessor
     {
-        public IReadOnlyCollection<IFlixInstructionGenerator> Generators { get; }
+        public IReadOnlyCollection<IOldFlixInstructionGenerator> Generators { get; }
         public IModuleWriter ModuleWriter { get; }
         public ILogger Logger { get; }
 
@@ -23,7 +24,7 @@ namespace SCIL
             new Lazy<IReadOnlyCollection<IInstructionAnalyzer>>(() =>
                 new ReadOnlyCollection<IInstructionAnalyzer>(Generators.OfType<IInstructionAnalyzer>().ToList()));
 
-        public ModuleProcessor(IReadOnlyCollection<IFlixInstructionGenerator> generators, IModuleWriter moduleWriter, ILogger logger)
+        public ModuleProcessor(IReadOnlyCollection<IOldFlixInstructionGenerator> generators, IModuleWriter moduleWriter, ILogger logger)
         {
             Generators = generators;
             ModuleWriter = moduleWriter;

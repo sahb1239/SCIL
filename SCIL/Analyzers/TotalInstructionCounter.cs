@@ -9,7 +9,7 @@ using SCIL.Logger;
 namespace SCIL.Analyzers
 {
     [EmitterOrder(0), IgnoreEmitter]
-    class TotalInstructionCounter : IFlixInstructionGenerator, IInstructionAnalyzer
+    class TotalInstructionCounter : IOldFlixInstructionGenerator, IInstructionAnalyzer
     {
         private long _count = 0;
         public string GetCode(MethodBody methodBody, Instruction instruction, IFlixInstructionProgramState programState)
