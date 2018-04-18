@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Instructions\ArrayOp.cs" />
+    <Compile Remove="Processor\FlixInstructionGenerators\Instructions\ArrayOp.cs" />
   </ItemGroup>
 
   <ItemGroup>
