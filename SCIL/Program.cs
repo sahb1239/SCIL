@@ -121,7 +121,7 @@ namespace SCIL
             }
         }
 
-        private static async Task AnalyzeFile(FileInfo fileInfo, IReadOnlyCollection<IOldFlixInstructionGenerator> emitters, ILogger logger, IModuleWriter moduleWriter, IExecutor executor, ConsoleOptions opts)
+        private static async Task AnalyzeFile(FileInfo fileInfo, IReadOnlyCollection<IOldFlixInstructionGenerator> emitters, ILogger logger, IModuleWriter moduleWriter, IFlixExecutor flixExecutor, ConsoleOptions opts)
         {
             // Logging
             logger.Log("Analyzing file " + fileInfo.FullName);
@@ -141,7 +141,7 @@ namespace SCIL
             // Execute
             if (!opts.NoFlix)
             {
-                executor.Execute(moduleWriter.GetCreatedFilesAndReset(), opts.FlixArgs.ToArray());
+                flixExecutor.Execute(moduleWriter.GetCreatedFilesAndReset(), opts.FlixArgs.ToArray());
             }
         }
 

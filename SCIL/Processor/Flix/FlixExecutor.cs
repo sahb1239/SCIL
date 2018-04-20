@@ -7,7 +7,7 @@ using SCIL.Logger;
 
 namespace SCIL.Flix
 {
-    class FlixExecutor : IExecutor
+    class FlixExecutor : IFlixExecutor
     {
         private readonly ILogger _logger;
         private readonly string _tempPath;

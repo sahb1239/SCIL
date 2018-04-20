@@ -14,7 +14,7 @@ namespace SCIL
             services
                 .RegistrerAllTypes<IVisitor>()
                 .RegistrerAllTypes<IFlixInstructionGenerator>()
-                .AddSingleton<IExecutor, FlixExecutor>()
+                .AddSingleton<IFlixExecutor, FlixExecutor>()
                 .AddSingleton<ILogger, ConsoleLogger>()
                 .AddSingleton<ModuleProcessor>();
         }
