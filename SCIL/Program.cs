@@ -11,6 +11,7 @@ using SCIL.Decompressor;
 using SCIL.Flix;
 using SCIL.Logger;
 using SCIL.Writer;
+using SCIL.Processor;
 
 namespace SCIL
 {

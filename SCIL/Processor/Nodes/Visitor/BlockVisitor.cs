@@ -4,6 +4,6 @@
     {
         void Visit(Block block);
         void Visit(Node node);
-        void Visit(Method block);
+        void Visit(Method method);
     }
 }
