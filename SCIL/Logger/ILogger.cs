@@ -1,6 +1,6 @@
 ﻿namespace SCIL.Logger
 {
-    interface ILogger
+    public interface ILogger
     {
         void Log(string message);
         void Log(string message, bool verbose);

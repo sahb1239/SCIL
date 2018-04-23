@@ -1,235 +1,100 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Text;
+using System.Reflection;
 using System.Threading.Tasks;
-using CSharpx;
 using Mono.Cecil;
-using Mono.Cecil.Cil;
 using SCIL.Logger;
-using SCIL.Processor.Visitors;
-using SCIL.Writer;
+using SCIL.Processor;
+using SCIL.Processor.FlixInstructionGenerators;
+using SCIL.Processor.Nodes.Visitor;
 
 namespace SCIL
 {
-    class ModuleProcessor
+    public class ModuleProcessor
     {
-        public IReadOnlyCollection<IOldFlixInstructionGenerator> Generators { get; }
-        public IModuleWriter ModuleWriter { get; }
-        public ILogger Logger { get; }
-
-        private Lazy<IReadOnlyCollection<IInstructionAnalyzer>> Analyzers =>
-            new Lazy<IReadOnlyCollection<IInstructionAnalyzer>>(() =>
-                new ReadOnlyCollection<IInstructionAnalyzer>(Generators.OfType<IInstructionAnalyzer>().ToList()));
-
-        public ModuleProcessor(IReadOnlyCollection<IOldFlixInstructionGenerator> generators, IModuleWriter moduleWriter, ILogger logger)
+        public ModuleProcessor(ILogger logger, FlixCodeGeneratorVisitor flixCodeGenerator, ControlFlowGraph controlFlowGraph, IEnumerable<IVisitor> visitors, Configuration configuration)
         {
-            Generators = generators;
-            ModuleWriter = moduleWriter;
-            Logger = logger;
+            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            FlixCodeGenerator = flixCodeGenerator ?? throw new ArgumentNullException(nameof(flixCodeGenerator));
+            ControlFlowGraph = controlFlowGraph ?? throw new ArgumentNullException(nameof(controlFlowGraph));
+            Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+
+            if (visitors == null)
+            {
+                throw new ArgumentNullException(nameof(visitors));
+            }
+
+            Visitors = visitors.Select(visitor => new
+                {
+                    visitor,
+                    attribute = visitor.GetType().GetCustomAttribute<RegistrerVisitorAttribute>()
+                }).Where(e => e.attribute != null)
+                .Where(e => !e.attribute.Ignored)
+                .OrderBy(e => e.attribute.Order)
+                .Select(e => e.visitor)
+                .Concat(new List<IVisitor>() {FlixCodeGenerator});
         }
 
-        public async Task ProcessAssembly(Stream stream, IEnumerable<string> excluded)
-        {
-            // Resetting analyzers
-            Logger.Log("Resetting analyzers", true);
-            Analyzers.Value.ForEach(analyzer => analyzer.Reset());
+        public ILogger Logger { get; }
 
+        public FlixCodeGeneratorVisitor FlixCodeGenerator { get; }
+
+        public ControlFlowGraph ControlFlowGraph { get; }
+
+        public IEnumerable<IVisitor> Visitors { get; }
+
+        public Configuration Configuration { get; }
+
+        public async Task<string> ProcessAssembly(Stream stream)
+        {
             // Load Module using Mono.Cecil
             Logger.Log("Loading module", true);
             using (var module = ModuleDefinition.ReadModule(stream))
             {
-                if (excluded.Contains(module.Name))
+                // Check if we should ignore the module
+                if (Configuration.ExcludedModules.Contains(module.Name))
                 {
                     Logger.Log("Skipping excluded module: " + module.Name);
-                    return;
+                    return null;
                 }
                 else
                 {
                     Logger.Log("Results from module " + module.Name);
-                    await ReadModule(module).ConfigureAwait(false);
+                    return await ReadModule(module).ConfigureAwait(false);
                 }
             }
-
-            // Print output from analyzers
-            Logger.Log(string.Join(Environment.NewLine + Environment.NewLine,
-                           Analyzers.Value.Select(analyzer => string.Join(Environment.NewLine, analyzer.GetOutput()))) +
-                       Environment.NewLine);
         }
 
-        private async Task ReadModule(ModuleDefinition module)
+        public async Task<string> ReadModule(ModuleDefinition module)
         {
             Logger.Log("Reading module", true);
 
-            using (var moduleWriter = await ModuleWriter.GetAssemblyModuleWriter(module.Name).ConfigureAwait(false)) {
-
-                foreach (var type in module.Types)
-                {
-                    Logger.Log($"Processing type {type.FullName}", true);
-
-                    using (var typeModuleWriter = await moduleWriter.GetTypeModuleWriter(type).ConfigureAwait(false))
-                    {
-                        foreach (var methodDefinition in type.Methods)
-                        {
-                            Logger.Log($"Processing method {methodDefinition.Name}", true);
-
-                            if (methodDefinition.HasBody)
-                            {
-                                await typeModuleWriter
-                                    .WriteMethod(type, methodDefinition, ProcessCIL(methodDefinition.Body))
-                                    .ConfigureAwait(false);
-                            }
-                            else
-                            {
-                                await typeModuleWriter.WriteMethod(type, methodDefinition).ConfigureAwait(false);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        
-        private string ProcessCIL(MethodBody methodBody)
-        {
-            var methodState = new FlixInstructionProgramState(methodBody);
-
-            StringBuilder builder = new StringBuilder();
-            foreach (var instruction in methodBody.Instructions)
+            // Run all visitors
+            var moduleBlock = ControlFlowGraph.GenerateModule(module);
+            foreach (var visitor in Visitors)
             {
-                foreach (var emitter in Generators)
-                {
-                    string output = emitter.GetCode(methodBody, instruction, methodState);
-                    if (output == null)
-                        continue;
-
-                    builder.AppendLine(output);
-                    break;
-                }
+                visitor.Visit(moduleBlock);
             }
-            return builder.ToString();
-        }
-    }
 
-    public class FlixInstructionProgramState : IFlixInstructionProgramState
-    {
-        private readonly MethodBody _methodBody;
-
-        private readonly Stack<List<string>> _stack = new Stack<List<string>>();
-        private readonly Stack<List<string>> _poppedStack = new Stack<List<string>>();
-
-        private readonly IDictionary<uint, List<string>> _argList = new Dictionary<uint, List<string>>();
-        private readonly IDictionary<uint, List<string>> _storeVar = new Dictionary<uint, List<string>>();
-
-        public FlixInstructionProgramState(MethodBody methodBody)
-        {
-            _methodBody = methodBody;
-        }
-
-        public string PeekStack()
-        {
-            return _stack.Peek().Last();
-        }
-
-        public string PopStack()
-        {
-            var popped = _stack.Pop();
-            _poppedStack.Push(popped);
-            return popped.Last();
-        }
-
-        public string PushStack()
-        {
-            var index = _stack.Count;
-            var methodName = _methodBody.Method.FullName;
-
-            if (_poppedStack.Any())
+            // Write output to file
+            var file = new FileInfo(Path.Combine(Configuration.OutputPath, GetSafePath(module.Name) + ".flix"));
+            using (var stream = File.CreateText(file.FullName))
             {
-                var pop = _poppedStack.Pop();
-                _stack.Push(pop);
+                await stream.WriteAsync(FlixCodeGenerator.ToString());
+            }
 
-                string indexName = $"\"{methodName}_{index}_{pop.Count}\"";
-                pop.Add(indexName);
-                return indexName;
-            }
-            else
-            {
-                string indexName = $"\"{methodName}_{index}\"";
-                _stack.Push(new List<string> { indexName });
-                return indexName;
-            }
+            // Clear code generator
+            FlixCodeGenerator.Clear();
+
+            // Return file name
+            return file.ToString();
         }
 
-        public string GetArg(uint argno)
+        private static string GetSafePath(string input)
         {
-            if (!_argList.ContainsKey(argno))
-            {
-                // Not good..
-                return StoreArg(argno);
-            }
-            return _argList[argno].Last();
-        }
-
-        public string StoreArg(uint argno)
-        {
-            var methodName = _methodBody.Method.FullName;
-            string indexName;
-            if (_argList.ContainsKey(argno))
-            {
-                indexName = $"\"{methodName}_{argno}_{_argList[argno].Count}\"";
-                _argList[argno].Add(indexName);
-            }
-            else
-            {
-                indexName = $"\"{methodName}_{argno}\"";
-                _argList.Add(argno, new List<string> { indexName });
-            }
-            return indexName;
-        }
-
-        public string GetStoreArg(MethodReference method, uint argno)
-        {
-            var methodName = method.FullName;
-            return $"\"{methodName}\"";
-        }
-
-        public string GetVar(uint varno)
-        {
-            if (!_storeVar.ContainsKey(varno))
-            {
-                // Not good..
-                // It could be a struct and therefore we just bury our head in the sand and stores the variable
-                return StoreVar(varno);
-            }
-            return _storeVar[varno].Last();
-        }
-
-        public string StoreVar(uint varno)
-        {
-            var methodName = _methodBody.Method.FullName;
-            string indexName;
-            if (_storeVar.ContainsKey(varno))
-            {
-                indexName = $"\"{methodName}_{varno}_{_storeVar[varno].Count}\"";
-                _storeVar[varno].Add(indexName);
-            }
-            else
-            {
-                indexName = $"\"{methodName}_{varno}\"";
-                _storeVar.Add(varno, new List<string> {indexName});
-            }
-            return indexName;
-        }
-
-        public string GetField(string fieldName)
-        {
-            return $"\"{fieldName}\"";
-        }
-
-        public string StoreField(string fieldName)
-        {
-            return $"\"{fieldName}\"";
+            return new string(input.Where(c => Char.IsLetterOrDigit(c) || c == '.').ToArray());
         }
     }
 }

@@ -29,5 +29,27 @@ namespace SCIL.Processor.Nodes.Visitor
                 block.Accept(this);
             }
         }
+
+        public virtual void Visit(Type type)
+        {
+            // ReSharper disable once ForCanBeConvertedToForeach
+            // Needs to be for since replace will throw a exception if not
+            for (int i = 0; i < type.Methods.Count; i++)
+            {
+                var method = type.Methods.ElementAt(i);
+                method.Accept(this);
+            }
+        }
+
+        public virtual void Visit(Module module)
+        {
+            // ReSharper disable once ForCanBeConvertedToForeach
+            // Needs to be for since replace will throw a exception if not
+            for (int i = 0; i < module.Types.Count; i++)
+            {
+                var type = module.Types.ElementAt(i);
+                type.Accept(this);
+            }
+        }
     }
 }

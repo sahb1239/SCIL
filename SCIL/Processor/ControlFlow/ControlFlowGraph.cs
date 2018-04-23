@@ -5,12 +5,37 @@ using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using SCIL.Processor.Nodes;
+using Type = SCIL.Processor.Nodes.Type;
 
 namespace SCIL
 {
     public class ControlFlowGraph
     {
-        public static Method GenerateBlock(MethodDefinition method)
+        public static Module GenerateModule(ModuleDefinition module)
+        {
+            List<Type> types = new List<Type>();
+
+            foreach (var type in module.Types)
+            {
+                types.Add(GenerateType(type));
+            }
+
+            return new Module(module, types);
+        }
+
+        private static Type GenerateType(TypeDefinition type)
+        {
+            List<Method> methods = new List<Method>();
+
+            foreach (var method in type.Methods)
+            {
+                methods.Add(GenerateMethod(method));
+            }
+
+            return new Type(type, methods);
+        }
+
+        private static Method GenerateMethod(MethodDefinition method)
         {
             // Generate blocks
             var blocks = method.Body.Instructions.Select(instruction => new Block(instruction)).ToList();

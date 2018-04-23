@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -11,26 +12,35 @@ namespace SCIL.Processor
 {
     public class FileProcessor
     {
-        public static async Task ProcessFile(FileInfo fileInfo, IServiceProvider services)
+        public ILogger Logger { get; }
+
+        public ModuleProcessor ModuleProcessor { get; }
+
+        public FileProcessor(ILogger logger, ModuleProcessor moduleProcessor)
+        {
+            ModuleProcessor = moduleProcessor;
+            Logger = logger;
+        }
+
+        public async Task<IEnumerable<string>> ProcessFile(FileInfo fileInfo)
         {
             // Detect if file is zip
             if (await ZipHelper.CheckSignature(fileInfo.FullName))
             {
-                await ProcessZip(fileInfo, services);
+                return await ProcessZip(fileInfo);
             }
             else
             {
                 // TODO : Detect dll and exe
                 // Just jump out into the water and see if we survive (no exceptions)
-                await ProcessAssembly(fileInfo.OpenRead(), services);
+                return new[] {await ProcessAssembly(fileInfo.OpenRead())};
             }
         }
 
-        private static async Task ProcessZip(FileInfo fileInfo, IServiceProvider services)
-        { 
-            // Get logger
-            var logger = services.GetRequiredService<ILogger>();
-            
+        private async Task<IEnumerable<string>> ProcessZip(FileInfo fileInfo)
+        {
+            List<string> createdFiles = new List<string>();
+
             // Open zip file
             using (var zipFile = ZipFile.OpenRead(fileInfo.FullName))
             {
@@ -43,7 +53,7 @@ namespace SCIL.Processor
                 // Process bundle
                 if (libmonodroidbundle.Any())
                 {
-                    logger.Log("libmonodroid_bundle_app.so found - starting processing");
+                    Logger.Log("libmonodroid_bundle_app.so found - starting processing");
 
                     ZipArchiveEntry selectedLibMonoDroidBundle;
                     if (libmonodroidbundle.Count() == 1)
@@ -57,7 +67,7 @@ namespace SCIL.Processor
                     }
 
                     // Read bundle
-                    logger.Log("Loading " + selectedLibMonoDroidBundle.FullName);
+                    Logger.Log("Loading " + selectedLibMonoDroidBundle.FullName);
                     using (var stream = new MemoryStream())
                     {
                         await selectedLibMonoDroidBundle.Open().CopyToAsync(stream);
@@ -70,7 +80,7 @@ namespace SCIL.Processor
                         {
                             using (var memStream = new MemoryStream(file))
                             {
-                                await ProcessAssembly(memStream, services);
+                                createdFiles.Add(await ProcessAssembly(memStream));
                             }
                         }
                     }
@@ -83,15 +93,15 @@ namespace SCIL.Processor
                     {
                         if (FilterXamarinAssembliesDlls(assembly))
                         {
-                            logger.Log("Loading Xamarin dll: " + assembly.FullName);
+                            Logger.Log("Loading Xamarin dll: " + assembly.FullName);
                         }
                         else if (FilterUnityAssembliesDlls(assembly))
                         {
-                            logger.Log("Loading Unity dll: " + assembly.FullName);
+                            Logger.Log("Loading Unity dll: " + assembly.FullName);
                         }
                         else
                         {
-                            logger.Log("Loading Unknown dll: " + assembly.FullName);
+                            Logger.Log("Loading Unknown dll: " + assembly.FullName);
                         }
 
                         using (var stream = new MemoryStream())
@@ -101,31 +111,31 @@ namespace SCIL.Processor
                             // Set position 0
                             stream.Position = 0;
 
-                            await ProcessAssembly(stream, services);
+                            createdFiles.Add(await ProcessAssembly(stream));
                         }
                     }
                 }
 
             }
 
+            return createdFiles;
         }
 
-        private static bool FilterXamarinAssembliesDlls(ZipArchiveEntry entry)
+        private bool FilterXamarinAssembliesDlls(ZipArchiveEntry entry)
         {
             return entry.FullName.StartsWith("assemblies", StringComparison.OrdinalIgnoreCase) &&
                    entry.FullName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase);
         }
 
-        private static bool FilterUnityAssembliesDlls(ZipArchiveEntry entry)
+        private bool FilterUnityAssembliesDlls(ZipArchiveEntry entry)
         {
             return entry.FullName.StartsWith("assets/bin/Data/Managed/", StringComparison.OrdinalIgnoreCase) &&
                    entry.FullName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase);
         }
 
-        private static Task ProcessAssembly(Stream stream, IServiceProvider services)
+        private Task<string> ProcessAssembly(Stream stream)
         {
-            var moduleProcessor = services.Resolve<ModuleProcessor>();
-            return moduleProcessor.ProcessAssembly(stream);
+            return ModuleProcessor.ProcessAssembly(stream);
         }
     }
 }

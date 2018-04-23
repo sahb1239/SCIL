@@ -16,13 +16,13 @@ namespace SCIL.Processor
                 from definedType in type.Assembly.DefinedTypes
                 where definedType.IsPublic
                 where !definedType.IsAbstract
-                where definedType.IsAssignableFrom(type)
+                where type.IsAssignableFrom(definedType)
                 select definedType;
 
             // Registrer services
             foreach (var foundType in foundTypes)
             {
-                services.AddSingleton(foundType);
+                services.AddSingleton(foundType, foundType);
                 services.AddSingleton(type, serviceProvider => serviceProvider.GetRequiredService(foundType));
             }
 

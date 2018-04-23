@@ -45,6 +45,9 @@ namespace SCIL
                 case StackBehaviour.Popi:
                     pop = 1;
                     break;
+                case StackBehaviour.Popref:
+                    pop = 1;
+                    break;
                 case StackBehaviour.Pop1_pop1:
                 case StackBehaviour.Popi_pop1:
                 case StackBehaviour.Popi_popi:
@@ -58,6 +61,14 @@ namespace SCIL
                 case StackBehaviour.Popref_popi_popi8:
                 case StackBehaviour.Popref_popi_popref:
                     pop = 3;
+                    break;
+                case StackBehaviour.Varpop:
+                    pop = 1;
+                    Console.WriteLine("Not sure what this is");
+                    break;
+                case StackBehaviour.PopAll:
+                    pop = 1;
+                    Console.WriteLine("This is not good");
                     break;
                 default:
                     throw new NotImplementedException($"StackBehaviour on pop {OpCode.StackBehaviourPop} not implemented");
@@ -79,6 +90,10 @@ namespace SCIL
                     break;
                 case StackBehaviour.Push1_push1:
                     push = 2;
+                    break;
+                case StackBehaviour.Varpush:
+                    push = 1;
+                    Console.WriteLine("Not sure what this is");
                     break;
                 default:
                     throw new NotImplementedException($"StackBehaviour on push {OpCode.StackBehaviourPush} not implemented");

@@ -9,14 +9,18 @@ namespace SCIL
 {
     class Startup
     {
-        public void ConfigureServices(IServiceCollection services)
+        public static void ConfigureServices(IServiceCollection services, Configuration configuration, ILogger logger)
         {
             services
                 .RegistrerAllTypes<IVisitor>()
                 .RegistrerAllTypes<IFlixInstructionGenerator>()
+                .AddSingleton<ControlFlowGraph>()
+                .AddSingleton<FlixCodeGeneratorVisitor>()
                 .AddSingleton<IFlixExecutor, FlixExecutor>()
-                .AddSingleton<ILogger, ConsoleLogger>()
-                .AddSingleton<ModuleProcessor>();
+                .AddSingleton(logger)
+                .AddSingleton<FileProcessor>()
+                .AddSingleton<ModuleProcessor>()
+                .AddSingleton(configuration);
         }
     }
 }

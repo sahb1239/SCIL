@@ -5,7 +5,7 @@ using Mono.Cecil.Cil;
 
 namespace SCIL.Processor.FlixInstructionGenerators.Instructions
 {
-    class Arguments : IFlixInstructionGenerator
+    public class Arguments : IFlixInstructionGenerator
     {
         public bool GenerateCode(Node node, out string outputFlixCode)
         {
