@@ -21,53 +21,29 @@ namespace SCIL.Processor.FlixInstructionGenerators
 
         public override void Visit(Module module)
         {
-            // Add some newlines
-            if (Builder.Length > 0)
-            {
-                Builder.AppendLine().AppendLine();
-            }
-
             // Add type name
             Builder.AppendLine(
                 $"// module_{module.Definition.Name}");
-
-
-            Builder.AppendLine();
 
             base.Visit(module);
         }
 
         public override void Visit(Type type)
         {
-            // Add some newlines
-            if (Builder.Length > 0)
-            {
-                Builder.AppendLine();
-            }
-
             // Add type name
             Builder.AppendLine(
                 $"// type_{type.Definition.Name}<{String.Join(",", type.Definition.GenericParameters.Select(e => e.DeclaringType.FullName))}>");
 
+            base.Visit(type);
 
             Builder.AppendLine();
-
-            base.Visit(type);
         }
 
         public override void Visit(Method method)
         {
-            // Add some newlines
-            if (Builder.Length > 0)
-            {
-                Builder.AppendLine();
-            }
-
             // Add method name
             Builder.AppendLine(
                 $"// method_{method.Definition.Name}<{String.Join(",", method.Definition.GenericParameters.Select(e => e.DeclaringType.FullName))}>({String.Join(", ", method.Definition.Parameters.Select(e => $"{e.ParameterType.FullName} {e.Name}"))})");
-
-            Builder.AppendLine();
 
             base.Visit(method);
         }
@@ -75,7 +51,7 @@ namespace SCIL.Processor.FlixInstructionGenerators
         public override void Visit(Block block)
         {
             // Add block info
-            Builder.AppendLine().AppendLine($"// Begin block (first offset: {block.Nodes.First().Instruction.Offset})");
+            Builder.AppendLine($"// Begin block (first offset: {block.Nodes.First().Instruction.Offset})");
             foreach (var sources in block.Sources)
             {
                 Builder.AppendLine($"// Source (offset: {sources.Nodes.Last().Instruction.Offset})");
@@ -89,6 +65,8 @@ namespace SCIL.Processor.FlixInstructionGenerators
             {
                 Builder.AppendLine($"// Target (offset: {target.Nodes.First().Instruction.Offset})");
             }
+
+            Builder.AppendLine();
         }
 
         public override void Visit(Node node)
@@ -119,7 +97,7 @@ namespace SCIL.Processor.FlixInstructionGenerators
 
         public override string ToString()
         {
-            return Builder.ToString();
+            return Builder.ToString().TrimEnd();
         }
     }
 }
