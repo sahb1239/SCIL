@@ -75,12 +75,20 @@ namespace SCIL.Processor.FlixInstructionGenerators
         public override void Visit(Block block)
         {
             // Add block info
-            Builder.AppendLine($"// Begin block (first offset: {block.Nodes.First().Instruction.Offset})");
+            Builder.AppendLine().AppendLine($"// Begin block (first offset: {block.Nodes.First().Instruction.Offset})");
+            foreach (var sources in block.Sources)
+            {
+                Builder.AppendLine($"// Source (offset: {sources.Nodes.Last().Instruction.Offset})");
+            }
 
             base.Visit(block);
 
             // Add block info
             Builder.AppendLine($"// End block (last offset: {block.Nodes.Last().Instruction.Offset})");
+            foreach (var target in block.Targets)
+            {
+                Builder.AppendLine($"// Target (offset: {target.Nodes.First().Instruction.Offset})");
+            }
         }
 
         public override void Visit(Node node)
