@@ -12,20 +12,10 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
             switch (node.OpCode.Code)
             {
                 case Code.Neg:
-                    if (node.Operand != null)
-                    {
-                        throw new ArgumentException(nameof(node.Operand));
-                    }
-
                     outputFlixCode = $"NegStm({node.PushStackNames.First()}, {node.PopStackNames.First()}).";
                     return true;
 
                 case Code.Not:
-                    if (node.Operand != null)
-                    {
-                        throw new ArgumentException(nameof(node.Operand));
-                    }
-                    
                     outputFlixCode = $"NotStm({node.PushStackNames.First()}, {node.PopStackNames.First()}).";
                     return true;
             }

@@ -130,7 +130,17 @@ namespace SCIL
         public FieldReference FieldReference => Operand as FieldReference;
         public string FieldName => FieldReference.FullName;
 
-        public string VariableName => ((long) Operand).ToString();
+        public string VariableName
+        {
+            get
+            {
+                if (Operand is VariableDefinition variableDefinition)
+                {
+                    return variableDefinition.Index.ToString();
+                }
+                return ((sbyte) Operand).ToString();
+            }
+        }
 
         public override string ToString()
         {
