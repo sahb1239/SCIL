@@ -4,7 +4,7 @@
     {
         void Visit(Node node);
         void Visit(Block block);
-        void Visit(Method block);
+        void Visit(Method method);
         void Visit(Type type);
         void Visit(Module module);
     }

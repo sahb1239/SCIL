@@ -12,6 +12,7 @@ namespace SCIL.Processor.Nodes
         private readonly List<Block> _targets = new List<Block>();
         private readonly List<Block> _sources = new List<Block>();
         private readonly List<Node> _nodes = new List<Node>();
+        public List<Block> Dominates = new List<Block>();
 
         public Block(params Instruction[] instructions)
         {
