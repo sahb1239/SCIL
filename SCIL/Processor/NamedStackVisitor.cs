@@ -18,28 +18,116 @@ namespace SCIL.Processor
             visitor.Visit(method);
         }
 
+        private class CILStack
+        {
+            private readonly Method _method;
+            private readonly Stack<string> _stack = new Stack<string>();
+            private readonly SharedStackNames _stackNames;
+
+            public CILStack(Method method)
+            {
+                _method = method;
+                _stackNames = new SharedStackNames();
+            }
+
+            private CILStack(Method method, SharedStackNames names)
+            {
+                _method = method;
+                _stackNames = names;
+            }
+
+            public string PopStack()
+            {
+                var popped = _stack.Pop();
+                return popped;
+            }
+
+            public string PushStack()
+            {
+                var index = _stack.Count;
+                var methodName = _method.Definition.FullName;
+
+                string indexName = $"\"{methodName}_{_stackNames.GetNewName(index)}\"";
+                _stack.Push(indexName);
+                return indexName;
+            }
+
+            public CILStack Copy()
+            {
+                var newStack = new CILStack(_method, _stackNames);
+
+                // Copy stack
+                foreach (var currentStackItem in _stack)
+                {
+                    newStack._stack.Push(currentStackItem);
+                }
+
+                return newStack;
+            }
+
+            private class SharedStackNames
+            {
+                private List<List<string>> _names = new List<List<string>>();
+
+                public string GetNewName(int index)
+                {
+                    // Add extra index list if it does not exists
+                    if (_names.Count <= index)
+                    {
+                        _names.Add(new List<string>());
+                    }
+
+                    // Get index list
+                    var indexList = _names[index];
+                    var indexName = $"{index}_{indexList.Count}";
+                    indexList.Add(indexName);
+
+                    return indexName;
+                }
+            }
+        }
+
         private class MethodVisitor : BaseVisitor
         {
             private readonly Method _method;
-            private readonly Stack<List<string>> _stack = new Stack<List<string>>();
-            private readonly Stack<List<string>> _poppedStack = new Stack<List<string>>();
+            private readonly IDictionary<Block, CILStack> _stacks = new Dictionary<Block, CILStack>();
 
             public MethodVisitor(Method method)
             {
                 _method = method;
             }
 
-            public override void Visit(Method method)
-            {
-                if (method != _method)
-                    throw new NotSupportedException();
-
-                base.Visit(method);
-            }
-
             public override void Visit(Block block)
             {
-                base.Visit(block);
+                CILStack currentStack;
+
+                // Get stack
+                if (block.Sources.Any())
+                {
+                    var stack = _stacks[block.Sources.First()];
+                    currentStack = stack.Copy();
+                }
+                else
+                {
+                    currentStack = new CILStack(_method);
+                }
+
+                // Add to stack list
+                _stacks[block] = currentStack;
+
+                // Run visitor
+                var visitor = new BlockVisitor(currentStack);
+                visitor.Visit(block);
+            }
+        }
+
+        private class BlockVisitor : BaseVisitor
+        {
+            private readonly CILStack _stack;
+
+            public BlockVisitor(CILStack stack)
+            {
+                _stack = stack ?? throw new ArgumentNullException(nameof(stack));
             }
 
             public override void Visit(Node node)
@@ -47,9 +135,9 @@ namespace SCIL.Processor
                 // Set stack names
                 node.SetPopStackNames(GetPopStackNames(node).ToArray());
                 node.SetPushStackNames(GetPushStackNames(node).ToArray());
-               
+
                 // Set argument names
-                
+
                 // Set variable names
 
                 base.Visit(node);
@@ -57,107 +145,17 @@ namespace SCIL.Processor
 
             private IEnumerable<string> GetPopStackNames(Node node)
             {
-                var code = node.OpCode;
-
-                // Handle pop
-                switch (code.StackBehaviourPop)
+                for (int i = 0; i < node.GetRequiredNames().popNames; i++)
                 {
-                    case StackBehaviour.Pop0:
-                        break;
-                    case StackBehaviour.Pop1:
-                    case StackBehaviour.Popi:
-                        yield return PopStack();
-                        break;
-                    case StackBehaviour.Popref:
-                        yield return PopStack();
-                        break;
-                    case StackBehaviour.Pop1_pop1:
-                    case StackBehaviour.Popi_pop1:
-                    case StackBehaviour.Popi_popi:
-                    case StackBehaviour.Popi_popr4:
-                    case StackBehaviour.Popi_popr8:
-                        yield return PopStack();
-                        yield return PopStack();
-                        break;
-                    case StackBehaviour.Popref_popi_popi:
-                    case StackBehaviour.Popref_popi_popr4:
-                    case StackBehaviour.Popref_popi_popr8:
-                    case StackBehaviour.Popref_popi_popi8:
-                    case StackBehaviour.Popref_popi_popref:
-                        yield return PopStack();
-                        yield return PopStack();
-                        yield return PopStack();
-                        break;
-                    case StackBehaviour.Varpop:
-                        //yield return PopStack();
-                        Console.WriteLine("Not sure what this is");
-                        break;
-                    case StackBehaviour.PopAll:
-                        while (_stack.Any())
-                        {
-                            PopStack();
-                        }
-                        break;
-                    default:
-                        throw new NotImplementedException($"StackBehaviour on pop {code.StackBehaviourPop} not implemented");
+                    yield return _stack.PopStack();
                 }
             }
+
             private IEnumerable<string> GetPushStackNames(Node node)
             {
-                var code = node.OpCode;
-
-                // Handle pop
-                switch (code.StackBehaviourPush)
+                for (int i = 0; i < node.GetRequiredNames().pushNames; i++)
                 {
-                    case StackBehaviour.Push0:
-                        break;
-                    case StackBehaviour.Push1:
-                    case StackBehaviour.Pushi:
-                    case StackBehaviour.Pushi8:
-                    case StackBehaviour.Pushr4:
-                    case StackBehaviour.Pushr8:
-                    case StackBehaviour.Pushref:
-                        yield return PushStack();
-                        break;
-                    case StackBehaviour.Push1_push1:
-                        yield return PushStack();
-                        yield return PushStack();
-                        break;
-                    case StackBehaviour.Varpush:
-                        //yield return PushStack();
-                        //Console.WriteLine("Not sure what this is");
-                        break;
-                    default:
-                        throw new NotImplementedException($"StackBehaviour on push {code.StackBehaviourPush} not implemented");
-                }
-            }
-
-            private string PopStack()
-            {
-                var popped = _stack.Pop();
-                _poppedStack.Push(popped);
-                return popped.Last();
-            }
-
-            private string PushStack()
-            {
-                var index = _stack.Count;
-                var methodName = _method.Definition.FullName;
-
-                if (_poppedStack.Any())
-                {
-                    var pop = _poppedStack.Pop();
-                    _stack.Push(pop);
-
-                    string indexName = $"\"{methodName}_{index}_{pop.Count}\"";
-                    pop.Add(indexName);
-                    return indexName;
-                }
-                else
-                {
-                    string indexName = $"\"{methodName}_{index}\"";
-                    _stack.Push(new List<string> { indexName });
-                    return indexName;
+                    yield return _stack.PushStack();
                 }
             }
         }
