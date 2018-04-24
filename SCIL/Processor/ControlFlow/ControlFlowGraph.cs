@@ -19,7 +19,7 @@ namespace SCIL
             {
                 types.Add(GenerateType(type));
             }
-
+            
             return new Module(module, types);
         }
 
@@ -172,6 +172,9 @@ namespace SCIL
                     pendingBlocks.Add(target);
                 }
             }
+
+            // Order reachable blocks
+            reachableBlocks = reachableBlocks.OrderBy(e => e.Nodes.First().Instruction.Offset).ToList();
 
             // Get method block
             var methodBlock = new Method(method, startBlock, reachableBlocks);
