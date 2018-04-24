@@ -33,7 +33,16 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
                     {
                         throw new ArgumentException(nameof(node.Operand));
                     }
-                    outputFlixCode = $"RetStm(\"RET_{methodBody.Method.FullName}\").";
+
+                    if (node.Block.Method.Definition.ReturnType.FullName == "System.Void")
+                    {
+                        outputFlixCode = $"RetVoidStm().";
+                    }
+                    else
+                    {
+                        outputFlixCode = $"RetStm(\"RET_{methodBody.Method.FullName}\").";
+                    }
+                    
                     return true;
             }
 
@@ -73,7 +82,7 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
             // Detect void stm
             if (method.ReturnType.FullName == "System.Void")
             {
-                output.AppendLine($"{callType}VoidStm().");
+                output.AppendLine($"{callType}VoidStm(\"{method.FullName}\").");
             }
             else
             {
