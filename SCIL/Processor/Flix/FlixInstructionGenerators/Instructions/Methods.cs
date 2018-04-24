@@ -44,9 +44,43 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
         private string call(string callType, Node node, MethodReference method)
         {
             StringBuilder output = new StringBuilder();
-            
+
+            // Pop the number of arguments
+            for (int i = method.Parameters.Count - 1; i >= 0; i--)
+            {
+                uint parameterIndex;
+                if (method.HasThis)
+                {
+                    parameterIndex = (uint)i + 1;
+                }
+                else
+                {
+                    parameterIndex = (uint)i;
+                }
+
+                output.AppendLine(
+                    $"StargStm({node.ArgumentName}, {node.PopStackNames.ElementAt(i)}, {parameterIndex}).");
+            }
+
+            // Add this to arguments
+            if (method.HasThis)
+            {
+                output.AppendLine(
+                    $"StargStm({node.ArgumentName}, {node.PopStackNames.ElementAt(0)}, 0).");
+            }
+
             // Add call statement
-            output.AppendLine($"{callType}Stm({node.PushStackNames.First()}, \"RET_{method.FullName}\", \"{method.FullName}\").");
+            // Detect void stm
+            if (method.ReturnType.FullName == "System.Void")
+            {
+                output.AppendLine($"{callType}VoidStm().");
+            }
+            else
+            {
+                output.AppendLine($"{callType}Stm({node.PushStackNames.First()}, \"RET_{method.FullName}\", \"{method.FullName}\").");
+            }
+
+            //output.AppendLine($"{callType}Stm({node.PushStackNames.First()}, \"RET_{method.FullName}\", \"{method.FullName}\").");
 
             return output.ToString().TrimEnd();
         }

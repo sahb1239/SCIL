@@ -97,6 +97,37 @@ namespace SCIL
                     throw new NotImplementedException($"StackBehaviour on push {OpCode.StackBehaviourPush} not implemented");
             }
 
+            // Detect method calling
+            switch (OpCode.Code)
+            {
+                case Code.Call:
+                case Code.Calli:
+                case Code.Callvirt:
+                    // Detect the required numbers of parameters to pop
+                    var method = (MethodReference) Operand;
+                    var parameters = method.Parameters.Count;
+
+                    // Detect this
+                    if (method.HasThis)
+                    {
+                        parameters++;
+                    }
+
+                    pop = parameters;
+
+                    // Detect the required arguments to push
+                    if (method.ReturnType.FullName == "System.Void")
+                    {
+                        push = 0;
+                    }
+                    else
+                    {
+                        push = 1;
+                    }
+
+                    break;
+            }
+
             return (pop, push);
         }
 
