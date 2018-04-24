@@ -131,6 +131,74 @@ namespace SCIL
             return (pop, push);
         }
 
+        public int? GetRequiredVariableIndex()
+        {
+            /*
+             * if (Operand is VariableDefinition variableDefinition)
+                {
+                    return variableDefinition.Index.ToString();
+                }
+                return ((sbyte) Operand).ToString();
+             */
+
+            switch (OpCode.Code)
+            {
+                case Code.Ldloc:
+                case Code.Ldloc_S:
+                case Code.Ldloca:
+                case Code.Ldloca_S:
+                case Code.Stloc:
+                case Code.Stloc_S:
+                    if (Operand is VariableDefinition variableDefinition)
+                    {
+                        return variableDefinition.Index;
+                    }
+                    else if (Operand is sbyte index)
+                    {
+                        return index;
+                    }
+
+                    throw new NotImplementedException();
+                case Code.Ldloc_0:
+                case Code.Ldloc_1:
+                case Code.Ldloc_2:
+                case Code.Ldloc_3:
+                    return OpCode.Code - Code.Ldloc_0;
+                case Code.Stloc_0:
+                case Code.Stloc_1:
+                case Code.Stloc_2:
+                case Code.Stloc_3:
+                    return OpCode.Code - Code.Stloc_0;
+            }
+
+            return null;
+        }
+
+        public int? GetRequiredArgumentIndex()
+        {
+            switch (OpCode.Code)
+            {
+                case Code.Ldarg:
+                case Code.Ldarga:
+                case Code.Ldarg_S:
+                case Code.Starg:
+                case Code.Starg_S:
+                    if (Operand is sbyte index)
+                    {
+                        return index;
+                    }
+
+                    throw new NotImplementedException();
+                case Code.Ldarg_0:
+                case Code.Ldarg_1:
+                case Code.Ldarg_2:
+                case Code.Ldarg_3:
+                    return OpCode.Code - Code.Ldarg_0;
+            }
+
+            return null;
+        }
+
         public void SetPopStackNames(params string[] names)
         {
             var required = GetRequiredNames();
@@ -155,23 +223,12 @@ namespace SCIL
 
         public IReadOnlyCollection<string> PopStackNames => _popStackNames.AsReadOnly();
         public IReadOnlyCollection<string> PushStackNames => _pushStackNames.AsReadOnly();
-        public uint ArgumentNumber { get; set; }
-        public string ArgumentName => ArgumentNumber.ToString();
+        public string ArgumentName { get; set; }
 
         public FieldReference FieldReference => Operand as FieldReference;
         public string FieldName => FieldReference.FullName;
 
-        public string VariableName
-        {
-            get
-            {
-                if (Operand is VariableDefinition variableDefinition)
-                {
-                    return variableDefinition.Index.ToString();
-                }
-                return ((sbyte) Operand).ToString();
-            }
-        }
+        public string VariableName { get; set; }
 
         public override string ToString()
         {

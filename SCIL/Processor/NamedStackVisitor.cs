@@ -17,76 +17,12 @@ namespace SCIL.Processor
             var visitor = new MethodVisitor(method);
             visitor.Visit(method);
         }
-
-        private class CILStack
-        {
-            private readonly Method _method;
-            private Stack<string> _stack = new Stack<string>();
-            private readonly SharedStackNames _stackNames;
-
-            public CILStack(Method method)
-            {
-                _method = method;
-                _stackNames = new SharedStackNames();
-            }
-
-            private CILStack(Method method, SharedStackNames names)
-            {
-                _method = method;
-                _stackNames = names;
-            }
-
-            public string PopStack()
-            {
-                var popped = _stack.Pop();
-                return popped;
-            }
-
-            public string PushStack()
-            {
-                var index = _stack.Count;
-                var methodName = _method.Definition.FullName;
-
-                string indexName = $"\"{methodName}_{_stackNames.GetNewName(index)}\"";
-                _stack.Push(indexName);
-                return indexName;
-            }
-
-            public CILStack Copy()
-            {
-                // Copy stack
-                // TODO: Check if this is returning what is expected
-                var newStack = new CILStack(_method, _stackNames) {_stack = new Stack<string>(_stack)};
-
-                return newStack;
-            }
-
-            private class SharedStackNames
-            {
-                private List<List<string>> _names = new List<List<string>>();
-
-                public string GetNewName(int index)
-                {
-                    // Add extra index list if it does not exists
-                    if (_names.Count <= index)
-                    {
-                        _names.Add(new List<string>());
-                    }
-
-                    // Get index list
-                    var indexList = _names[index];
-                    var indexName = $"{index}_{indexList.Count}";
-                    indexList.Add(indexName);
-
-                    return indexName;
-                }
-            }
-        }
-
+        
         private class MethodVisitor : BaseVisitor
         {
             private readonly Method _method;
             private readonly IDictionary<Block, CILStack> _stacks = new Dictionary<Block, CILStack>();
+            private readonly IDictionary<Block, Variables> _variables = new Dictionary<Block, Variables>();
 
             public MethodVisitor(Method method)
             {
@@ -111,8 +47,23 @@ namespace SCIL.Processor
                 // Add to stack list
                 _stacks[block] = currentStack;
 
+                // Get variables
+                Variables currentVariables;
+                if (block.Sources.Any())
+                {
+                    var variables = _variables[block.Sources.First()];
+                    currentVariables = variables.Copy();
+                }
+                else
+                {
+                    currentVariables = new Variables(_method);
+                }
+
+                // Add to stack list
+                _variables[block] = currentVariables;
+
                 // Run visitor
-                var visitor = new BlockVisitor(currentStack);
+                var visitor = new BlockVisitor(currentStack, currentVariables);
                 visitor.Visit(block);
             }
         }
@@ -120,10 +71,12 @@ namespace SCIL.Processor
         private class BlockVisitor : BaseVisitor
         {
             private readonly CILStack _stack;
+            private readonly Variables _variables;
 
-            public BlockVisitor(CILStack stack)
+            public BlockVisitor(CILStack stack, Variables variables)
             {
                 _stack = stack ?? throw new ArgumentNullException(nameof(stack));
+                _variables = variables ?? throw new ArgumentNullException(nameof(variables));
             }
 
             public override void Visit(Node node)
@@ -133,8 +86,14 @@ namespace SCIL.Processor
                 node.SetPushStackNames(GetPushStackNames(node).ToArray());
 
                 // Set argument names
+                node.ArgumentName = $"\"{node.GetRequiredArgumentIndex()}\"";
 
                 // Set variable names
+                var variableIndex = node.GetRequiredVariableIndex();
+                if (variableIndex.HasValue)
+                {
+                    node.VariableName = $"\"{_variables.GetIndex(variableIndex.Value)}\"";
+                }
 
                 base.Visit(node);
             }
@@ -154,6 +113,118 @@ namespace SCIL.Processor
                     yield return _stack.PushStack();
                 }
             }
+        }
+    }
+
+    public class CILStack
+    {
+        private readonly Method _method;
+        private Stack<string> _stack = new Stack<string>();
+        private readonly SharedNames _stackNames;
+
+        public CILStack(Method method)
+        {
+            _method = method;
+            _stackNames = new SharedNames();
+        }
+
+        private CILStack(Method method, SharedNames stackNames)
+        {
+            _method = method;
+            _stackNames = stackNames;
+        }
+
+        public string PopStack()
+        {
+            var popped = _stack.Pop();
+            return popped;
+        }
+
+        public string PushStack()
+        {
+            var index = _stack.Count;
+            var methodName = _method.Definition.FullName;
+
+            string indexName = $"\"{methodName}_{_stackNames.GetNewName(index)}\"";
+            _stack.Push(indexName);
+            return indexName;
+        }
+
+        public CILStack Copy()
+        {
+            // Copy stack
+            // TODO: Check if this is returning what is expected
+            var newStack = new CILStack(_method, _stackNames) { _stack = new Stack<string>(_stack) };
+
+            return newStack;
+        }
+    }
+
+    public class Variables
+    {
+        private readonly Method _method;
+        private readonly SharedNames _variableNames;
+
+        private List<string> _currentNames = new List<string>();
+
+        public Variables(Method method)
+        {
+            _method = method;
+            _variableNames = new SharedNames();
+        }
+
+        private Variables(Method method, SharedNames names)
+        {
+            _method = method;
+            _variableNames = names;
+        }
+
+        public string GetIndex(int index)
+        {
+            // Add null to names
+            while (_currentNames.Count <= index)
+                _currentNames.Add(null);
+
+            return _currentNames[index];
+        }
+
+        public string SetIndex(int index)
+        {
+            // Add null to names
+            while (_currentNames.Count <= index)
+                _currentNames.Add(null);
+
+            // Add new name
+            return _currentNames[index] = _variableNames.GetNewName(index);
+        }
+
+        public Variables Copy()
+        {
+            return new Variables(_method, _variableNames)
+            {
+                _currentNames = new List<string>(_currentNames)
+            };
+        }
+    }
+
+    public class SharedNames
+    {
+        private readonly List<List<string>> _names = new List<List<string>>();
+
+        public string GetNewName(int index)
+        {
+            // Add extra index list if it does not exists
+            if (_names.Count <= index)
+            {
+                _names.Add(new List<string>());
+            }
+
+            // Get index list
+            var indexList = _names[index];
+            var indexName = $"{index}_{indexList.Count}";
+            indexList.Add(indexName);
+
+            return indexName;
         }
     }
 }
