@@ -21,7 +21,7 @@ namespace SCIL.Processor
         private class CILStack
         {
             private readonly Method _method;
-            private readonly Stack<string> _stack = new Stack<string>();
+            private Stack<string> _stack = new Stack<string>();
             private readonly SharedStackNames _stackNames;
 
             public CILStack(Method method)
@@ -54,13 +54,9 @@ namespace SCIL.Processor
 
             public CILStack Copy()
             {
-                var newStack = new CILStack(_method, _stackNames);
-
                 // Copy stack
-                foreach (var currentStackItem in _stack)
-                {
-                    newStack._stack.Push(currentStackItem);
-                }
+                // TODO: Check if this is returning what is expected
+                var newStack = new CILStack(_method, _stackNames) {_stack = new Stack<string>(_stack)};
 
                 return newStack;
             }
