@@ -215,6 +215,11 @@ namespace SCIL.Processor
             while (_currentNames.Count <= index)
                 _currentNames.Add(null);
 
+            // If current name is not set (for example ldarga we need to set it)
+            var currentName = _currentNames[index];
+            if (currentName == null)
+                return SetIndex(index);
+
             return _currentNames[index];
         }
 
