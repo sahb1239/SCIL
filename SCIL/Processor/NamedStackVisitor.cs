@@ -122,7 +122,7 @@ namespace SCIL.Processor
                         variableName = _variables.GetIndex(variableIndex.index);
                     }
 
-                    node.VariableName = $"\"{variableName}\"";
+                    node.VariableName = $"{variableName}";
                 }
 
                 base.Visit(node);
@@ -224,8 +224,10 @@ namespace SCIL.Processor
             while (_currentNames.Count <= index)
                 _currentNames.Add(null);
 
+            var methodName = _method.Definition.FullName;
+
             // Add new name
-            return _currentNames[index] = _variableNames.GetNewName(index);
+            return _currentNames[index] = $"\"{methodName}_{ _variableNames.GetNewName(index)}\"";
         }
 
         public Variables Copy()
