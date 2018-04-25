@@ -50,13 +50,33 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
                     }
                     throw new ArgumentOutOfRangeException(nameof(node.Operand));
             }
-
             outputFlixCode = null;
             return false;
         }
 
-        private string stloc(Node node) => $"StlocStm({node.VariableName}, {node.PopStackNames.First()}).";
+        private string stloc(Node node) => $"StlocStm({node.VariableName}, {node.PopStackNames.First()}, \"{GetVariableDefinition(node).VariableType.FullName}\").";
         private string ldloc(Node node) => $"LdlocStm({node.PushStackNames.First()}, {node.VariableName}).";
         private string ldloca(Node node) => $"LdlocaStm({node.PushStackNames.First()}, {node.VariableName}).";
+
+        private VariableDefinition GetVariableDefinition(Node node)
+        {
+            if (node.Operand is VariableDefinition variableDefinition)
+                return variableDefinition;
+
+            var index = GetVariableIndex(node.Operand);
+            return node.Block.Method.Definition.Body.Variables.First(e => e.Index == index);
+        }
+        private int GetVariableIndex(object operand) {
+            if (operand is sbyte index)
+            {
+                return index;
+            }
+            else if (operand is VariableDefinition variableDefinition)
+            {
+                return variableDefinition.Index;
+            }
+
+            throw new NotImplementedException();
+        }
     }
 }

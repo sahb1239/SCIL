@@ -36,11 +36,12 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
 
                     if (node.Block.Method.Definition.ReturnType.FullName == "System.Void")
                     {
-                        outputFlixCode = $"RetVoidStm().";
+                        // Nothing to handle here
+                        outputFlixCode = "// Return from void method";
                     }
                     else
                     {
-                        outputFlixCode = $"RetStm(\"RET_{methodBody.Method.FullName}\").";
+                        outputFlixCode = $"RetStm(\"RET_{methodBody.Method.NameOnly()}\").";
                     }
                     
                     return true;
@@ -82,11 +83,11 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
             // Detect void stm
             if (method.ReturnType.FullName == "System.Void")
             {
-                output.AppendLine($"{callType}VoidStm(\"{method.FullName}\").");
+                output.AppendLine($"{callType}Stm(\"NIL\", \"\", \"{method.NameOnly()}\", \"{method.ReturnType}\").");
             }
             else
             {
-                output.AppendLine($"{callType}Stm({node.PushStackNames.First()}, \"RET_{method.FullName}\", \"{method.FullName}\").");
+                output.AppendLine($"{callType}Stm({node.PushStackNames.First()}, \"RET_{method.NameOnly()}\", \"{method.NameOnly()}\", \"{method.ReturnType}\").");
             }
 
             //output.AppendLine($"{callType}Stm({node.PushStackNames.First()}, \"RET_{method.FullName}\", \"{method.FullName}\").");
