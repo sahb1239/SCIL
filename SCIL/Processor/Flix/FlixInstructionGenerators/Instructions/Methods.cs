@@ -56,7 +56,7 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
             StringBuilder output = new StringBuilder();
 
             // Pop the number of arguments
-            for (int i = method.Parameters.Count - 1; i >= 0; i--)
+            for (int i = 0; i < method.Parameters.Count; i++)
             {
                 uint parameterIndex;
                 if (method.HasThis)
@@ -69,14 +69,14 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
                 }
 
                 output.AppendLine(
-                    $"StargStm(\"{method.FullName}_{parameterIndex}\", {node.PopStackNames.ElementAt(i)}, {parameterIndex}).");
+                    $"StargStm(\"{method.FullName}_{parameterIndex}\", {node.PopStackNames.Reverse().ElementAt(i)}, {parameterIndex}).");
             }
 
             // Add this to arguments
             if (method.HasThis)
             {
                 output.AppendLine(
-                    $"StargStm(\"{method.FullName}_{0}\", {node.PopStackNames.ElementAt(0)}, 0).");
+                    $"StargStm(\"{method.FullName}_{0}\", {node.PopStackNames.Reverse().ElementAt(0)}, 0).");
             }
 
             // Add call statement
