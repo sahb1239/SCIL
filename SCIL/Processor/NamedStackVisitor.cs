@@ -173,7 +173,7 @@ namespace SCIL.Processor
         public string PushStack()
         {
             var index = _stack.Count;
-            var methodName = _method.Definition.FullName;
+            var methodName = _method.Definition.NameOnly();
 
             string indexName = $"\"{methodName}_{_stackNames.GetNewName(index)}\"";
             _stack.Push(indexName);
@@ -229,7 +229,7 @@ namespace SCIL.Processor
             while (_currentNames.Count <= index)
                 _currentNames.Add(null);
 
-            var methodName = _method.Definition.FullName;
+            var methodName = _method.Definition.NameOnly();
 
             // Add new name
             return _currentNames[index] = $"\"{methodName}_{ _variableNames.GetNewName(index)}\"";
