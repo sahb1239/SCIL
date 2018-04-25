@@ -87,12 +87,16 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
 
                 return (uint) finalIndex;
             }
+            else if (node.Operand is sbyte index)
+            {
+                return (uint) index;
+            }
 
             throw new NotImplementedException("Could not find operand index");
         }
 
-        private string ldarg(Node node) => $"LdargStm({node.PushStackNames.First()}, {node.ArgumentName}).";
-        private string ldarga(Node node) => $"LdargaStm({node.PushStackNames.First()}, {node.ArgumentName}).";
+        private string ldarg(Node node) => $"LdargStm({node.PushStackNames.First()}, \"{node.Block.Method.Definition.FullName}_{GetOperandIndex(node)}\").";
+        private string ldarga(Node node) => $"LdargaStm({node.PushStackNames.First()}, \"{node.Block.Method.Definition.FullName}_{GetOperandIndex(node)}\").";
 
         private string starg(Node node, uint argNo) =>
             $"StargStm({node.ArgumentName}, {node.PopStackNames.First()}, {argNo}).";
