@@ -81,18 +81,48 @@ namespace SCIL.Processor
 
             public override void Visit(Node node)
             {
-                // Set stack names
-                node.SetPopStackNames(GetPopStackNames(node).ToArray());
-                node.SetPushStackNames(GetPushStackNames(node).ToArray());
+                // Detect exception handling
+                if (node.Block.Method.Definition.Body.ExceptionHandlers.Any(e => e.HandlerStart == node.Instruction))
+                {
+                    var pushNames = new List<string>();
+                    pushNames.Add(_stack.PushStack());
+
+                    // Get all pop names
+                    node.SetPopStackNames(GetPopStackNames(node).ToArray());
+
+                    // Get the rest of the push names
+                    for (int i = 1; i < node.GetRequiredNames().pushNames; i++)
+                    {
+                        pushNames.Add(_stack.PushStack());
+                    }
+                    node.SetPushStackNames(pushNames.ToArray());
+                }
+                else
+                {
+                    node.SetPopStackNames(GetPopStackNames(node).ToArray());
+                    node.SetPushStackNames(GetPushStackNames(node).ToArray());
+                }
 
                 // Set argument names
                 node.ArgumentName = $"\"{node.GetRequiredArgumentIndex()}\"";
 
                 // Set variable names
                 var variableIndex = node.GetRequiredVariableIndex();
-                if (variableIndex.HasValue)
+                if (variableIndex.variableInstruction)
                 {
-                    node.VariableName = $"\"{_variables.GetIndex(variableIndex.Value)}\"";
+                    // Get variable name
+                    string variableName;
+
+                    if (variableIndex.set)
+                    {
+                        variableName = _variables.SetIndex(variableIndex.index);
+                    }
+                    else
+                    {
+                        variableName = _variables.GetIndex(variableIndex.index);
+                    }
+
+                    node.VariableName = $"\"{variableName}\"";
                 }
 
                 base.Visit(node);
@@ -214,7 +244,7 @@ namespace SCIL.Processor
         public string GetNewName(int index)
         {
             // Add extra index list if it does not exists
-            if (_names.Count <= index)
+            while (_names.Count <= index)
             {
                 _names.Add(new List<string>());
             }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using SCIL.Processor.Nodes;
@@ -128,10 +129,27 @@ namespace SCIL
                     break;
             }
 
+            // Detect exception handling
+            if (this.Block.Method.Definition.Body.ExceptionHandlers.Any(e => e.HandlerStart == Instruction))
+            {
+                // We recieve the exception in start of exception
+                push += 1;
+            }
+
             return (pop, push);
         }
 
-        public int? GetRequiredVariableIndex()
+        private int GetVariableIndex(object operand)
+        {
+            if (operand is VariableDefinition variableDefinition)
+                return variableDefinition.Index;
+            if (operand is sbyte index)
+                return index;
+
+            throw new NotImplementedException();
+        }
+
+        public (bool variableInstruction, int index, bool set) GetRequiredVariableIndex()
         {
             /*
              * if (Operand is VariableDefinition variableDefinition)
@@ -147,31 +165,23 @@ namespace SCIL
                 case Code.Ldloc_S:
                 case Code.Ldloca:
                 case Code.Ldloca_S:
+                    return (true, GetVariableIndex(Operand), false);
                 case Code.Stloc:
                 case Code.Stloc_S:
-                    if (Operand is VariableDefinition variableDefinition)
-                    {
-                        return variableDefinition.Index;
-                    }
-                    else if (Operand is sbyte index)
-                    {
-                        return index;
-                    }
-
-                    throw new NotImplementedException();
+                    return (true, GetVariableIndex(Operand), true);
                 case Code.Ldloc_0:
                 case Code.Ldloc_1:
                 case Code.Ldloc_2:
                 case Code.Ldloc_3:
-                    return OpCode.Code - Code.Ldloc_0;
+                    return (true, OpCode.Code - Code.Ldloc_0, false);
                 case Code.Stloc_0:
                 case Code.Stloc_1:
                 case Code.Stloc_2:
                 case Code.Stloc_3:
-                    return OpCode.Code - Code.Stloc_0;
+                    return (true, OpCode.Code - Code.Stloc_0, true);
             }
 
-            return null;
+            return (false, -1, false);
         }
 
         public int? GetRequiredArgumentIndex()
