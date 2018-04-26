@@ -22,7 +22,7 @@ namespace SCIL.Processor.ControlFlow
             {
                 foreach(Node node in method.Blocks.ElementAt(i).Nodes)
                 {
-                    if(node.Code.StackBehaviourPop > 0)
+                    if(node.OpCode.StackBehaviourPop > 0)
                     {
                         Variables.Add(Tuple.Create(node, GetVariable(node)));
                     }
@@ -87,7 +87,7 @@ namespace SCIL.Processor.ControlFlow
 
         private static byte GetVariable(Node node)
         {
-            switch (node.Code.Code)
+            switch (node.OpCode.Code)
             {
                 case Code.Starg:
                 case Code.Starg_S:
@@ -99,7 +99,7 @@ namespace SCIL.Processor.ControlFlow
                 case Code.Stloc_3:
                 case Code.Stloc_S:
                 case Code.Stsfld:
-                    return node.Code.Op1;
+                    return node.OpCode.Op1;
 
             }
             throw new InvalidOperationException();
