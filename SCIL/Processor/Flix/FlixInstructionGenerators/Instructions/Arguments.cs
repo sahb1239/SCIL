@@ -95,8 +95,8 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
             throw new NotImplementedException("Could not find operand index");
         }
 
-        private string ldarg(Node node) => $"LdargStm({node.PushStackNames.First()}, \"{node.Block.Method.Definition.NameOnly()}_{GetOperandIndex(node)}\").";
-        private string ldarga(Node node) => $"LdargaStm({node.PushStackNames.First()}, \"{node.Block.Method.Definition.NameOnly()}_{GetOperandIndex(node)}\").";
+        private string ldarg(Node node) => $"LdargStm({node.PushStackNames.First()}, \"{node.Block.Method.Definition.NameOnly()}\", {GetOperandIndex(node)}).";
+        private string ldarga(Node node) => $"LdargaStm({node.PushStackNames.First()}, \"{node.Block.Method.Definition.NameOnly()}\", {GetOperandIndex(node)}).";
 
         private string starg(Node node, uint argNo) =>
             $"StargStm({node.ArgumentName}, {node.PopStackNames.First()}, {argNo}, \"{GetVariableDefinition(node).VariableType.FullName}\").";
