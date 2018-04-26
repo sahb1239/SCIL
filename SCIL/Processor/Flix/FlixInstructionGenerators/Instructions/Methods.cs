@@ -41,7 +41,7 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
                     }
                     else
                     {
-                        outputFlixCode = $"RetStm(\"RET_{methodBody.Method.NameOnly()}\").";
+                        outputFlixCode = $"RetStm(\"RET_{methodBody.Method.NameOnly()}\", {node.Block.Nodes.Reverse().ElementAt(1).PushStackNames.First()}).";
                     }
                     
                     return true;
