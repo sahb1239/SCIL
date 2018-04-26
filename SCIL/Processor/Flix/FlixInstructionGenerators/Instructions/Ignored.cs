@@ -9,7 +9,6 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
             switch (node.OpCode.Code)
             {
                 case Code.Nop:
-                case Code.Box:
                 case Code.Unbox:
                 case Code.Unbox_Any:
                     outputFlixCode = "// " + node.OpCode.Name;
