@@ -6,9 +6,15 @@ namespace SimpleCILProgram
     {
         static void Main(string[] args)
         {
-            var kk = Console.ReadKey().KeyChar;
+            var read = Console.ReadLine();
 
-            Console.WriteLine(kk);
+            Console.WriteLine(AddLOL(read));
+        }
+
+        static string AddLOL(string s)
+        {
+            return s + " LOL";
         }
     }
+
 }
