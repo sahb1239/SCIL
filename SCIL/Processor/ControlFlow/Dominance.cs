@@ -22,7 +22,7 @@ namespace SCIL.Processor.ControlFlow
                 Dominates(block).AddRange(method.Blocks);
             }
 
-            //The worklist contains all blocks under consideration, inialized with the start block
+            //The worklist contains all blocks under consideration, initialized with the start block
             List<Block> worklist = new List<Block> { method.StartBlock };
             while (worklist.Any())
             {
@@ -65,13 +65,13 @@ namespace SCIL.Processor.ControlFlow
 
         }
 
-        public static List<Block> SimpleDominanceFrontier(Block block, List<Block> graph)
+        public static List<Block> SimpleDominanceFrontier(Block block, Method method)
         {
             List<Block> DominanceFrontier = new List<Block>();
             
             //All blocks in the graph that are dominated by this block are considered
             List<Block> DominatedBy = new List<Block>();
-            foreach(Block other in graph)
+            foreach(Block other in method.Blocks)
             {
                 if (Dominates(other).Contains(block))
                 {

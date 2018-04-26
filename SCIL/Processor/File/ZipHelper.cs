@@ -14,10 +14,9 @@ namespace SCIL
         public static async Task<bool> CheckSignature(string filepath)
         {
             int signatureSize = 4;
-            string expectedSignature = SignatureZip;
 
             if (String.IsNullOrEmpty(filepath)) throw new ArgumentException("Must specify a filepath");
-            if (String.IsNullOrEmpty(expectedSignature)) throw new ArgumentException("Must specify a value for the expected file signature");
+            if (string.IsNullOrEmpty(SignatureZip)) throw new ArgumentException("Must specify a value for the expected file signature");
             using (FileStream fs = new FileStream(filepath, FileMode.Open, FileAccess.Read))
             {
                 if (fs.Length < signatureSize)
@@ -32,7 +31,7 @@ namespace SCIL
                     index += bytesRead;
                 }
                 string actualSignature = BitConverter.ToString(signature);
-                if (actualSignature == expectedSignature) return true;
+                if (actualSignature == SignatureZip) return true;
                 return false;
             }
         }
