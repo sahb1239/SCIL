@@ -129,6 +129,12 @@ namespace SCIL
                     break;
             }
 
+            // Detect return
+            if (OpCode.Code == Code.Ret && this.Block.Method.Definition.ReturnType.FullName != "System.Void")
+            {
+                pop = 1;
+            }
+
             // Detect exception handling
             if (this.Block.Method.Definition.Body.ExceptionHandlers.Any(e => e.HandlerStart == Instruction))
             {
