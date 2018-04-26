@@ -69,14 +69,14 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
                 }
 
                 output.AppendLine(
-                    $"StargStm(\"{method.FullName}_{parameterIndex}\", {node.PopStackNames.Reverse().ElementAt(i)}, {parameterIndex}).");
+                    $"StargStm(\"{method.NameOnly()}\", {node.PopStackNames.Reverse().ElementAt(i)}, {parameterIndex}, \"{method.Parameters[i].ParameterType}\").");
             }
 
             // Add this to arguments
             if (method.HasThis)
             {
                 output.AppendLine(
-                    $"StargStm(\"{method.FullName}_{0}\", {node.PopStackNames.Reverse().ElementAt(0)}, 0).");
+                    $"StargStm(\"{method.NameOnly()}\", {node.PopStackNames.Reverse().ElementAt(0)}, 0, \"{method.ReturnType}\").");
             }
 
             // Add call statement

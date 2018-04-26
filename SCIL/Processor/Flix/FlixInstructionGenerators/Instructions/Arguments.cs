@@ -95,10 +95,32 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
             throw new NotImplementedException("Could not find operand index");
         }
 
-        private string ldarg(Node node) => $"LdargStm({node.PushStackNames.First()}, \"{node.Block.Method.Definition.FullName}_{GetOperandIndex(node)}\").";
-        private string ldarga(Node node) => $"LdargaStm({node.PushStackNames.First()}, \"{node.Block.Method.Definition.FullName}_{GetOperandIndex(node)}\").";
+        private string ldarg(Node node) => $"LdargStm({node.PushStackNames.First()}, \"{node.Block.Method.Definition.NameOnly()}_{GetOperandIndex(node)}\").";
+        private string ldarga(Node node) => $"LdargaStm({node.PushStackNames.First()}, \"{node.Block.Method.Definition.NameOnly()}_{GetOperandIndex(node)}\").";
 
         private string starg(Node node, uint argNo) =>
-            $"StargStm({node.ArgumentName}, {node.PopStackNames.First()}, {argNo}).";
+            $"StargStm({node.ArgumentName}, {node.PopStackNames.First()}, {argNo}, \"{GetVariableDefinition(node).VariableType.FullName}\").";
+
+        private VariableDefinition GetVariableDefinition(Node node)
+        {
+            if (node.Operand is VariableDefinition variableDefinition)
+                return variableDefinition;
+
+            var index = GetVariableIndex(node.Operand);
+            return node.Block.Method.Definition.Body.Variables.First(e => e.Index == index);
+        }
+        private int GetVariableIndex(object operand)
+        {
+            if (operand is sbyte index)
+            {
+                return index;
+            }
+            else if (operand is VariableDefinition variableDefinition)
+            {
+                return variableDefinition.Index;
+            }
+
+            throw new NotImplementedException();
+        }
     }
 }

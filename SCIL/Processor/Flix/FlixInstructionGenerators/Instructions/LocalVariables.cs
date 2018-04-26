@@ -54,7 +54,8 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
             return false;
         }
 
-        private string stloc(Node node) => $"StlocStm({node.VariableName}, {node.PopStackNames.First()}, \"{GetVariableDefinition(node).VariableType.FullName}\").";
+       // private string stloc(Node node) => $"StlocStm({node.VariableName}, {node.PopStackNames.First()}, \"{GetVariableDefinition(node).VariableType.FullName}\").";
+        private string stloc(Node node) => $"StlocStm({node.VariableName}, {node.PopStackNames.First()}).";
         private string ldloc(Node node) => $"LdlocStm({node.PushStackNames.First()}, {node.VariableName}).";
         private string ldloca(Node node) => $"LdlocaStm({node.PushStackNames.First()}, {node.VariableName}).";
 
