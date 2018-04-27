@@ -69,7 +69,7 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
                 }
 
                 output.AppendLine(
-                    $"StargStm(\"{method.NameOnly()}\", {node.PopStackNames.Reverse().ElementAt(i)}, {parameterIndex}, \"{method.Parameters[i].ParameterType}\").");
+                    $"StargStm(\"{method.NameOnly()}\", {node.PopStackNames.Reverse().ElementAt((int)parameterIndex)}, {parameterIndex}, \"{method.Parameters[i].ParameterType}\").");
             }
 
             // Add this to arguments
