@@ -69,6 +69,9 @@ namespace SCIL
                 case StackBehaviour.PopAll:
                     pop = 0;
                     break;
+                case StackBehaviour.Popref_pop1:
+                    pop = 2;
+                    break;
                 default:
                     throw new NotImplementedException($"StackBehaviour on pop {OpCode.StackBehaviourPop} not implemented");
             }
