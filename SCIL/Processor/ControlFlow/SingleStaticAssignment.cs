@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
 using System.Linq;
 using SCIL.Processor.Nodes;
 using Mono.Cecil.Cil;
@@ -45,7 +43,7 @@ namespace SCIL.Processor.ControlFlow
             List<Tuple<Node, byte>> worklist = new List<Tuple<Node, byte>>();
 
             //Find all nodes where a value is popped, i.e. a variable is defined or redefined
-            foreach(Tuple<Node, byte> var in variables)
+            foreach(var var in variables)
             {
                 if(var.Item1.PopStackNames.Count > 0)
                 {
@@ -53,7 +51,7 @@ namespace SCIL.Processor.ControlFlow
                 }
             }
             //Create initial worklist and isprocessed from definition nodes
-            foreach (Tuple<Node, byte> definition in Definitions)
+            foreach (var definition in Definitions)
             {
                 if (!IsProcessed.Contains(definition.Item1))
                 {
@@ -74,7 +72,7 @@ namespace SCIL.Processor.ControlFlow
                     {
                         //Create new PhiNode for block df with variable from the worklist and parents from the variables list
                         List<Node> parents = new List<Node>();
-                        foreach(Tuple<Node, byte> var in variables)
+                        foreach(var var in variables)
                         {
                             if(var.Item2 == first.Item2)
                             {
@@ -90,7 +88,7 @@ namespace SCIL.Processor.ControlFlow
                             dfNodelist.Add(Tuple.Create(dfnode, GetVariable(dfnode)));
                         }
 
-                        foreach(Tuple<Node, byte> node in dfNodelist)
+                        foreach(var node in dfNodelist)
                         {
                             if (!IsProcessed.Contains(node.Item1))
                             {

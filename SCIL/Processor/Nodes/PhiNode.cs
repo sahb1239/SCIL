@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Mono.Cecil.Cil;
-using SCIL.Processor.Nodes.Visitor;
-using SCIL;
+﻿using System.Collections.Generic;
 
 namespace SCIL.Processor.Nodes
 {
@@ -11,13 +6,13 @@ namespace SCIL.Processor.Nodes
     {
         private readonly List<Node> _parents = new List<Node>();
         private readonly Block _block;
-        private readonly string name;
+        private readonly string _name;
 
         public PhiNode(Block block, Node node, Node[] parents)
         {
-            this._block = block;
-            this.name = node.VariableName;
-            this._parents = new List<Node>(parents);
+            _block = block;
+            _name = node.VariableName;
+            _parents = new List<Node>(parents);
         }
 
 
