@@ -36,48 +36,66 @@ namespace SCIL.Processor.ControlFlow
             }
             Rename(method);
         }
-
+        //Place phi nodes
         public static void PlacePhis(List<Tuple<Node, byte>> variables)
         {
             List<Node> IsProcessed = new List<Node>();
             List<Block> HasPhi = new List<Block>();
-            List<Node> Definitions = new List<Node>();
-            List<Node> worklist = new List<Node>();
+            List<Tuple<Node, byte>> Definitions = new List<Tuple<Node, byte>>();
+            List<Tuple<Node, byte>> worklist = new List<Tuple<Node, byte>>();
 
             //Find all nodes where a value is popped, i.e. a variable is defined or redefined
             foreach(Tuple<Node, byte> var in variables)
             {
                 if(var.Item1.PopStackNames.Count > 0)
                 {
-                    Definitions.Add(var.Item1);
+                    Definitions.Add(var);
                 }
             }
-            
-            foreach (Node definition in Definitions)
+            //Create initial worklist and isprocessed from definition nodes
+            foreach (Tuple<Node, byte> definition in Definitions)
             {
-                if (!IsProcessed.Contains(definition))
+                if (!IsProcessed.Contains(definition.Item1))
                 {
                     worklist.Add(definition);
-                    IsProcessed.Add(definition);
+                    IsProcessed.Add(definition.Item1);
                 }
             }
 
+            //Run through worklist, removing one element and adding elements if new are found in the node's DF
             while (worklist.Any())
             {
-                Node first = worklist.First();
+                Tuple<Node, byte> first = worklist.First();
                 worklist.RemoveAt(0);
                 foreach(Block df in DF)
                 {
+                    //Only one phi node is needed for a single variable in a single block
                     if (!HasPhi.Contains(df))
                     {
-                        HasPhi.Add(df);
-                        //TODO: Add phi function node
-                        foreach(Node node in df.Nodes)
+                        //Create new PhiNode for block df with variable from the worklist and parents from the variables list
+                        List<Node> parents = new List<Node>();
+                        foreach(Tuple<Node, byte> var in variables)
                         {
-                            if (!IsProcessed.Contains(node))
+                            if(var.Item2 == first.Item2)
+                            {
+                                parents.Add(var.Item1);
+                            }
+                        }
+                        PhiNode phi = new PhiNode(df, first.Item1, parents.ToArray());
+                        HasPhi.Add(df);
+                        //DF is examined to add new nodes to the worklist if they are not already processed
+                        List<Tuple<Node, byte>> dfNodelist = new List<Tuple<Node, byte>>();
+                        foreach(Node dfnode in df.Nodes)
+                        {
+                            dfNodelist.Add(Tuple.Create(dfnode, GetVariable(dfnode)));
+                        }
+
+                        foreach(Tuple<Node, byte> node in dfNodelist)
+                        {
+                            if (!IsProcessed.Contains(node.Item1))
                             {
                                 worklist.Add(node);
-                                IsProcessed.Add(node);
+                                IsProcessed.Add(node.Item1);
                             }
                         }
                     }
