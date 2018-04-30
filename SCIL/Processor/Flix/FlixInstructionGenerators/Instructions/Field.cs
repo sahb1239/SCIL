@@ -68,12 +68,12 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
         }
         
 
-        private string ldfld(Node node) => $"LdfldStm({node.PushStackNames.First()}, {node.FieldName}).";
+        private string ldfld(Node node) => $"LdfldStm({node.PushStackNames.First()}, \"{node.FieldName}\").";
         private string ldflda(Node node) => $"LdfldaStm({node.PushStackNames.First()}, {node.FieldName})."; //ldfld and ldflda seems to look a lot alike.
         private string ldftn(string method, Node node) => null; //$"ldftnStm({method}";
         private string ldsfld(Node node) => $"LdsfldStm({node.PushStackNames.First()}, {node.FieldName}).";
         private string ldsflda(Node node) => $"LdsfldaStm({node.PushStackNames.First()}, {node.FieldName}).";
-        private string stfld(Node node) => $"StfldStm({node.FieldName}, {node.PopStackNames.First()}).";
+        private string stfld(Node node) => $"StfldStm(\"{node.FieldName}\", {node.PopStackNames.First()}).";
         private string stsfld(Node node) => $"StsfldStm({node.FieldName}, {node.PopStackNames.First()}).";
     }
 }
