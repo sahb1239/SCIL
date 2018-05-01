@@ -64,29 +64,24 @@ namespace SCIL.Processor.Nodes
             }
         }
 
-        public void Replace(Block startBlock)
+        public void InsertNodeAtIndex(Node node, int index, params Node[] newNodes)
         {
-            // Move sources to new block
-            foreach (var source in _sources)
-            {
-                // Remove source from old start block
-                var index = source._targets.IndexOf(this);
-                source._targets.RemoveAt(index);
-                source._targets.Add(startBlock);
+            if (node == null) throw new ArgumentNullException(nameof(node));
 
-                // Add source to new startBlock
-                startBlock._sources.Add(source);
+            // Check index
+            if (index < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(node), "Invalid index");
             }
 
-            // Clear local sources and targets
-            _sources.Clear();
-            _targets.Clear();
-
-            // Targets is the new blocks own responsibility
+            // Insert new nodes
+            _nodes.InsertRange(index, newNodes);
         }
 
-        public void ReplaceNode(Node node, params SCIL.Node[] newNodes)
+        public void ReplaceNode(Node node, params Node[] newNodes)
         {
+            if (node == null) throw new ArgumentNullException(nameof(node));
+
             // Get node
             var index = _nodes.IndexOf(node);
             if (index == -1)

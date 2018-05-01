@@ -1,21 +1,18 @@
 ﻿using System.Collections.Generic;
+using Mono.Cecil.Cil;
 
 namespace SCIL.Processor.Nodes
 {
-    class PhiNode
+    public class PhiNode : Node
     {
-        private readonly List<Node> _parents = new List<Node>();
-        private readonly Block _block;
-        private readonly string _name;
-
-        public PhiNode(Block block, Node node, Node[] parents)
+        public PhiNode(Block block, Node node, Node[] parents) : base(block)
         {
-            _block = block;
-            _name = node.VariableName;
-            _parents = new List<Node>(parents);
+            Name = node.VariableName;
+            Parents = new List<Node>(parents);
         }
-
-
         
+        public List<Node> Parents { get; }
+
+        public string Name { get; }
     }
 }

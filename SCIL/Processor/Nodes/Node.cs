@@ -13,6 +13,11 @@ namespace SCIL
         private readonly List<string> _popStackNames = new List<string>();
         private readonly List<string> _pushStackNames = new List<string>();
 
+        public Node(Block block)
+        {
+            Block = block ?? throw new ArgumentNullException(nameof(block));
+        }
+
         public Node(Instruction instruction, Block block)
         {
             Instruction = instruction ?? throw new ArgumentNullException(nameof(instruction));
