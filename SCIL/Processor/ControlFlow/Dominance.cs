@@ -8,90 +8,90 @@ namespace SCIL.Processor.ControlFlow
 {
     public class Dominance
     {
-        //Simply returns the block's "dominates" field
-        private static List<Block> Dominates(Block block)
-        {
-            return block.Dominates;
-        }
-
+        // Simply returns the block's "dominates" field
         public static void SimpleDominators(Method method)
         {
-            //Each block has its dominates initialized as every block in the graph
-            foreach(Block block in method.Blocks)
+            // Validate that startNode is first in blocks
+            if (method.StartBlock != method.Blocks.FirstOrDefault())
             {
-                Dominates(block).AddRange(method.Blocks);
+                throw new NotSupportedException("StartBlock needs to be first element in method.Blocks");
             }
 
-            //The worklist contains all blocks under consideration, initialized with the start block
-            List<Block> worklist = new List<Block> { method.StartBlock };
-            while (worklist.Any())
+            // Set domninator for the start node to it self
+            method.StartBlock.DominatedBy.Clear();
+            method.StartBlock.DominatedBy.Add(method.StartBlock);
+
+            // Each block has its dominates initialized as every block in the graph except first
+            foreach (Block block in method.Blocks.Skip(1))
             {
-                //The first element in the worklist is picked and removed
-                Block block = worklist.First();
-                worklist.RemoveAt(0);
-
-                //New "dominates" list is computed, starts with the block itself
-                List<Block> newdom = new List<Block> { block };
-
-                //The intersection of the block's sources "dominates" is added to the new list
-                List<Block> temp = new List<Block>();
-                if (block.Sources.Any())
-                {
-                    temp.AddRange(Dominates(block.Sources.First()));
-                    for (int i = 1; i < block.Sources.Count; i++)
-                    {
-                        temp.AddRange(temp.Intersect(Dominates(block.Sources.ElementAt(i))));
-                    }
-                }
-                newdom.AddRange(temp);
-
-                //If the newly calculated newdom is different than the block's existing "dominates", it is updated
-                if (!newdom.Equals(Dominates(block)))
-                {
-                    Dominates(block).Clear();
-                    Dominates(block).AddRange(newdom);
-                    //The block's targets are all added to the worklist, unless they are in it already
-                    foreach(Block target in block.Targets)
-                    {
-                        if (!worklist.Contains(target))
-                        {
-                            worklist.Add(target);
-                        }
-                        
-                    }
-                }
-
+                block.DominatedBy.AddRange(method.Blocks);
             }
 
+            // Eliminate nodes which is not domninators
+            bool changesToDom;
+            do
+            {
+                changesToDom = false;
+
+                // Iterate over each block exept first block
+                foreach (var block in method.Blocks.Skip(1))
+                {
+                    // The intersection of the block's sources "dominates" is added to the new list
+                    List<Block> newDom = block.Union(
+                        block.Sources?.Aggregate(block.Sources.SelectMany(e => e.DominatedBy),
+                            (current, next) => current.Intersect(next.DominatedBy))).ToList();
+
+                    // If the newly calculated newdom is different than the block's existing "dominates", it is updated
+                    if (!newDom.SequenceEqual(block.DominatedBy))
+                    {
+                        block.DominatedBy.Clear();
+                        block.DominatedBy.AddRange(newDom);
+
+                        // Update that we should loop throught the tree one more time
+                        changesToDom = true;
+                    }
+                }
+            } while (changesToDom);
         }
 
-        public static List<Block> SimpleDominanceFrontier(Block block, Method method)
+        public static void SimpleDominanceFrontiers(Method method)
         {
-            List<Block> DominanceFrontier = new List<Block>();
+            foreach (var block in method.Blocks)
+            {
+                block.DomninanceFrontiers.AddRange(SimpleDominanceFrontier(block, method));
+            }
+        }
+
+        private static List<Block> SimpleDominanceFrontier(Block block, Method method)
+        {
+            List<Block> dominanceFrontier = new List<Block>();
             
-            //All blocks in the graph that are dominated by this block are considered
-            List<Block> DominatedBy = new List<Block>();
+            // All blocks in the graph that are dominated by this block are considered
+            List<Block> dominatedBy = new List<Block>();
             foreach(Block other in method.Blocks)
             {
-                if (Dominates(other).Contains(block))
+                if (other.DominatedBy.Contains(block))
                 {
-                    DominatedBy.Add(other);
+                    dominatedBy.Add(other);
                 }
             }
 
-            //Each dominated block's targets are checked 
-            foreach(Block dominated in DominatedBy)
+            // Each dominated block's targets are checked 
+            foreach(Block dominated in dominatedBy)
             {
-                //If the block does not strictly dominate one of the targets, the target is added to the frontier
+                // If the block does not strictly dominate one of the targets, the target is added to the frontier
                 foreach(Block target in dominated.Targets)
                 {
-                    if(!DominatedBy.Except(new List<Block> { block }).Contains(target)){
-                        DominanceFrontier.Add(target);
+                    if(!dominatedBy.Except(new List<Block> { block }).Contains(target)){
+                        dominanceFrontier.Add(target);
                     }
                 }
             }
 
-            return DominanceFrontier;
+            // Get only unique items
+            var uniqueDominanceFrontier = dominanceFrontier.Distinct().ToList();
+
+            return uniqueDominanceFrontier;
         }
         //TODO: Implement the fast dominators and dominance frontiers algorithms
         //Crafing a Compiler (2009) p. 580 & 584 (609 & 613 in PDF)

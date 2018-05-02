@@ -6,15 +6,28 @@ namespace SimpleCILProgram
     {
         static void Main(string[] args)
         {
-            var read = Console.ReadLine();
+            Console.Write("Input number 1: ");
 
-            Console.WriteLine(AddLOL(read));
-        }
+            if (!int.TryParse(Console.ReadLine(), out int input1))
+            {
+                Console.WriteLine("Not a valid number");
+                return;
+            }
 
-        static string AddLOL(string s)
-        {
-            return s + " LOL";
+            if (input1 == 10)
+            {
+                input1 = 20;
+            }
+            else if (input1 == 20)
+            {
+                input1 = 30;
+            }
+            else
+            {
+                input1 = 0;
+            }
+
+            Console.WriteLine(input1);
         }
     }
-
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Mono.Cecil.Cil;
@@ -7,12 +8,12 @@ using SCIL.Processor.Nodes.Visitor;
 
 namespace SCIL.Processor.Nodes
 {
+    [DebuggerDisplay("Start = {_nodes[0]}")]
     public class Block : Element
     {
         private readonly List<Block> _targets = new List<Block>();
         private readonly List<Block> _sources = new List<Block>();
         private readonly List<Node> _nodes = new List<Node>();
-        public List<Block> Dominates = new List<Block>();
 
         public Block(params Instruction[] instructions)
         {
@@ -64,14 +65,12 @@ namespace SCIL.Processor.Nodes
             }
         }
 
-        public void InsertNodeAtIndex(Node node, int index, params Node[] newNodes)
+        public void InsertNodesAtIndex(int index, params Node[] newNodes)
         {
-            if (node == null) throw new ArgumentNullException(nameof(node));
-
             // Check index
             if (index < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(node), "Invalid index");
+                throw new ArgumentOutOfRangeException(nameof(index), "Invalid index");
             }
 
             // Insert new nodes
@@ -94,11 +93,21 @@ namespace SCIL.Processor.Nodes
             _nodes.InsertRange(index, newNodes);
         }
 
+        public IEnumerable<Block> Union(IEnumerable<Block> blocks)
+        {
+            var startList = new[] {this};
+            return startList.Union(blocks);
+        }
+
         public IReadOnlyCollection<Node> Nodes => _nodes.AsReadOnly();
 
         public IReadOnlyCollection<Block> Targets => _targets.AsReadOnly();
 
         public IReadOnlyCollection<Block> Sources => _sources.AsReadOnly();
+
+        public List<Block> DominatedBy { get; } = new List<Block>();
+        public List<Block> DomninanceFrontiers { get; } = new List<Block>();
+
         public Method Method { get; set; }
 
         public override string ToString()

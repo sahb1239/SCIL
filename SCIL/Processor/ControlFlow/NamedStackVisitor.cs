@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Mono.Cecil;
-using Mono.Cecil.Cil;
 using SCIL.Processor.Nodes;
 using SCIL.Processor.Nodes.Visitor;
 
-namespace SCIL.Processor
+namespace SCIL.Processor.ControlFlow
 {
-    [RegistrerVisitor(RegistrerVisitorAttribute.RewriterOrder + 1)]
+    //[RegistrerVisitor(RegistrerVisitorAttribute.RewriterOrder + 2)]
     public class NamedStackVisitor : BaseVisitor
     {
         public override void Visit(Method method)
@@ -262,6 +259,19 @@ namespace SCIL.Processor
             indexList.Add(indexName);
 
             return indexName;
+        }
+
+        public string GetCurrentName(int index)
+        {
+            // Add extra index list if it does not exists
+            while (_names.Count <= index)
+            {
+                _names.Add(new List<string>());
+            }
+
+            // Get index list
+            var indexList = _names[index];
+            return indexList.Last();
         }
     }
 }

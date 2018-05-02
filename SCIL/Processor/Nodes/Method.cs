@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Mono.Cecil;
 using SCIL.Processor.Nodes.Visitor;
 
 namespace SCIL.Processor.Nodes
 {
+    [DebuggerDisplay("{Definition.Name}")]
     public class Method : Element
     {
         private readonly List<Block> _blocks = new List<Block>();
