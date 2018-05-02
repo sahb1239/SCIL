@@ -12,7 +12,7 @@ namespace SCIL.Processor.Flix.FlixInstructionGenerators.Instructions
             if (node is PhiNode phiNode)
             {
                 outputFlixCode =
-                    $"PhiStm{phiNode.Parents.Count}({string.Join(", ", phiNode.PushStackNames.First(), phiNode.Parents.Select(e => e.PushStackNames.Last()))}).";
+                    $"PhiStm{phiNode.Parents.Count}({string.Join(", ", phiNode.PushStackNames.First(), string.Join(", ", phiNode.Parents.Select(e => e.PushStackNames.Last())))}).";
                 return true;
             }
 
