@@ -4,6 +4,7 @@ using System.Linq;
 using SCIL.Processor.Nodes;
 using Mono.Cecil.Cil;
 using SCIL.Processor.Nodes.Visitor;
+using SCIL.Processor.Simplifiers;
 
 namespace SCIL.Processor.ControlFlow
 {
@@ -13,6 +14,10 @@ namespace SCIL.Processor.ControlFlow
         public override void Visit(Module module)
         {
             base.Visit(module);
+            
+            // Rewrite phi nodes
+            var phiRewriter = new PhiNodeRewriterVisitor();
+            phiRewriter.Visit(module);
 
             // Update all stack assignements
             var stackAnalyzerVisitor = new StackAnalyzerVisitor();
