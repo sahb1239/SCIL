@@ -137,7 +137,7 @@ namespace SCIL.Processor.ControlFlow
             {
                 if (addedPhi.Value.Any())
                 {
-                    addedPhi.Key.InsertNodesAtIndex(0, addedPhi.Value.ToArray());
+                    addedPhi.Key.InsertNodesAtIndex(0, addedPhi.Value.Where(e => e.Parents.Count > 1).ToArray());
                 }
             }
         }
