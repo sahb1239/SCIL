@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using SCIL.Processor.Nodes;
 using SCIL.Processor.Nodes.Visitor;
 
-namespace SCIL.Processor.ControlFlow
+namespace SCIL.Processor.ControlFlow.SSA.Analyzers
 {
-    [RegistrerRewriter]
     public class StackAnalyzerVisitor : BaseVisitor
     {
         public override void Visit(Method method)

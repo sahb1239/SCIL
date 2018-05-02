@@ -1,27 +1,38 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using SCIL.Processor.ControlFlow.SSA.Analyzers;
+using SCIL.Processor.ControlFlow.SSA.NameGenerators;
+using SCIL.Processor.ControlFlow.SSA.Simplifiers;
 using SCIL.Processor.Nodes;
-using Mono.Cecil.Cil;
 using SCIL.Processor.Nodes.Visitor;
-using SCIL.Processor.Simplifiers;
 
-namespace SCIL.Processor.ControlFlow
+namespace SCIL.Processor.ControlFlow.SSA
 {
     [RegistrerVisitor(RegistrerVisitorAttribute.RewriterOrder + 1)]
     public class StaticSingleAssignmentVisitor : BaseVisitor
     {
         public override void Visit(Module module)
         {
+            // Update all stack assignements
+            var stackAnalyzerVisitor = new StackAnalyzerVisitor();
+            stackAnalyzerVisitor.Visit(module);
+
+            // Visit the module
             base.Visit(module);
             
             // Rewrite phi nodes
             var phiRewriter = new PhiNodeRewriterVisitor();
             phiRewriter.Visit(module);
 
-            // Update all stack assignements
-            var stackAnalyzerVisitor = new StackAnalyzerVisitor();
+            // Update all stack assignements (it should be updated since we have updated the tree)
             stackAnalyzerVisitor.Visit(module);
+
+            // Generate names for stack, variables and arguments
+            var stackNameGeneratorVisitor = new StackNameGeneratorVisitor();
+            stackNameGeneratorVisitor.Visit(module);
+
+            var variableNameGeneratorVisitor = new VariableNameGeneratorVisitor();
+            variableNameGeneratorVisitor.Visit(module);
         }
 
         public override void Visit(Method method)

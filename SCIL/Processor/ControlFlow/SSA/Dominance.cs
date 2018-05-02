@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
 using SCIL.Processor.Nodes;
 
-namespace SCIL.Processor.ControlFlow
+namespace SCIL.Processor.ControlFlow.SSA
 {
     public class Dominance
     {

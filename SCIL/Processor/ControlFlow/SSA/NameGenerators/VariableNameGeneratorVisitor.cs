@@ -4,9 +4,8 @@ using System.Linq;
 using SCIL.Processor.Nodes;
 using SCIL.Processor.Nodes.Visitor;
 
-namespace SCIL.Processor.ControlFlow.NameGenerators
+namespace SCIL.Processor.ControlFlow.SSA.NameGenerators
 {
-    [RegistrerVisitor(RegistrerVisitorAttribute.RewriterOrder + 2)]
     public class VariableNameGeneratorVisitor : BaseVisitor
     {
         public override void Visit(Method method)
