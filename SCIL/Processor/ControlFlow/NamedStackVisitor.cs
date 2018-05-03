@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Mono.Cecil;
-using Mono.Cecil.Cil;
+using SCIL.Processor.ControlFlow.SSA.Helpers;
 using SCIL.Processor.Nodes;
 using SCIL.Processor.Nodes.Visitor;
 
-namespace SCIL.Processor
+namespace SCIL.Processor.ControlFlow
 {
-    [RegistrerVisitor(RegistrerVisitorAttribute.RewriterOrder + 1)]
+    //[RegistrerVisitor(RegistrerVisitorAttribute.RewriterOrder + 2)]
     public class NamedStackVisitor : BaseVisitor
     {
         public override void Visit(Method method)
@@ -241,27 +239,6 @@ namespace SCIL.Processor
             {
                 _currentNames = new List<string>(_currentNames)
             };
-        }
-    }
-
-    public class SharedNames
-    {
-        private readonly List<List<string>> _names = new List<List<string>>();
-
-        public string GetNewName(int index)
-        {
-            // Add extra index list if it does not exists
-            while (_names.Count <= index)
-            {
-                _names.Add(new List<string>());
-            }
-
-            // Get index list
-            var indexList = _names[index];
-            var indexName = $"{index}_{indexList.Count}";
-            indexList.Add(indexName);
-
-            return indexName;
         }
     }
 }

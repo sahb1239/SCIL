@@ -1,11 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27428.1
+VisualStudioVersion = 15.0.27130.2027
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SCIL", "SCIL\SCIL.csproj", "{18B67811-D3B0-48A7-A903-42D2CF63D24F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A50D778B-7A47-4439-A2E4-CEA33E95B67D} = {A50D778B-7A47-4439-A2E4-CEA33E95B67D}
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleCILProgram", "SimpleCILProgram\SimpleCILProgram.csproj", "{A50D778B-7A47-4439-A2E4-CEA33E95B67D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleCILProgram", "SimpleCILProgram\SimpleCILProgram.csproj", "{A50D778B-7A47-4439-A2E4-CEA33E95B67D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

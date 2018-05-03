@@ -12,8 +12,10 @@ namespace SCIL
     {
         private readonly List<string> _popStackNames = new List<string>();
         private readonly List<string> _pushStackNames = new List<string>();
+        private readonly List<int> _popStack = new List<int>();
+        private readonly List<int> _pushStack = new List<int>();
 
-        public Node(Block block)
+        protected Node(Block block)
         {
             Block = block ?? throw new ArgumentNullException(nameof(block));
         }
@@ -39,7 +41,7 @@ namespace SCIL
             this.Block.ReplaceNode(this, nodes);
         }
 
-        public int PopCountFromStack
+        public virtual int PopCountFromStack
         {
             get
             {
@@ -114,7 +116,7 @@ namespace SCIL
             }
         }
 
-        public int PushCountFromStack
+        public virtual int PushCountFromStack
         {
             get
             {
@@ -273,9 +275,33 @@ namespace SCIL
             _pushStackNames.Clear();
             _pushStackNames.AddRange(names);
         }
+        public void SetPopStack(params int[] popStack)
+        {
+            var required = GetRequiredNames();
+            if (required.popNames != popStack.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(popStack), $"{required.popNames} numbers is required");
+            }
+            _popStack.Clear();
+            _popStack.AddRange(popStack);
+        }
+
+        public void SetPushStack(params int[] pushStack)
+        {
+            var required = GetRequiredNames();
+            if (required.pushNames != pushStack.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(pushStack), $"{required.pushNames} numbers is required");
+            }
+            _pushStack.Clear();
+            _pushStack.AddRange(pushStack);
+        }
 
         public IReadOnlyCollection<string> PopStackNames => _popStackNames.AsReadOnly();
         public IReadOnlyCollection<string> PushStackNames => _pushStackNames.AsReadOnly();
+        public IReadOnlyCollection<int> PopStack => _popStack.AsReadOnly();
+        public IReadOnlyCollection<int> PushStack => _pushStack.AsReadOnly();
+
         public string ArgumentName { get; set; }
 
         public FieldReference FieldReference => Operand as FieldReference;
@@ -285,7 +311,7 @@ namespace SCIL
 
         public override string ToString()
         {
-            return Instruction.ToString();
+            return Instruction?.ToString();
         }
 
         public override void Accept(IVisitor visitor)

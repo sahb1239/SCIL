@@ -51,10 +51,10 @@ namespace SCIL.Processor.FlixInstructionGenerators
         public override void Visit(Block block)
         {
             // Add block info
-            Builder.AppendLine($"// Begin block (first offset: {block.Nodes.First().Instruction.Offset})");
+            Builder.AppendLine($"// Begin block (first offset: {block.Nodes.First(node => node.Instruction != null).Instruction.Offset})");
             foreach (var sources in block.Sources)
             {
-                Builder.AppendLine($"// Source (offset: {sources.Nodes.Last().Instruction.Offset})");
+                Builder.AppendLine($"// Source (offset: {sources.Nodes.Last(node => node.Instruction != null).Instruction.Offset})");
             }
 
             base.Visit(block);
@@ -63,7 +63,7 @@ namespace SCIL.Processor.FlixInstructionGenerators
             Builder.AppendLine($"// End block (last offset: {block.Nodes.Last().Instruction.Offset})");
             foreach (var target in block.Targets)
             {
-                Builder.AppendLine($"// Target (offset: {target.Nodes.First().Instruction.Offset})");
+                Builder.AppendLine($"// Target (offset: {target.Nodes.First(node => node.Instruction != null).Instruction.Offset})");
             }
 
             Builder.AppendLine();
@@ -74,7 +74,7 @@ namespace SCIL.Processor.FlixInstructionGenerators
             // Get node info
             var stackBehaviorInfo = node.GetRequiredNames();
             Builder.AppendLine(
-                $"// Node {node.OpCode}, offset: {node.Instruction.Offset}, pop: {stackBehaviorInfo.popNames}, push: {stackBehaviorInfo.pushNames}");
+                $"// Node {node.OpCode}, offset: {node.Instruction?.Offset}, pop: {stackBehaviorInfo.popNames}, push: {stackBehaviorInfo.pushNames}");
 
             // Generate code (first match)
             foreach (var generator in _instructionGenerators)
