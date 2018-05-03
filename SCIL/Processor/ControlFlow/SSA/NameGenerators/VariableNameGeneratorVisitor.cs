@@ -63,6 +63,14 @@ namespace SCIL.Processor.ControlFlow.SSA.NameGenerators
                     // Set argument names
                     node.ArgumentName = $"\"{node.GetRequiredArgumentIndex()}\"";
 
+                    // Check if it's a variable phi node
+                    if (node is PhiVariableNode variableNode)
+                    {
+                        node.VariableName = $"{_variables.SetIndex(variableNode.VariableIndex)}";
+                        base.Visit(node);
+                        return;
+                    }
+
                     // Set variable names
                     var variableIndex = node.GetRequiredVariableIndex();
                     if (variableIndex.variableInstruction)
@@ -81,7 +89,7 @@ namespace SCIL.Processor.ControlFlow.SSA.NameGenerators
 
                         node.VariableName = $"{variableName}";
                     }
-
+                    
                     base.Visit(node);
                 }
             }

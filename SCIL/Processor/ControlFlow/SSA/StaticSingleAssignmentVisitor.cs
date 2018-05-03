@@ -49,7 +49,13 @@ namespace SCIL.Processor.ControlFlow.SSA
             // Compute and insert phi nodes
             InsertPhis(method, stackPushes);
            
-            // TODO: Variables, Arguments
+            // Get all variables
+            var variables = GetVariables(method);
+
+            // Compute and insert phi nodes
+            InsertPhis(method, variables);
+
+            // TODO: Arguments
         }
 
         
@@ -83,15 +89,81 @@ namespace SCIL.Processor.ControlFlow.SSA
             return variables;
         }
 
-        private void InsertPhis(Method method, IDictionary<Node, IReadOnlyCollection<int>> nodeStackPushes)
+        private void InsertPhis(Method method, IDictionary<Node, int> variableUpdates)
         {
             // Add list of all nodes which should be added
-            IDictionary<Block, List<PhiNode>> addedNodes = new Dictionary<Block, List<PhiNode>>();
+            IDictionary<Block, List<PhiVariableNode>> addedNodes = new Dictionary<Block, List<PhiVariableNode>>();
 
             // Initilize dictionary with lists
             foreach (var block in method.Blocks)
             {
-                addedNodes.Add(block, new List<PhiNode>());
+                addedNodes.Add(block, new List<PhiVariableNode>());
+            }
+
+            // Place nodes
+            bool addedPhiNode;
+            do
+            {
+                addedPhiNode = false;
+
+                foreach (var block in method.Blocks)
+                {
+                    // Check if we have any variable assignment in this block
+                    IEnumerable<KeyValuePair<Node, int>> variablePushesInBlock =
+                        variableUpdates.Where(variable => block.Nodes.Any(node => node == variable.Key)).ToArray();
+
+                    // Handle each stack push
+                    foreach (var variablePush in variablePushesInBlock)
+                    {
+                        // Put a phi node on each dominance frontier
+                        foreach (var dominanceFrontier in block.DomninanceFrontiers)
+                        {
+                            // Get block list
+                            var blockList = addedNodes[dominanceFrontier];
+
+                            // Double check that the phi node does not exists currently
+                            var currentPhiNode = blockList.FirstOrDefault(phiNode =>
+                                phiNode.VariableIndex == variablePush.Value);
+                            if (currentPhiNode != null)
+                            {
+                                // Detect if the phiNode contains this block as parent
+                                if (!currentPhiNode.Parents.Contains(variablePush.Key))
+                                {
+                                    currentPhiNode.Parents.Add(variablePush.Key);
+                                    addedPhiNode = true;
+                                }
+                            }
+                            else
+                            {
+                                currentPhiNode = new PhiVariableNode(dominanceFrontier,
+                                    new List<Node>() { variablePush.Key }, variablePush.Value);
+                                blockList.Add(currentPhiNode);
+                                addedPhiNode = true;
+                            }
+                        }
+                    }
+                }
+            } while (addedPhiNode);
+
+            // Insert the nodes into the blocks
+            foreach (var addedPhi in addedNodes)
+            {
+                if (addedPhi.Value.Any())
+                {
+                    addedPhi.Key.InsertNodesAtIndex(0, addedPhi.Value.Where(e => e.Parents.Count > 1).ToArray());
+                }
+            }
+        }
+
+        private void InsertPhis(Method method, IDictionary<Node, IReadOnlyCollection<int>> nodeStackPushes)
+        {
+            // Add list of all nodes which should be added
+            IDictionary<Block, List<PhiStackNode>> addedNodes = new Dictionary<Block, List<PhiStackNode>>();
+
+            // Initilize dictionary with lists
+            foreach (var block in method.Blocks)
+            {
+                addedNodes.Add(block, new List<PhiStackNode>());
             }
 
             // Place nodes
@@ -107,9 +179,9 @@ namespace SCIL.Processor.ControlFlow.SSA
                         nodeStackPushes.Where(variable => block.Nodes.Any(node => node == variable.Key)).ToArray();
 
                     // Filter such that stack index is only pushed one time in a block. We only need the last push
-                    var lastStackPushesInBlock =
-                        stackPushesInBlock.SelectMany(e => e.Value.Select(q => new {stackIndex = q, node = e.Key}))
-                            .GroupBy(e => e.stackIndex).Select(e => e.Last());
+                    IEnumerable<KeyValuePair<Node, int>> lastStackPushesInBlock =
+                        stackPushesInBlock.SelectMany(e => e.Value.Select(q => new KeyValuePair<Node,int>(e.Key, q)))
+                            .GroupBy(e => e.Value).Select(e => e.Last());
 
                     // Handle each stack push
                     foreach (var stackPush in lastStackPushesInBlock)
@@ -122,20 +194,20 @@ namespace SCIL.Processor.ControlFlow.SSA
 
                             // Double check that the phi node does not exists currently
                             var currentPhiNode = blockList.FirstOrDefault(phiNode =>
-                                phiNode.StackIndex == stackPush.stackIndex);
+                                phiNode.StackIndex == stackPush.Value);
                             if (currentPhiNode != null)
                             {
                                 // Detect if the phiNode contains this block as parent
-                                if (!currentPhiNode.Parents.Contains(stackPush.node))
+                                if (!currentPhiNode.Parents.Contains(stackPush.Key))
                                 {
-                                    currentPhiNode.Parents.Add(stackPush.node);
+                                    currentPhiNode.Parents.Add(stackPush.Key);
                                     addedPhiNode = true;
                                 }
                             }
                             else
                             {
-                                currentPhiNode = new PhiNode(dominanceFrontier,
-                                    new List<Node>() { stackPush.node }, stackPush.stackIndex);
+                                currentPhiNode = new PhiStackNode(dominanceFrontier,
+                                    new List<Node>() { stackPush.Key }, stackPush.Value);
                                 blockList.Add(currentPhiNode);
                                 addedPhiNode = true;
                             }
