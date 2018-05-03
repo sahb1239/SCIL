@@ -19,6 +19,7 @@ namespace SCIL.Processor.Flix.FlixInstructionGenerators.Instructions
             {
                 outputFlixCode =
                     $"PhiLocStm({string.Join(", ", variableNode.VariableName, string.Join(", ", variableNode.Parents.Select(e => e.VariableName)))}.";
+                return true;
             }
 
             outputFlixCode = null;
