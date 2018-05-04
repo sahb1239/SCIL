@@ -7,7 +7,7 @@ using SCIL.Processor.Nodes.Visitor;
 
 namespace SCIL
 {
-    class Startup
+    public class Startup
     {
         public static void ConfigureServices(IServiceCollection services, Configuration configuration, ILogger logger)
         {

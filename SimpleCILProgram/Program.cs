@@ -6,28 +6,12 @@ namespace SimpleCILProgram
     {
         static void Main(string[] args)
         {
-            Console.Write("Input number 1: ");
+            var nasty = Console.ReadLine();
 
-            if (!int.TryParse(Console.ReadLine(), out int input1))
-            {
-                Console.WriteLine("Not a valid number");
-                return;
-            }
-
-            if (input1 == 10)
-            {
-                input1 = 20;
-            }
-            else if (input1 == 20)
-            {
-                input1 = 30;
-            }
+            if (nasty == "john")
+                Console.WriteLine(nasty);
             else
-            {
-                input1 = 0;
-            }
-
-            Console.WriteLine(input1);
+                Console.WriteLine("not nasty");
         }
     }
 }

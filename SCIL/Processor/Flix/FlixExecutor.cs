@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -7,7 +8,7 @@ using SCIL.Logger;
 
 namespace SCIL.Flix
 {
-    class FlixExecutor : IFlixExecutor
+    public class FlixExecutor : IFlixExecutor
     {
         private readonly ILogger _logger;
         private readonly string _tempPath;
@@ -17,7 +18,7 @@ namespace SCIL.Flix
         public FlixExecutor(ILogger logger)
         {
             _logger = logger;
-            _tempPath = Path.Combine(Path.GetTempPath(), "SCIL");
+            _tempPath = Path.Combine(Path.GetTempPath(), "SCIL", Guid.NewGuid().ToString());
             Directory.CreateDirectory(_tempPath);
 
             // Extract
@@ -125,7 +126,7 @@ namespace SCIL.Flix
             {
                 arguments = arguments.Concat(new List<string>()
                 {
-                    "--print Sources,Sinks,TaintListStack,TaintListLocalVar,TaintListArg,Results"
+                    "--print Results"
                 });
             }
 

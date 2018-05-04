@@ -119,7 +119,7 @@ namespace SCIL
         }
     }
 
-    class ConsoleOptions
+    public class ConsoleOptions
     {
         [Option('f', "InputFile", Required = false, HelpText = "Apk files to be processed.")]
         public string InputFile { get; set; }
