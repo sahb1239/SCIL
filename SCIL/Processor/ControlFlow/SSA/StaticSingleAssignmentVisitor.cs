@@ -58,6 +58,8 @@ namespace SCIL.Processor.ControlFlow.SSA
             InsertPhis(method, variables);
 
             // TODO: Arguments
+            var arguments = GetArguments(method);
+            Debug.Assert(!arguments.Any());
         }
 
         
@@ -90,6 +92,14 @@ namespace SCIL.Processor.ControlFlow.SSA
             }
 
             return variables;
+        }
+
+        private IDictionary<Node, int> GetArguments(Method method)
+        {
+            return
+                method.Blocks.SelectMany(e => e.Nodes).Select(e => new {Node = e, ArgInfo = e.IsStoreArg()})
+                    .Where(e => e.ArgInfo.Item1)
+                    .ToDictionary(nodeInfo => nodeInfo.Node, nodeInfo => nodeInfo.ArgInfo.Item2);
         }
         
         private void InsertPhis(Method method, IDictionary<Node, int> variableUpdates)

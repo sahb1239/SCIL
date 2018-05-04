@@ -254,6 +254,24 @@ namespace SCIL
             return null;
         }
 
+        public (bool, int) IsStoreArg()
+        {
+            // TODO Handle ldarg.a
+            switch (OpCode.Code)
+            {
+                case Code.Starg:
+                case Code.Starg_S:
+                    if (Operand is sbyte index)
+                    {
+                        return (true, index);
+                    }
+
+                    throw new NotImplementedException();
+            }
+
+            return (false, -1);
+        }
+
         public void SetPopStackNames(params string[] names)
         {
             var required = GetRequiredNames();
