@@ -112,6 +112,18 @@ namespace SCIL
                     pop = 1;
                 }
 
+                // Detect newobj
+                switch (OpCode.Code)
+                {
+                    case Code.Newobj:
+
+                        var newObjMethod = (MethodReference) Operand;
+                        var parameters = newObjMethod.Parameters.Count;
+
+                        pop = parameters;
+                        break;
+                }
+
                 return pop;
             }
         }
