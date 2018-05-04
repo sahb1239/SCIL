@@ -21,7 +21,7 @@ namespace SCIL.Processor.Simplifiers
                 var operand = (IEnumerable<Instruction>) node.Operand;
 
                 // Get blocks matching operand
-                List<Block> blockTargets = operand.Select(targetInstruction => node.Block.Targets.Single(targetBlock =>
+                List<Block> blockTargets = operand.Select(targetInstruction => node.Block.Targets.First(targetBlock =>
                     targetBlock.Nodes.FirstOrDefault()?.Instruction == targetInstruction)).ToList();
 
                 // Get next target
@@ -125,15 +125,44 @@ namespace SCIL.Processor.Simplifiers
                 // Add pop to next block (to remove dup from all the branching)
                 nextTarget.InsertNodesAtIndex(0,
                     new Node(nextTarget.Nodes.First().Instruction, nextTarget) {OverrideOpCode = OpCodes.Pop});
+                
+                // Add the new blocks to the method
+                var indexOfSwitch = node.Block.Method.Blocks.ToList().IndexOf(node.Block);
+
+                // We need to insert just after the switch
+                node.Block.Method.Insert(indexOfSwitch + 1, newBlocks.ToArray());
 
                 // Remove the switch from the current block
                 node.Block.Remove(node);
 
-                // Add the new blocks to the method
-                var indexOfSwitch = node.Block.Method.Blocks.ToList().IndexOf(node.Block);
-                
-                // We need to insert just after the switch
-                node.Block.Method.Insert(indexOfSwitch + 1, newBlocks.ToArray());
+                // If the block is now empty we need to remove it
+                if (!node.Block.Nodes.Any())
+                {
+                    node.Block.Method.Remove(node.Block);
+
+                    // Fix sources and add target to new block
+                    foreach (var source in node.Block.Sources.ToList())
+                    {
+                        // source -> node.Block -> newBlocks.First()
+                        // Remove the node from source (first arrow)
+                        source.RemoveTarget(node.Block);
+
+                        // Remove target to the first new block (second arrow)
+                        node.Block.RemoveTarget(newBlocks.First());
+
+                        // Add target from the old source to new new first block (add connection between source and newBlocks.First())
+                        source.AddTarget(newBlocks.First());
+                    }
+
+                    // Remove exception handlers
+                    foreach (var other in otherTargets)
+                    {
+                        node.Block.RemoveTarget(other);
+                    }
+
+                    Debug.Assert(!node.Block.Targets.Any());
+                    Debug.Assert(!node.Block.Sources.Any());
+                }
             }
 
             base.Visit(node);
