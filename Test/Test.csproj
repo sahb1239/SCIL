@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
+    <PackageReference Include="xunit" Version="2.3.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
+    <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SCIL\SCIL.csproj" />
+    <ProjectReference Include="..\TestPrograms\AsyncMethods\AsyncMethods.csproj" />
+    <ProjectReference Include="..\TestPrograms\Branching\Branching.csproj" />
+    <ProjectReference Include="..\TestPrograms\MethodCallMultipleParameters\MethodCallMultipleParameters.csproj" />
+    <ProjectReference Include="..\TestPrograms\MethodCalls\MethodCalls.csproj" />
+    <ProjectReference Include="..\TestPrograms\MethodOverloading\MethodOverloading.csproj" />
+    <ProjectReference Include="..\TestPrograms\MultipleMethodCalls\MultipleMethodCalls.csproj" />
+    <ProjectReference Include="..\TestPrograms\NonStaticMethod\NonStaticMethod.csproj" />
+    <ProjectReference Include="..\TestPrograms\OutParameters\OutParameters.csproj" />
+    <ProjectReference Include="..\TestPrograms\RefParameters1\RefParameters1.csproj" />
+    <ProjectReference Include="..\TestPrograms\SimpleTaint\SimpleTaint.csproj" />
+    <ProjectReference Include="..\TestPrograms\SwitchCase\SwitchCase.csproj" />
+    <ProjectReference Include="..\TestPrograms\VariableCasting\VariableCasting.csproj" />
+    <ProjectReference Include="..\TestPrograms\RefParameters2\RefParameters2.csproj" />
+  </ItemGroup>
+
+</Project>
