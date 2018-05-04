@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using SCIL.Processor.ControlFlow.SSA.Analyzers;
 using SCIL.Processor.ControlFlow.SSA.NameGenerators;
@@ -64,9 +65,10 @@ namespace SCIL.Processor.ControlFlow.SSA
         private IDictionary<Node, IReadOnlyCollection<int>> GetStackPushes(Method method)
         {
             // Find all pushes to the stack
+            // We only need the last element
             return
                 method.Blocks.SelectMany(e => e.Nodes).Where(e => e.PushStack.Any())
-                    .ToDictionary(node => node, node => node.PushStack);
+                    .ToDictionary(node => node, node => (IReadOnlyCollection<int>) new List<int>(node.PushStack.Last()).AsReadOnly());
         }
 
         // TODO: Fix ldloc.a

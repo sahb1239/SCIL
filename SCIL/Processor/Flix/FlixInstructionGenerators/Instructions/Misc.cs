@@ -11,11 +11,6 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
             switch (node.OpCode.Code)
             {
                 case Code.Pop:
-                    if (node.Operand != null)
-                    {
-                        throw new ArgumentException(nameof(node.Operand));
-                    }
-
                     outputFlixCode = $"PopStm({node.PopStackNames.First()}).";
                     return true;
                 case Code.Box:

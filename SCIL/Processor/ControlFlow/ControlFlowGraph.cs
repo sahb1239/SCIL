@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using CSharpx;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using SCIL.Processor.Nodes;
@@ -73,6 +74,19 @@ namespace SCIL
                         // Add next
                         block.AddTarget(blocks[index + 1]);
 
+                        // Handle switch
+                        if (node.Instruction.OpCode.Code == Code.Switch)
+                        {
+                            IEnumerable<Instruction> instructions = (IEnumerable<Instruction>) node.Instruction.Operand;
+
+                            // Add targets
+                            IEnumerable<Block> targetsToAdd = instructions.Select(instruction =>
+                                blocks.Single(bl => bl.Nodes.Any(e => e.Instruction == instruction)));
+                            targetsToAdd.ForEach(target => block.AddTarget(target));
+
+                            break;
+                        }
+                        
                         // Add branch target
                         Instruction condBranchToInstruction = (Instruction)node.Instruction.Operand;
                         Block condBranchTargetBlock =
