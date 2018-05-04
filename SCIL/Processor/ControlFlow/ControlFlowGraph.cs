@@ -38,6 +38,14 @@ namespace SCIL
 
         private static Method GenerateMethod(MethodDefinition method)
         {
+            // Skip methods without body...
+            if (!method.HasBody)
+            {
+                var emptyBlock = new Block(Instruction.Create(OpCodes.Nop));
+                var emptyMethod = new Method(method, emptyBlock, new List<Block>() {emptyBlock});
+                return emptyMethod;
+            }
+
             // Generate blocks
             var blocks = method.Body.Instructions.Select(instruction => new Block(instruction)).ToList();
 
