@@ -134,9 +134,6 @@ namespace SCIL.Processor.Simplifiers
                 
                 // We need to insert just after the switch
                 node.Block.Method.Insert(indexOfSwitch + 1, newBlocks.ToArray());
-
-
-                Console.WriteLine();
             }
 
             base.Visit(node);
