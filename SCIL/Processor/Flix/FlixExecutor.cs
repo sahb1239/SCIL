@@ -126,7 +126,7 @@ namespace SCIL.Flix
             {
                 arguments = arguments.Concat(new List<string>()
                 {
-                    "--print Results"
+                    "--print Sources,Sinks,TaintListStack,TaintListLocalVar,TaintListArg,Results"
                 });
             }
 

@@ -22,7 +22,7 @@ namespace Test
                 OutputPath = @"./bin/Debug/netcoreapp2.0/Output/",
                 NoFlix = false,
                 Excluded = new List<string>(),
-                FlixArgs = new List<string>(),
+                FlixArgs = new List<string> { "--print Results" },
                 Verbose = false,
                 Wait = false,
                 Recursive = false
