@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using SCIL.Processor.ControlFlow.SSA.Analyzers;
 using SCIL.Processor.ControlFlow.SSA.NameGenerators;
@@ -49,7 +50,13 @@ namespace SCIL.Processor.ControlFlow.SSA
             // Compute and insert phi nodes
             InsertPhis(method, stackPushes);
            
-            // TODO: Variables, Arguments
+            // Get all variables
+            var variables = GetVariables(method);
+
+            // Compute and insert phi nodes
+            InsertPhis(method, variables);
+
+            // TODO: Arguments
         }
 
         
@@ -82,16 +89,43 @@ namespace SCIL.Processor.ControlFlow.SSA
 
             return variables;
         }
+        
+        private void InsertPhis(Method method, IDictionary<Node, int> variableUpdates)
+        {
+            GenericInsertPhis<PhiVariableNode, int>(method, variableUpdates,
+                (node, variableIndex) => node.VariableIndex == variableIndex,
+                (block, parents, variableIndex) => new PhiVariableNode(block, parents, variableIndex));
+        }
 
         private void InsertPhis(Method method, IDictionary<Node, IReadOnlyCollection<int>> nodeStackPushes)
         {
+            // Filter such that stack index is only pushed one time in a block. We only need the last push
+            // TODO: Group by block
+            List<KeyValuePair<Node, int>> pushesFilteredByBlock = new List<KeyValuePair<Node, int>>();
+
+            foreach (var block in method.Blocks)
+            {
+                pushesFilteredByBlock.AddRange(nodeStackPushes
+                    .Where(variable => block.Nodes.Any(node => node == variable.Key))
+                    .SelectMany(e => e.Value.Select(q => new KeyValuePair<Node, int>(e.Key, q))).GroupBy(e => e.Value)
+                    .Select(e => e.Last()));
+            }
+
+            GenericInsertPhis<PhiStackNode, int>(method, pushesFilteredByBlock,
+                (node, stackIndex) => node.StackIndex == stackIndex,
+                (block, parents, stackIndex) => new PhiStackNode(block, parents, stackIndex));
+        }
+
+        private void GenericInsertPhis<TNode, TKey>(Method method, IEnumerable<KeyValuePair<Node, TKey>> stateUpdates, Func<TNode, TKey, bool> compareNodeToKey, Func<Block, List<Node>, TKey, TNode> createTNode)
+           where TNode : PhiNode
+        {
             // Add list of all nodes which should be added
-            IDictionary<Block, List<PhiNode>> addedNodes = new Dictionary<Block, List<PhiNode>>();
+            IDictionary<Block, List<TNode>> addedNodes = new Dictionary<Block, List<TNode>>();
 
             // Initilize dictionary with lists
             foreach (var block in method.Blocks)
             {
-                addedNodes.Add(block, new List<PhiNode>());
+                addedNodes.Add(block, new List<TNode>());
             }
 
             // Place nodes
@@ -103,16 +137,10 @@ namespace SCIL.Processor.ControlFlow.SSA
                 foreach (var block in method.Blocks)
                 {
                     // Check if we have any variable assignment in this block
-                    var stackPushesInBlock =
-                        nodeStackPushes.Where(variable => block.Nodes.Any(node => node == variable.Key)).ToArray();
-
-                    // Filter such that stack index is only pushed one time in a block. We only need the last push
-                    var lastStackPushesInBlock =
-                        stackPushesInBlock.SelectMany(e => e.Value.Select(q => new {stackIndex = q, node = e.Key}))
-                            .GroupBy(e => e.stackIndex).Select(e => e.Last());
+                    IEnumerable<KeyValuePair<Node, TKey>> stateUpdatesInBlock = stateUpdates.Where(variable => block.Nodes.Any(node => node == variable.Key));
 
                     // Handle each stack push
-                    foreach (var stackPush in lastStackPushesInBlock)
+                    foreach (var stateUpdate in stateUpdatesInBlock)
                     {
                         // Put a phi node on each dominance frontier
                         foreach (var dominanceFrontier in block.DomninanceFrontiers)
@@ -122,20 +150,20 @@ namespace SCIL.Processor.ControlFlow.SSA
 
                             // Double check that the phi node does not exists currently
                             var currentPhiNode = blockList.FirstOrDefault(phiNode =>
-                                phiNode.StackIndex == stackPush.stackIndex);
+                                compareNodeToKey(phiNode, stateUpdate.Value));
                             if (currentPhiNode != null)
                             {
                                 // Detect if the phiNode contains this block as parent
-                                if (!currentPhiNode.Parents.Contains(stackPush.node))
+                                if (!currentPhiNode.Parents.Contains(stateUpdate.Key))
                                 {
-                                    currentPhiNode.Parents.Add(stackPush.node);
+                                    currentPhiNode.Parents.Add(stateUpdate.Key);
                                     addedPhiNode = true;
                                 }
                             }
                             else
                             {
-                                currentPhiNode = new PhiNode(dominanceFrontier,
-                                    new List<Node>() { stackPush.node }, stackPush.stackIndex);
+                                currentPhiNode = createTNode(dominanceFrontier, new List<Node>() { stateUpdate.Key },
+                                    stateUpdate.Value);
                                 blockList.Add(currentPhiNode);
                                 addedPhiNode = true;
                             }
@@ -145,11 +173,11 @@ namespace SCIL.Processor.ControlFlow.SSA
             } while (addedPhiNode);
 
             // Insert the nodes into the blocks
-            foreach (var addedPhi in addedNodes)
+            foreach (KeyValuePair<Block, List<TNode>> node in addedNodes)
             {
-                if (addedPhi.Value.Any())
+                if (node.Value.Any())
                 {
-                    addedPhi.Key.InsertNodesAtIndex(0, addedPhi.Value.Where(e => e.Parents.Count > 1).ToArray());
+                    node.Key.InsertNodesAtIndex(0, node.Value.Where(e => e.Parents.Count > 1).ToArray());
                 }
             }
         }

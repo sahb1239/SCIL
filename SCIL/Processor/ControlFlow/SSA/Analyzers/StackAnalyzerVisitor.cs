@@ -62,7 +62,7 @@ namespace SCIL.Processor.ControlFlow.SSA.Analyzers
                 public override void Visit(Node node)
                 {
                     // Detect phi nodes
-                    if (node is PhiNode phiNode)
+                    if (node is PhiStackNode phiNode)
                     {
                         var parentPushNames = phiNode.Parents.Select(e => e.PushStack.Last()).Distinct().ToList();
 
