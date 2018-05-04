@@ -48,6 +48,9 @@ namespace SCIL.Processor.ControlFlow.SSA.Analyzers
 
                 // Add to stack list
                 _stacks[block] = visitor.GetNextStack();
+
+                // Update next stack
+                _nextStack = _stacks[block];
             }
 
             private class BlockVisitor : BaseVisitor
