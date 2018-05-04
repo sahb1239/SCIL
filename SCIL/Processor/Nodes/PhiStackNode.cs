@@ -3,16 +3,24 @@ using Mono.Cecil.Cil;
 
 namespace SCIL.Processor.Nodes
 {
-    public class PhiStackNode : Node
+    public abstract class PhiNode : Node
     {
-        public PhiStackNode(Block block, List<Node> parents, int stackIndex) : base(block)
+        protected PhiNode(Block block, List<Node> parents) : base(block)
         {
             Parents = parents;
-            StackIndex = stackIndex;
             OverrideOpCode = OpCodes.Nop;
         }
 
         public List<Node> Parents { get; }
+    }
+
+    public class PhiStackNode : PhiNode
+    {
+        public PhiStackNode(Block block, List<Node> parents, int stackIndex) : base(block, parents)
+        {
+            StackIndex = stackIndex;
+            OverrideOpCode = OpCodes.Nop;
+        }
 
         public int StackIndex { get; }
 
@@ -25,16 +33,13 @@ namespace SCIL.Processor.Nodes
         public override int PushCountFromStack => 1;
     }
 
-    public class PhiVariableNode : Node
+    public class PhiVariableNode : PhiNode
     {
-        public PhiVariableNode(Block block, List<Node> parents, int variableIndex) : base(block)
+        public PhiVariableNode(Block block, List<Node> parents, int variableIndex) : base(block, parents)
         {
-            Parents = parents;
             VariableIndex = variableIndex;
             OverrideOpCode = OpCodes.Nop;
         }
-
-        public List<Node> Parents { get; }
 
         public int VariableIndex { get; }
 
