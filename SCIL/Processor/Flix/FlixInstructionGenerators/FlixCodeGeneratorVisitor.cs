@@ -32,7 +32,7 @@ namespace SCIL.Processor.FlixInstructionGenerators
         {
             // Add type name
             Builder.AppendLine(
-                $"// type_{type.Definition.Name}<{String.Join(",", type.Definition.GenericParameters.Select(e => e.DeclaringType.FullName))}>");
+                $"// type_{type.Definition.FullName}<{String.Join(",", type.Definition.GenericParameters.Select(e => e.DeclaringType.FullName))}>");
 
             base.Visit(type);
 
@@ -43,7 +43,7 @@ namespace SCIL.Processor.FlixInstructionGenerators
         {
             // Add method name
             Builder.AppendLine(
-                $"// method_{method.Definition.Name}<{String.Join(",", method.Definition.GenericParameters.Select(e => e.Name))}>({String.Join(", ", method.Definition.Parameters.Select(e => $"{e.ParameterType.FullName} {e.Name}"))})");
+                $"// method_{method.Definition.FullName}<{String.Join(",", method.Definition.GenericParameters.Select(e => e.Name))}>({String.Join(", ", method.Definition.Parameters.Select(e => $"{e.ParameterType.FullName} {e.Name}"))})");
 
             base.Visit(method);
         }
