@@ -18,7 +18,7 @@ namespace SCIL.Processor.Flix.FlixInstructionGenerators.Instructions
             else if (node is PhiVariableNode variableNode)
             {
                 outputFlixCode =
-                    $"PhiLocStm({string.Join(", ", variableNode.VariableName, string.Join(", ", variableNode.Parents.Select(e => e.VariableName)))}.";
+                    $"PhiLocStm({string.Join(", ", variableNode.VariableName, string.Join(", ", variableNode.Parents.Select(e => e.VariableName)))}).";
                 return true;
             }
 
