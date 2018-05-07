@@ -16,7 +16,7 @@ namespace SCIL.Processor.ControlFlow.SSA.NameGenerators
         }
 
 
-        private class MethodVisitor : BaseVisitor
+        private class MethodVisitor : BlockSourceOrderVisitor
         {
             private readonly Method _method;
             private readonly IDictionary<Block, Variables> _variables = new Dictionary<Block, Variables>();
@@ -27,13 +27,14 @@ namespace SCIL.Processor.ControlFlow.SSA.NameGenerators
                 this._method = method;
             }
 
-            public override void Visit(Block block)
+            public override void VisitBlock(Block block)
             {
                 // Get variables
                 Variables currentVariables;
                 if (block.Sources.Any())
                 {
-                    var variables = _variables[block.Sources.First()];
+                    var key = block.Sources.First(source => _variables.ContainsKey(source));
+                    var variables = _variables[key];
                     currentVariables = variables.Copy();
                 }
                 else

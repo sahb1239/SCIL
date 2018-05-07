@@ -14,7 +14,7 @@ namespace SCIL.Processor.ControlFlow.SSA.Analyzers
             visitor.Visit(method);
         }
 
-        private class MethodVisitor : BaseVisitor
+        private class MethodVisitor : BlockSourceOrderVisitor
         {
             private readonly IDictionary<Block, int> _stacks = new Dictionary<Block, int>();
             private int _nextStack = 0;
@@ -29,12 +29,13 @@ namespace SCIL.Processor.ControlFlow.SSA.Analyzers
                 Debug.Assert(_nextStack == 0);
             }
 
-            public override void Visit(Block block)
+            public override void VisitBlock(Block block)
             {
                 // Get stack
                 if (block.Sources.Any())
                 {
-                    var stack = _stacks[block.Sources.First()];
+                    var key = block.Sources.First(source => _stacks.ContainsKey(source));
+                    var stack = _stacks[key];
                     _nextStack = stack;
                 }
                 else
@@ -81,6 +82,10 @@ namespace SCIL.Processor.ControlFlow.SSA.Analyzers
                         node.SetPushStack(parentPushNames.First());
 
                         base.Visit(node);
+
+                        Debug.Assert(node.PushStack.Count == node.PushCountFromStack);
+                        Debug.Assert(node.PopStack.Count == node.PopCountFromStack);
+
                         return;
                     }
 
@@ -89,19 +94,22 @@ namespace SCIL.Processor.ControlFlow.SSA.Analyzers
                     {
                         // Popall
                         _nextStack = 1;
+
+
                     }
-                    else
-                    {
-                        node.SetPopStack(GetPopStackNames(node).ToArray());
-                        node.SetPushStack(GetPushStackNames(node).ToArray());
-                    }
-                    
+
+                    node.SetPopStack(GetPopStackNames(node).ToArray());
+                    node.SetPushStack(GetPushStackNames(node).ToArray());
+
+                    Debug.Assert(node.PushStack.Count == node.PushCountFromStack);
+                    Debug.Assert(node.PopStack.Count == node.PopCountFromStack);
+
                     base.Visit(node);
                 }
 
                 private IEnumerable<int> GetPopStackNames(Node node)
                 {
-                    for (int i = 0; i < node.GetRequiredNames().popNames; i++)
+                    for (int i = 0; i < node.PopCountFromStack; i++)
                     {
                         yield return --_nextStack;
                     }
@@ -113,7 +121,7 @@ namespace SCIL.Processor.ControlFlow.SSA.Analyzers
                 {
                     Debug.Assert(_nextStack >= 0);
 
-                    for (int i = 0; i < node.GetRequiredNames().pushNames; i++)
+                    for (int i = 0; i < node.PushCountFromStack; i++)
                     {
                         yield return _nextStack++;
                     }
