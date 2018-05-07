@@ -81,6 +81,9 @@ namespace SCIL
                     case StackBehaviour.Popref_pop1:
                         pop = 2;
                         break;
+                    case StackBehaviour.Popref_popi:
+                        pop = 2;
+                        break;
                     default:
                         throw new NotImplementedException($"StackBehaviour on pop {OpCode.StackBehaviourPop} not implemented");
                 }
@@ -254,6 +257,10 @@ namespace SCIL
                     {
                         return index;
                     }
+                    else if (Operand is ParameterDefinition parameterDefinition)
+                    {
+                        return parameterDefinition.Index;
+                    }
 
                     throw new NotImplementedException();
                 case Code.Ldarg_0:
@@ -277,6 +284,10 @@ namespace SCIL
                     {
                         return (true, index);
                     }
+                    else if (Operand is ParameterDefinition parameterDefinition)
+                    {
+                        return (true, parameterDefinition.Index);
+                    }
 
                     throw new NotImplementedException();
             }
@@ -286,10 +297,9 @@ namespace SCIL
 
         public void SetPopStackNames(params string[] names)
         {
-            var required = GetRequiredNames();
-            if (required.popNames != names.Length)
+            if (PopCountFromStack != names.Length)
             {
-                throw new ArgumentOutOfRangeException(nameof(names), $"{required.popNames} names is required");
+                throw new ArgumentOutOfRangeException(nameof(names), $"{PopCountFromStack} names is required");
             }
             _popStackNames.Clear();
             _popStackNames.AddRange(names);
@@ -297,20 +307,18 @@ namespace SCIL
 
         public void SetPushStackNames(params string[] names)
         {
-            var required = GetRequiredNames();
-            if (required.pushNames != names.Length)
+            if (PushCountFromStack != names.Length)
             {
-                throw new ArgumentOutOfRangeException(nameof(names), $"{required.pushNames} names is required");
+                throw new ArgumentOutOfRangeException(nameof(names), $"{PushCountFromStack} names is required");
             }
             _pushStackNames.Clear();
             _pushStackNames.AddRange(names);
         }
         public void SetPopStack(params int[] popStack)
         {
-            var required = GetRequiredNames();
-            if (required.popNames != popStack.Length)
+            if (PopCountFromStack != popStack.Length)
             {
-                throw new ArgumentOutOfRangeException(nameof(popStack), $"{required.popNames} numbers is required");
+                throw new ArgumentOutOfRangeException(nameof(popStack), $"{PopCountFromStack} numbers is required");
             }
             _popStack.Clear();
             _popStack.AddRange(popStack);
@@ -318,10 +326,9 @@ namespace SCIL
 
         public void SetPushStack(params int[] pushStack)
         {
-            var required = GetRequiredNames();
-            if (required.pushNames != pushStack.Length)
+            if (PushCountFromStack != pushStack.Length)
             {
-                throw new ArgumentOutOfRangeException(nameof(pushStack), $"{required.pushNames} numbers is required");
+                throw new ArgumentOutOfRangeException(nameof(pushStack), $"{PushCountFromStack} numbers is required");
             }
             _pushStack.Clear();
             _pushStack.AddRange(pushStack);
