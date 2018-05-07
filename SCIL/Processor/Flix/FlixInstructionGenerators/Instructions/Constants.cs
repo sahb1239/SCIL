@@ -44,7 +44,7 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
                     }
                     throw new ArgumentException(nameof(node.Operand));
                 case Code.Ldnull:
-                    outputFlixCode = ldc("null", node);
+                    outputFlixCode = "";//ldc("null", node);
                     return true;
                 case Code.Ldstr:
                     if (node.Operand is string str)
