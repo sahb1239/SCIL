@@ -130,7 +130,7 @@ namespace SCIL
         [Option('o', "OutputPath", Required = true, HelpText = "Output path")]
         public string OutputPath { get; set; }
 
-        [Option('e', "excluded", Required = false, HelpText = "Assemblies to exclude")]
+        [Option('e', "excluded", Required = false, Separator = ',', HelpText = "Assemblies to exclude")]
         public IEnumerable<string> Excluded { get; set; }
 
         [Option("verbose", Required = false, HelpText = "Verbose output")]
