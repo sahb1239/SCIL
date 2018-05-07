@@ -137,7 +137,7 @@ namespace SCIL.Processor.ControlFlow.SSA.NameGenerators
                 var methodName = _method.Definition.NameOnly();
 
                 // Add new name
-                return _currentNames[index] = $"\"{methodName}_{ _variableNames.GetNewName(index)}\"";
+                return _currentNames[index] = $"\"loc_{methodName}_{ _variableNames.GetNewName(index)}\"";
             }
 
             public Variables Copy()

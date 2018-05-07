@@ -20,10 +20,20 @@ namespace SCIL.Processor.Nodes
             _nodes.AddRange(instructions.Select(instruction => new Node(instruction, this)));
         }
 
+        public Block(params Node[] nodes)
+        {
+            _nodes.AddRange(nodes);
+        }
+
         public void AddTarget(Block target)
         {
             _targets.Add(target);
             target._sources.Add(this);
+        }
+        public void RemoveTarget(Block target)
+        {
+            _targets.Remove(target);
+            target._sources.Remove(this);
         }
 
         public bool CanConcat(Block block)
@@ -91,6 +101,21 @@ namespace SCIL.Processor.Nodes
             // Remove and insert new nodes at index
             _nodes.RemoveAt(index);
             _nodes.InsertRange(index, newNodes);
+        }
+
+        public void Remove(Node node)
+        {
+            if (node == null) throw new ArgumentNullException(nameof(node));
+
+            // Get node
+            var index = _nodes.IndexOf(node);
+            if (index == -1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(node), "Node not found");
+            }
+
+            // Remove node at index
+            _nodes.RemoveAt(index);
         }
 
         public IEnumerable<Block> Union(IEnumerable<Block> blocks)

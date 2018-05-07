@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using SCIL.Processor.ControlFlow.SSA.Analyzers;
 using SCIL.Processor.ControlFlow.SSA.NameGenerators;
@@ -57,6 +58,8 @@ namespace SCIL.Processor.ControlFlow.SSA
             InsertPhis(method, variables);
 
             // TODO: Arguments
+            var arguments = GetArguments(method);
+            Debug.Assert(!arguments.Any());
         }
 
         
@@ -64,9 +67,10 @@ namespace SCIL.Processor.ControlFlow.SSA
         private IDictionary<Node, IReadOnlyCollection<int>> GetStackPushes(Method method)
         {
             // Find all pushes to the stack
+            // We only need the last element
             return
                 method.Blocks.SelectMany(e => e.Nodes).Where(e => e.PushStack.Any())
-                    .ToDictionary(node => node, node => node.PushStack);
+                    .ToDictionary(node => node, node => (IReadOnlyCollection<int>) new List<int>(node.PushStack.Last()).AsReadOnly());
         }
 
         // TODO: Fix ldloc.a
@@ -88,6 +92,14 @@ namespace SCIL.Processor.ControlFlow.SSA
             }
 
             return variables;
+        }
+
+        private IDictionary<Node, int> GetArguments(Method method)
+        {
+            return
+                method.Blocks.SelectMany(e => e.Nodes).Select(e => new {Node = e, ArgInfo = e.IsStoreArg()})
+                    .Where(e => e.ArgInfo.Item1)
+                    .ToDictionary(nodeInfo => nodeInfo.Node, nodeInfo => nodeInfo.ArgInfo.Item2);
         }
         
         private void InsertPhis(Method method, IDictionary<Node, int> variableUpdates)

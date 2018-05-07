@@ -112,6 +112,18 @@ namespace SCIL
                     pop = 1;
                 }
 
+                // Detect newobj
+                switch (OpCode.Code)
+                {
+                    case Code.Newobj:
+
+                        var newObjMethod = (MethodReference) Operand;
+                        var parameters = newObjMethod.Parameters.Count;
+
+                        pop = parameters;
+                        break;
+                }
+
                 return pop;
             }
         }
@@ -252,6 +264,24 @@ namespace SCIL
             }
 
             return null;
+        }
+
+        public (bool, int) IsStoreArg()
+        {
+            // TODO Handle ldarg.a
+            switch (OpCode.Code)
+            {
+                case Code.Starg:
+                case Code.Starg_S:
+                    if (Operand is sbyte index)
+                    {
+                        return (true, index);
+                    }
+
+                    throw new NotImplementedException();
+            }
+
+            return (false, -1);
         }
 
         public void SetPopStackNames(params string[] names)

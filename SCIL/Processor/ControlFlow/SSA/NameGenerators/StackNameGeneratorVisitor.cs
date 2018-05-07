@@ -42,7 +42,7 @@ namespace SCIL.Processor.ControlFlow.SSA.NameGenerators
                 var methodName = GetMethodName();
                 foreach (var popIndex in popIndexes)
                 {
-                    yield return $"\"{methodName}_{_sharedNames.GetCurrentName(popIndex)}\"";
+                    yield return $"\"st_{methodName}_{_sharedNames.GetCurrentName(popIndex)}\"";
                 }
             }
 
@@ -52,7 +52,7 @@ namespace SCIL.Processor.ControlFlow.SSA.NameGenerators
                 var methodName = GetMethodName();
                 foreach (var pushIndex in pushIndexes)
                 {
-                    yield return $"\"{methodName}_{_sharedNames.GetNewName(pushIndex)}\"";
+                    yield return $"\"st_{methodName}_{_sharedNames.GetNewName(pushIndex)}\"";
                 }
             }
         }

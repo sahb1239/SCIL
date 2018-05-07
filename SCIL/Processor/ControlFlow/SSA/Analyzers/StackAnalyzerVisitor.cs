@@ -41,13 +41,16 @@ namespace SCIL.Processor.ControlFlow.SSA.Analyzers
                 {
                     _nextStack = 0;
                 }
-
-                // Add to stack list
-                _stacks[block] = _nextStack;
-
+                
                 // Run visitor
                 var visitor = new BlockVisitor(_nextStack);
                 visitor.Visit(block);
+
+                // Add to stack list
+                _stacks[block] = visitor.GetNextStack();
+
+                // Update next stack
+                _nextStack = _stacks[block];
             }
 
             private class BlockVisitor : BaseVisitor
@@ -67,7 +70,12 @@ namespace SCIL.Processor.ControlFlow.SSA.Analyzers
                         var parentPushNames = phiNode.Parents.Select(e => e.PushStack.Last()).Distinct().ToList();
 
                         // Parent pushnames should all have the same index
-                        Debug.Assert(parentPushNames.Count == 1);
+                        // Debug.Assert(parentPushNames.Count == 1);
+                        // Not always the case for example if parent is dup
+
+                        // Debug that all parents is the same
+                        Debug.Assert(phiNode.Parents.Skip(1).All(parent =>
+                            parent.PushStack.Last() == phiNode.Parents.First().PushStack.Last()));
 
                         // Set the push stack
                         node.SetPushStack(parentPushNames.First());
@@ -109,6 +117,11 @@ namespace SCIL.Processor.ControlFlow.SSA.Analyzers
                     {
                         yield return _nextStack++;
                     }
+                }
+
+                public int GetNextStack()
+                {
+                    return _nextStack;
                 }
             }
 

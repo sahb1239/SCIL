@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using CSharpx;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using SCIL.Processor.Nodes;
@@ -37,6 +38,14 @@ namespace SCIL
 
         private static Method GenerateMethod(MethodDefinition method)
         {
+            // Skip methods without body...
+            if (!method.HasBody)
+            {
+                var emptyBlock = new Block(Instruction.Create(OpCodes.Nop));
+                var emptyMethod = new Method(method, emptyBlock, new List<Block>() {emptyBlock});
+                return emptyMethod;
+            }
+
             // Generate blocks
             var blocks = method.Body.Instructions.Select(instruction => new Block(instruction)).ToList();
 
@@ -73,6 +82,19 @@ namespace SCIL
                         // Add next
                         block.AddTarget(blocks[index + 1]);
 
+                        // Handle switch
+                        if (node.Instruction.OpCode.Code == Code.Switch)
+                        {
+                            IEnumerable<Instruction> instructions = (IEnumerable<Instruction>) node.Instruction.Operand;
+
+                            // Add targets
+                            IEnumerable<Block> targetsToAdd = instructions.Select(instruction =>
+                                blocks.Single(bl => bl.Nodes.Any(e => e.Instruction == instruction)));
+                            targetsToAdd.ForEach(target => block.AddTarget(target));
+
+                            break;
+                        }
+                        
                         // Add branch target
                         Instruction condBranchToInstruction = (Instruction)node.Instruction.Operand;
                         Block condBranchTargetBlock =
