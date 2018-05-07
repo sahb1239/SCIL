@@ -41,8 +41,7 @@ namespace SCIL
             // Skip methods without body...
             if (!method.HasBody)
             {
-                var emptyBlock = new Block(Instruction.Create(OpCodes.Nop));
-                var emptyMethod = new Method(method, emptyBlock, new List<Block>() {emptyBlock});
+                var emptyMethod = new Method(method, null, new List<Block>() {});
                 return emptyMethod;
             }
 

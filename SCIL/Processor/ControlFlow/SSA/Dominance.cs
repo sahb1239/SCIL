@@ -10,6 +10,12 @@ namespace SCIL.Processor.ControlFlow.SSA
         // Simply returns the block's "dominates" field
         public static void SimpleDominators(Method method)
         {
+            // If startBlock is null and method.Blocks does not contain any elements - we just skip the method (since it's a empty body function then)
+            if (method.StartBlock == null && !method.Blocks.Any())
+            {
+                return;
+            }
+
             // Validate that startNode is first in blocks
             if (method.StartBlock != method.Blocks.FirstOrDefault())
             {

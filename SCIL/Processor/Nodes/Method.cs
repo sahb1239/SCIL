@@ -15,7 +15,7 @@ namespace SCIL.Processor.Nodes
         public Method(MethodDefinition method, Block startBlock, IEnumerable<Block> blocks)
         {
             Definition = method ?? throw new ArgumentNullException(nameof(method));
-            StartBlock = startBlock ?? throw new ArgumentNullException(nameof(startBlock));
+            StartBlock = startBlock;
 
             if (blocks == null) throw new ArgumentNullException(nameof(blocks));
             _blocks.AddRange(blocks);
