@@ -184,12 +184,25 @@ namespace SCIL
                 }
 
                 // Detect exception handling
-                if (this.Block.Method.Definition.Body.ExceptionHandlers.Any(e => e.HandlerStart == Instruction))
+                var exceptionHandler =
+                    this.Block.Method.Definition.Body.ExceptionHandlers.SingleOrDefault(e =>
+                        e.HandlerStart == this.Instruction);
+                if (exceptionHandler != null)
                 {
-                    // We recieve the exception in start of exception
-                    push += 1;
+                    switch (exceptionHandler.HandlerType)
+                    {
+                        case ExceptionHandlerType.Catch:
+                            // Popall and push exception
+                            // We recieve the exception in start of exception
+                            push += 1;
+                            break;
+                        case ExceptionHandlerType.Finally:
+                            // Popall
+                            break;
+                        default:
+                            throw new NotImplementedException();
+                    }
                 }
-
                 return push;
             }
         }

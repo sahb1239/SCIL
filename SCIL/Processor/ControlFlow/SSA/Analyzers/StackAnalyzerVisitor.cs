@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Mono.Cecil.Cil;
 using SCIL.Processor.Nodes;
 using SCIL.Processor.Nodes.Visitor;
 
@@ -24,9 +26,14 @@ namespace SCIL.Processor.ControlFlow.SSA.Analyzers
                 Debug.Assert(_nextStack == 0);
 
                 base.Visit(method);
+                
+                // Assert that the stack is handled on all last nodes (next stack should be 0)
+                var blocksWithEnds = method.Blocks
+                    .Where(block => !block.Targets.Any() || block.Nodes.Any(node => node.OpCode.Code == Code.Ret));
+                var stackAtEnds = blocksWithEnds.Select(block => _stacks[block]);
 
-                // Assert that the stack is handled (next stack should be 0)
-                Debug.Assert(_nextStack == 0);
+                Debug.Assert(stackAtEnds
+                    .All(nextStack => nextStack == 0));
             }
 
             public override void VisitBlock(Block block)
@@ -49,9 +56,6 @@ namespace SCIL.Processor.ControlFlow.SSA.Analyzers
 
                 // Add to stack list
                 _stacks[block] = visitor.GetNextStack();
-
-                // Update next stack
-                _nextStack = _stacks[block];
             }
 
             private class BlockVisitor : BaseVisitor
@@ -90,12 +94,24 @@ namespace SCIL.Processor.ControlFlow.SSA.Analyzers
                     }
 
                     // Detect exception handling
-                    if (node.Block.Method.Definition.Body.ExceptionHandlers.Any(e => e.HandlerStart == node.Instruction))
+                    var exceptionHandler =
+                        node.Block.Method.Definition.Body.ExceptionHandlers.SingleOrDefault(e =>
+                            e.HandlerStart == node.Instruction);
+                    if (exceptionHandler != null)
                     {
-                        // Popall
-                        _nextStack = 1;
-
-
+                        switch (exceptionHandler.HandlerType)
+                        {
+                            case ExceptionHandlerType.Catch:
+                                // Popall and push exception
+                                _nextStack = 1;
+                                break;
+                            case ExceptionHandlerType.Finally:
+                                // Popall
+                                _nextStack = 0;
+                                break;
+                            default:
+                                throw new NotImplementedException();
+                        }
                     }
 
                     node.SetPopStack(GetPopStackNames(node).ToArray());
