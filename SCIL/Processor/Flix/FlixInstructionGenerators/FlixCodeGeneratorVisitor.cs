@@ -43,7 +43,7 @@ namespace SCIL.Processor.FlixInstructionGenerators
         {
             // Add method name
             Builder.AppendLine(
-                $"// method_{method.Definition.Name}<{String.Join(",", method.Definition.GenericParameters.Select(e => e.DeclaringType.FullName))}>({String.Join(", ", method.Definition.Parameters.Select(e => $"{e.ParameterType.FullName} {e.Name}"))})");
+                $"// method_{method.Definition.Name}<{String.Join(",", method.Definition.GenericParameters.Select(e => e.Name))}>({String.Join(", ", method.Definition.Parameters.Select(e => $"{e.ParameterType.FullName} {e.Name}"))})");
 
             base.Visit(method);
         }
