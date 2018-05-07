@@ -99,15 +99,15 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
         private string ldarga(Node node) => $"LdargaStm({node.PushStackNames.First()}, \"{node.Block.Method.Definition.NameOnly()}\", {GetOperandIndex(node)}).";
 
         private string starg(Node node, uint argNo) =>
-            $"StargStm({node.ArgumentName}, {node.PopStackNames.First()}, {argNo}, \"{GetVariableDefinition(node).VariableType.FullName}\").";
+            $"StargStm({node.ArgumentName}, {node.PopStackNames.First()}, {argNo}, \"{GetVariableDefinition(node).ParameterType.FullName}\").";
 
-        private VariableDefinition GetVariableDefinition(Node node)
+        private ParameterDefinition GetVariableDefinition(Node node)
         {
-            if (node.Operand is VariableDefinition variableDefinition)
+            if (node.Operand is ParameterDefinition variableDefinition)
                 return variableDefinition;
 
             var index = GetVariableIndex(node.Operand);
-            return node.Block.Method.Definition.Body.Variables.First(e => e.Index == index);
+            return node.Block.Method.Definition.Parameters.First(e => e.Index == index);
         }
         private int GetVariableIndex(object operand)
         {
@@ -115,7 +115,7 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
             {
                 return index;
             }
-            else if (operand is VariableDefinition variableDefinition)
+            else if (operand is ParameterDefinition variableDefinition)
             {
                 return variableDefinition.Index;
             }
