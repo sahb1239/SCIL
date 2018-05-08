@@ -99,6 +99,8 @@ namespace SCIL.Processor.ControlFlow.SSA.Analyzers
                             e.HandlerStart == node.Instruction);
                     if (exceptionHandler != null)
                     {
+                        // Background info
+                        // https://stackoverflow.com/questions/11987953/how-are-cil-fault-clauses-different-from-catch-clauses-in-c
                         switch (exceptionHandler.HandlerType)
                         {
                             case ExceptionHandlerType.Catch:
@@ -108,6 +110,10 @@ namespace SCIL.Processor.ControlFlow.SSA.Analyzers
                             case ExceptionHandlerType.Finally:
                                 // Popall
                                 _nextStack = 0;
+                                break;
+                            case ExceptionHandlerType.Filter:
+                                // Popall and let's asume we get a exception (seems like it's the case)
+                                _nextStack = 1;
                                 break;
                             default:
                                 throw new NotImplementedException();
