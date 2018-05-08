@@ -61,6 +61,7 @@ namespace SCIL
                     case StackBehaviour.Pop1_pop1:
                     case StackBehaviour.Popi_pop1:
                     case StackBehaviour.Popi_popi:
+                    case StackBehaviour.Popi_popi8:
                     case StackBehaviour.Popi_popr4:
                     case StackBehaviour.Popi_popr8:
                         pop = 2;
