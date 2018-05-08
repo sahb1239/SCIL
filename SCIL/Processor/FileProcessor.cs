@@ -33,7 +33,15 @@ namespace SCIL.Processor
             {
                 // TODO : Detect dll and exe
                 // Just jump out into the water and see if we survive (no exceptions)
-                return new[] {await ProcessAssembly(fileInfo.OpenRead())};
+                var createdFile = await ProcessAssembly(fileInfo.OpenRead());
+                if (createdFile != null)
+                {
+                    return new[] {createdFile};
+                }
+                else
+                {
+                    return new string[] { };
+                }
             }
         }
 
@@ -80,7 +88,11 @@ namespace SCIL.Processor
                         {
                             using (var memStream = new MemoryStream(file))
                             {
-                                createdFiles.Add(await ProcessAssembly(memStream));
+                                var createdFile = await ProcessAssembly(memStream);
+                                if (createdFile != null)
+                                {
+                                    createdFiles.Add(createdFile);
+                                }
                             }
                         }
                     }
@@ -111,7 +123,11 @@ namespace SCIL.Processor
                             // Set position 0
                             stream.Position = 0;
 
-                            createdFiles.Add(await ProcessAssembly(stream));
+                            var createdFile = await ProcessAssembly(stream);
+                            if (createdFile != null)
+                            {
+                                createdFiles.Add(createdFile);
+                            }
                         }
                     }
                 }
