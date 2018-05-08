@@ -6,22 +6,65 @@ using CSharpx;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using SCIL.Processor.Nodes;
+using SCIL.Processor.Nodes.Visitor;
 using Type = SCIL.Processor.Nodes.Type;
 
 namespace SCIL
 {
     public class ControlFlowGraph
     {
+        // Class which updates all the methods references
+        private class ControlFlowMethodGeneratorVisitor : BaseVisitor
+        {
+            private readonly List<Method> _allMethods;
+
+            public ControlFlowMethodGeneratorVisitor(List<Method> allMethods)
+            {
+                _allMethods = allMethods ?? throw new ArgumentNullException(nameof(allMethods));
+            }
+
+            public override void Visit(Node node)
+            {
+                switch (node.OpCode.Code)
+                {
+                    case Code.Call:
+                    case Code.Calli:
+                    case Code.Callvirt:
+                        // Get operand
+                        if (node.Operand is MethodReference methodReference)
+                        {
+                            // Detect if we can find a match for the method
+                            var matchingMethod = _allMethods.FirstOrDefault(method =>
+                                method.Definition == methodReference);
+
+                            if (matchingMethod != null)
+                            {
+                                // Replace the node
+                                node.Replace(new MethodCallNode(node, matchingMethod));
+                            }
+                        }
+
+                        break;
+                }
+            }
+        }
+
         public static Module GenerateModule(ModuleDefinition module)
         {
-            List<Type> types = new List<Type>();
+            // Generate all the types
+            List<Type> types = module.Types.Select(GenerateType).ToList();
 
-            foreach (var type in module.Types)
-            {
-                types.Add(GenerateType(type));
-            }
-            
-            return new Module(module, types);
+            // Create the module
+            var createdModule = new Module(module, types);
+
+            // Get all methods
+            List<Method> allMethods = types.SelectMany(type => type.Methods).ToList();
+
+            // Create visitor which should update all nodes with method calls to MethodCallNode
+            var visitor = new ControlFlowMethodGeneratorVisitor(allMethods);
+            visitor.Visit(createdModule);
+
+            return createdModule;
         }
 
         private static Type GenerateType(TypeDefinition type)
@@ -66,7 +109,6 @@ namespace SCIL
                 switch (node.Instruction.OpCode.FlowControl)
                 {
                     case FlowControl.Call:
-                        // TODO: Add call target
                     case FlowControl.Next:
                         block.AddTarget(blocks[index + 1]);
                         break;
