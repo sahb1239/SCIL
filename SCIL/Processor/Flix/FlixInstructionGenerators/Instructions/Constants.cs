@@ -63,7 +63,7 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
         private string ldc(double op, Node node) => $"LdcFStm({node.PushStackNames.First()}, {op.ToString("F", new CultureInfo("en-US"))}f32).";
         private string ldc(string op, Node node) => $"LdcStm({node.PushStackNames.First()}, {op}).";
         private string ldstr(string str, Node node) => $"LdstrStm({node.PushStackNames.First()}, \"{EscapeStr(str)}\").";
-        private string EscapeStr(string str) => str.Replace("\\", "\\\\").Replace("\"", "\\\""); // TODO: Find other special chars, newlines etc
+        private string EscapeStr(string str) => str.Replace("\\", "").Replace("\"", ""); // TODO: Find other special chars, newlines etc and actually handle them
         
     }
 }
