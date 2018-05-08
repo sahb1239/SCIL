@@ -184,8 +184,9 @@ namespace SCIL
                         break;
                 }
 
+                // We can now ignore since we handle in StackAnalyzerVisitor
                 // Detect exception handling
-                var exceptionHandler =
+                /*var exceptionHandler =
                     this.Block.Method.Definition.Body.ExceptionHandlers.SingleOrDefault(e =>
                         e.HandlerStart == this.Instruction);
                 if (exceptionHandler != null)
@@ -203,7 +204,8 @@ namespace SCIL
                         default:
                             throw new NotImplementedException();
                     }
-                }
+                }*/
+                
                 return push;
             }
         }
