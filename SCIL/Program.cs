@@ -1,19 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using CommandLine;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using SCIL.Analyzers;
-using SCIL.Decompressor;
 using SCIL.Flix;
 using SCIL.Logger;
-using SCIL.Processor;
-using SCIL.Writer;
 using SCIL.Processor;
 
 namespace SCIL
