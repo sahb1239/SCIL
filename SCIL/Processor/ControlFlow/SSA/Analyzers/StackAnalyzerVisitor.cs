@@ -39,15 +39,15 @@ namespace SCIL.Processor.ControlFlow.SSA.Analyzers
             public override void VisitBlock(Block block)
             {
                 // Get stack
-                if (block.Sources.Any())
+                if (block.Method.StartBlock == block || !block.Sources.Any())
+                {
+                    _nextStack = 0;
+                }
+                else
                 {
                     var key = block.Sources.First(source => _stacks.ContainsKey(source));
                     var stack = _stacks[key];
                     _nextStack = stack;
-                }
-                else
-                {
-                    _nextStack = 0;
                 }
                 
                 // Run visitor

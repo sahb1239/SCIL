@@ -31,15 +31,15 @@ namespace SCIL.Processor.ControlFlow.SSA.NameGenerators
             {
                 // Get variables
                 Variables currentVariables;
-                if (block.Sources.Any())
+                if (block.Method.StartBlock == block || !block.Sources.Any())
+                {
+                    currentVariables = new Variables(_method);
+                }
+                else
                 {
                     var key = block.Sources.First(source => _variables.ContainsKey(source));
                     var variables = _variables[key];
                     currentVariables = variables.Copy();
-                }
-                else
-                {
-                    currentVariables = new Variables(_method);
                 }
 
                 // Add to stack list
