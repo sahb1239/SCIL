@@ -120,6 +120,17 @@ namespace SCIL.Processor.ControlFlow.SSA.Analyzers
                         }
                     }
 
+                    // Detect leave
+                    switch (node.OpCode.Code)
+                    {
+                        case Code.Leave:
+                        case Code.Leave_S:
+                            // The leave.s instruction empties the evaluation stack and ensures that the appropriate surrounding finally blocks are executed.
+                            // https://msdn.microsoft.com/en-us/library/system.reflection.emit.opcodes.leave_s(v=vs.110).aspx
+                            _nextStack = 0;
+                            break;
+                    }
+
                     node.SetPopStack(GetPopStackNames(node).ToArray());
                     node.SetPushStack(GetPushStackNames(node).ToArray());
 
