@@ -123,10 +123,11 @@ namespace SCIL.Processor.Simplifiers
                 node.Block.Method.Insert(indexOfSwitch + 1, branchingBlocks.ToArray());
 
                 // We now insert pop to next block (after switch)
-                InsertPopBeforeTarget(nextTarget, branchingBlocks, otherTargets);
+                //InsertPopBeforeTarget(nextTarget, branchingBlocks, otherTargets);
+                // This is combined now since it can also be a seperate target, and we don't want to add multiple pop (since we then will get errors)
 
                 // We now needs to insert pop stm to remove all the extra values
-                InsertPopToAllTargets(blockTargets, branchingBlocks, otherTargets);
+                InsertPopToAllTargets(blockTargets.Concat(new [] {nextTarget}).ToList(), branchingBlocks, otherTargets);
 
                 // Remove the switch
                 RemoveSwitchFromCurrentBlock(node, branchingBlocks, otherTargets);
