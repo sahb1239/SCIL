@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using CommandLine;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using SCIL.Analyzers;
 using SCIL.Decompressor;
 using SCIL.Flix;
@@ -42,12 +43,16 @@ namespace SCIL
             {
                 outputPathInfo.Create();
             }
+
+            // Read configuration
+            var configurationFileText = File.ReadAllText("Configuration.json");
+            var configurationFile = JsonConvert.DeserializeObject<ConfigurationFile>(configurationFileText);
             
             // Create logger
             var logger = new ConsoleLogger(opts.Verbose, opts.Wait);
             
             // Create configuration
-            var configuration = new Configuration(opts.Excluded, opts.OutputPath);
+            var configuration = new Configuration(opts.Excluded.Concat(configurationFile.IgnoredAssemblies), opts.OutputPath);
 
             // Registrer services
             var serviceCollection = new ServiceCollection();
@@ -117,6 +122,11 @@ namespace SCIL
                 executor.Execute(generatedFiles, opts.FlixArgs.ToArray());
             }
         }
+    }
+
+    internal class ConfigurationFile
+    {
+        public IEnumerable<string> IgnoredAssemblies { get; set; }
     }
 
     public class ConsoleOptions

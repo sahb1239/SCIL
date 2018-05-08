@@ -1,0 +1,19 @@
+﻿{
+  "IgnoredAssemblies": [
+    "GoogleAnalytics.Android.dll",
+    "Mono.Android.dll",
+    "Mono.Android.GoogleMaps.dll",
+    "Mono.Android.Support.v4.dll",
+    "Mono.Data.Sqlite.dll",
+    "mscorlib.dll",
+    "Newtonsoft.Json.MonoTouch.dll",
+    "System.dll",
+    "System.Core.dll",
+    "System.Data.dll",
+    "System.Json.dll",
+    "System.Runtime.Serialization.dll",
+    "System.Transactions.dll",
+    "System.Xml.dll",
+    "System.Xml.Linq.dll"
+  ] 
+}
