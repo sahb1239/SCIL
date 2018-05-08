@@ -40,7 +40,7 @@ namespace SCIL.Processor.Nodes.Visitor
         {
             // Detect if any source is in the visited blocks
             // The first any check is to detect the first block
-            if (!block.Sources.Any() || block.Sources.Any(source => _visitedBlocks.Contains(source)))
+            if (block.Method.StartBlock == block || !block.Sources.Any() || block.Sources.Any(source => _visitedBlocks.Contains(source)))
             {
                 // Visit the block
                 VisitBlock(block);
