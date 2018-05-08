@@ -108,7 +108,11 @@ namespace SCIL
 
                 switch (node.Instruction.OpCode.FlowControl)
                 {
-                    case FlowControl.Call:
+                    case FlowControl.Meta:
+                        // For example volatile (we really don't care)
+                        // https://msdn.microsoft.com/en-us/library/system.reflection.emit.opcodes.volatile(v=vs.110).aspx
+                    case FlowControl.Call: 
+                        // Handle call elsewere as visitor
                     case FlowControl.Next:
                         block.AddTarget(blocks[index + 1]);
                         break;
@@ -148,7 +152,7 @@ namespace SCIL
                     case FlowControl.Throw:
                         break;
                     default:
-                        Console.WriteLine("Not handled!");
+                        Debug.Assert(false, "Not handled!");
                         break;
                 }
             }
