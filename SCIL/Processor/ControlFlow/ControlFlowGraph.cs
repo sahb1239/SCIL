@@ -69,14 +69,21 @@ namespace SCIL
 
         private static Type GenerateType(TypeDefinition type)
         {
-            List<Method> methods = new List<Method>();
+            // Add nested types
+            List<Type> nestedTypes = new List<Type>();
+            foreach (var nestedType in type.NestedTypes)
+            {
+                nestedTypes.Add(GenerateType(nestedType));
+            }
 
+            // Add methods
+            List<Method> methods = new List<Method>();
             foreach (var method in type.Methods)
             {
                 methods.Add(GenerateMethod(method));
             }
 
-            return new Type(type, methods);
+            return new Type(type, methods, nestedTypes);
         }
 
         private static Method GenerateMethod(MethodDefinition method)

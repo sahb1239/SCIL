@@ -34,10 +34,18 @@ namespace SCIL.Processor.Nodes.Visitor
         {
             // ReSharper disable once ForCanBeConvertedToForeach
             // Needs to be for since replace will throw a exception if not
+            // Visit methods
             for (int i = 0; i < type.Methods.Count; i++)
             {
                 var method = type.Methods.ElementAt(i);
                 method.Accept(this);
+            }
+
+            // Visit nested types
+            for (int i = 0; i < type.NestedTypes.Count; i++)
+            {
+                var nestedType = type.NestedTypes.ElementAt(i);
+                nestedType.Accept(this);
             }
         }
 
