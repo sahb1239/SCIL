@@ -60,10 +60,27 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
         }
 
         private string ldc(long op, Node node) => $"LdcStm({node.PushStackNames.First()}, {op.ToString("D", new CultureInfo("en-US"))}i64).";
-        private string ldc(double op, Node node) => $"LdcFStm({node.PushStackNames.First()}, {op.ToString("F", new CultureInfo("en-US"))}f64).";
+        private string ldc(double op, Node node) => $"LdcFStm({node.PushStackNames.First()}, {DoubleValueToFlix(op)}).";
         private string ldc(string op, Node node) => $"LdcStm({node.PushStackNames.First()}, {op}).";
         private string ldstr(string str, Node node) => $"LdstrStm({node.PushStackNames.First()}, \"{EscapeStr(str)}\").";
         private string EscapeStr(string str) => str.Replace("\\", "").Replace("\"", ""); // TODO: Find other special chars, newlines etc and actually handle them
-        
+
+        private static string DoubleValueToFlix(double value)
+        {
+            if (double.IsNaN(value))
+            {
+                return $"Float64.nan()";
+            }
+            else if (double.IsNegativeInfinity(value))
+            {
+                return $"Float64.negativeInfinity()";
+            }
+            else if (double.IsPositiveInfinity(value))
+            {
+                return $"Float64.positiveInfinity()";
+            }
+
+            return $"{value.ToString("F", new CultureInfo("en-US"))}f64";
+        }
     }
 }
