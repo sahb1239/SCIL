@@ -115,6 +115,10 @@ namespace SCIL.Processor.ControlFlow.SSA.Analyzers
                                 // Popall and let's asume we get a exception (seems like it's the case)
                                 _nextStack = 1;
                                 break;
+                            case ExceptionHandlerType.Fault:
+                                // Popall and let's asume we do not get a exception (seems like it's the case)
+                                _nextStack = 0;
+                                break;
                             default:
                                 throw new NotImplementedException();
                         }
