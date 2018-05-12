@@ -30,10 +30,16 @@ namespace SCIL.Processor.ControlFlow.SSA.Analyzers
                 // Assert that the stack is handled on all last nodes (next stack should be 0)
                 var blocksWithEnds = method.Blocks
                     .Where(block => !block.Targets.Any() || block.Nodes.Any(node => node.OpCode.Code == Code.Ret));
-                var stackAtEnds = blocksWithEnds.Select(block => _stacks[block]);
 
-                Debug.Assert(stackAtEnds
-                    .All(nextStack => nextStack == 0));
+                if (blocksWithEnds.Any())
+                {
+                    var stackAtEnds = blocksWithEnds.Select(block => _stacks[block]);
+
+                    Debug.Assert(stackAtEnds
+                        .Any(nextStack => nextStack == 0));
+                    Debug.WriteIf(!stackAtEnds
+                        .All(nextStack => nextStack == 0), "Something might be wrong!");
+                }
             }
 
             public override void VisitBlock(Block block)
