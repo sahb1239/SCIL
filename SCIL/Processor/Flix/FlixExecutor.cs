@@ -92,7 +92,7 @@ namespace SCIL.Flix
         {
             var listArguments = new List<string>
             {
-                $"-jar {QuotePath(_flixPath)}"
+                $"-Xmx16g -jar {QuotePath(_flixPath)}"
             };
             listArguments.AddRange(_compileFlixList.Select(QuotePath));
             listArguments.AddRange(args);
