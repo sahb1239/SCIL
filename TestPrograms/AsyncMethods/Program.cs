@@ -16,7 +16,7 @@ namespace AsyncMethods
 
         static async Task<string> AddLOL(string s)
         {
-            return s.Insert(s.Length, " LOL");
+            return s + " LOL";
         }
     }
 }
