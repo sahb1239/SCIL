@@ -32,6 +32,8 @@ namespace SCIL
         public OpCode OpCode => OverrideOpCode ?? Instruction.OpCode;
         public OpCode? OverrideOpCode { get; set; }
 
+        public MethodReference TaskMethod { get; set; }
+
         public object Operand => OverrideOperand ?? Instruction.Operand;
         public object OverrideOperand { get; set; }
 

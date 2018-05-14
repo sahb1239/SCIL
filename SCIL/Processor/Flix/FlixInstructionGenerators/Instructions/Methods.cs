@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Mono.Cecil;
@@ -17,6 +18,10 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
                 case Code.Call:
                     if (node.Operand is MethodReference callRef)
                     {
+                        // Handle results
+                        if (IsResultCall(node, callRef, out outputFlixCode))
+                            return true;
+
                         outputFlixCode = call("Call", node, callRef);
                         return true;
                     }
@@ -48,6 +53,57 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
             }
 
             outputFlixCode = null;
+            return false;
+        }
+
+        private bool IsResultCall(Node node, MethodReference method, out string flixCode)
+        {
+            // Non generic (no result)
+            // For now handle as normal method call
+            if (method.DeclaringType.FullName == "System.Runtime.CompilerServices.AsyncTaskMethodBuilder" && 
+                method.FullName == "System.Void System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetResult()")
+            {
+                flixCode = "";
+                return false;
+            }
+            else if (method.DeclaringType.FullName == "System.Runtime.CompilerServices.TaskAwaiter" &&
+                     method.FullName == "System.Void System.Runtime.CompilerServices.TaskAwaiter::GetResult()")
+            {
+                flixCode = "";
+                return false;
+            }
+
+            // Generic
+            if (method.DeclaringType.FullName.StartsWith("System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1") &&
+                     method.FullName.StartsWith("System.Void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1") &&
+                     method.FullName.Contains("SetResult"))
+            {
+                // Assert 2 arguments
+                Debug.Assert(node.PopStack.Count == 2);
+
+                // Find type of method
+                var type = node.Block.Method.Type;
+
+                // This should be generated task type
+                Debug.Assert(type.IsGeneratedTaskType);
+
+                // Get inititilization method
+                var initilizationPoint = type.InitilizationPoints.Single().Block.Method;
+
+                // Get instance type
+                var instanceType = (GenericInstanceType) method.DeclaringType;
+                flixCode = $"SetResultStm(\"{initilizationPoint.Definition.FullName}\", {node.PopStackNames.First()},\"{instanceType.GenericArguments.Single().FullName}\").";
+                return true;
+            }
+            else if (method.DeclaringType.FullName.StartsWith("System.Runtime.CompilerServices.TaskAwaiter`1") &&
+                     method.FullName.StartsWith("!0 System.Runtime.CompilerServices.TaskAwaiter`1<") &&
+                     method.FullName.EndsWith(">::GetResult()"))
+            {
+                flixCode = $"GetResultStm({node.PushStackNames.First()}, \"{node.TaskMethod.FullName}\").";
+                return true;
+            }
+
+            flixCode = "";
             return false;
         }
         

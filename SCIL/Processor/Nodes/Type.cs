@@ -32,6 +32,9 @@ namespace SCIL.Processor.Nodes
         public Module Module { get; set; }
         public IReadOnlyCollection<Type> NestedTypes => _nestedTypes.AsReadOnly();
 
+        public bool IsGeneratedTaskType { get; set; }
+        public List<Node> InitilizationPoints { get; set; }
+
         public override void Accept(IVisitor visitor)
         {
             visitor.Visit(this);
