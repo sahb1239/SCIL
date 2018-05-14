@@ -10,35 +10,35 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SCIL", "SCIL\SCIL.csproj", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleCILProgram", "SimpleCILProgram\SimpleCILProgram.csproj", "{A50D778B-7A47-4439-A2E4-CEA33E95B67D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{3B96A147-4262-46AD-A2E6-F2F22D30FAF8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test", "Test\Test.csproj", "{3B96A147-4262-46AD-A2E6-F2F22D30FAF8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestPrograms", "TestPrograms", "{28162F5F-AC82-41E4-BCB2-6628E3638EC9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleTaint", "TestPrograms\SimpleTaint\SimpleTaint.csproj", "{ABA7B3A1-AC64-43A9-BE35-3FAED40D8D46}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleTaint", "TestPrograms\SimpleTaint\SimpleTaint.csproj", "{ABA7B3A1-AC64-43A9-BE35-3FAED40D8D46}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Branching", "TestPrograms\Branching\Branching.csproj", "{54D7126F-7358-4DBD-B4D9-4EFE3E745789}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Branching", "TestPrograms\Branching\Branching.csproj", "{54D7126F-7358-4DBD-B4D9-4EFE3E745789}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MethodCalls", "TestPrograms\MethodCalls\MethodCalls.csproj", "{D008353D-8811-40A3-8CDB-93EFB6640ED2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MethodCalls", "TestPrograms\MethodCalls\MethodCalls.csproj", "{D008353D-8811-40A3-8CDB-93EFB6640ED2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SwitchCase", "TestPrograms\SwitchCase\SwitchCase.csproj", "{B819EDFF-E27F-450C-8773-FACC9ABFD4B0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SwitchCase", "TestPrograms\SwitchCase\SwitchCase.csproj", "{B819EDFF-E27F-450C-8773-FACC9ABFD4B0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OutParameters", "TestPrograms\OutParameters\OutParameters.csproj", "{A741E51A-834A-4362-9099-883764EED786}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OutParameters", "TestPrograms\OutParameters\OutParameters.csproj", "{A741E51A-834A-4362-9099-883764EED786}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncMethods", "TestPrograms\AsyncMethods\AsyncMethods.csproj", "{2A7DCF47-4765-4183-B592-6EA50323732F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsyncMethods", "TestPrograms\AsyncMethods\AsyncMethods.csproj", "{2A7DCF47-4765-4183-B592-6EA50323732F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RefParameters1", "TestPrograms\RefParameters1\RefParameters1.csproj", "{A02E253B-0A8C-4128-9B89-FCE0C1CB3DA9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RefParameters1", "TestPrograms\RefParameters1\RefParameters1.csproj", "{A02E253B-0A8C-4128-9B89-FCE0C1CB3DA9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RefParameters2", "TestPrograms\RefParameters2\RefParameters2.csproj", "{8924054D-EA74-4ECA-9E3A-75B5FEB4B760}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RefParameters2", "TestPrograms\RefParameters2\RefParameters2.csproj", "{8924054D-EA74-4ECA-9E3A-75B5FEB4B760}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MethodCallMultipleParameters", "TestPrograms\MethodCallMultipleParameters\MethodCallMultipleParameters.csproj", "{2E11834D-47B0-4765-8578-E157D8EE6568}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MethodCallMultipleParameters", "TestPrograms\MethodCallMultipleParameters\MethodCallMultipleParameters.csproj", "{2E11834D-47B0-4765-8578-E157D8EE6568}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultipleMethodCalls", "TestPrograms\MultipleMethodCalls\MultipleMethodCalls.csproj", "{8DA61AB1-2EF9-4C7F-A4D0-36DDAAAAA0AE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MultipleMethodCalls", "TestPrograms\MultipleMethodCalls\MultipleMethodCalls.csproj", "{8DA61AB1-2EF9-4C7F-A4D0-36DDAAAAA0AE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NonStaticMethod", "TestPrograms\NonStaticMethod\NonStaticMethod.csproj", "{B63D0B81-E497-449E-AD61-8A3A9BC010FB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NonStaticMethod", "TestPrograms\NonStaticMethod\NonStaticMethod.csproj", "{B63D0B81-E497-449E-AD61-8A3A9BC010FB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MethodOverloading", "TestPrograms\MethodOverloading\MethodOverloading.csproj", "{F2B90539-74B8-45EC-AF83-0DA6455BC085}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MethodOverloading", "TestPrograms\MethodOverloading\MethodOverloading.csproj", "{F2B90539-74B8-45EC-AF83-0DA6455BC085}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VariableCasting", "TestPrograms\VariableCasting\VariableCasting.csproj", "{19BA59BF-8196-41BB-9AB7-18555B8198A5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VariableCasting", "TestPrograms\VariableCasting\VariableCasting.csproj", "{19BA59BF-8196-41BB-9AB7-18555B8198A5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
