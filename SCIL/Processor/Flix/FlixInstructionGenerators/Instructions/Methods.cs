@@ -29,6 +29,10 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
                 case Code.Callvirt:
                     if (node.Operand is MethodReference callVirtRef)
                     {
+                        // Handle results
+                        if (IsResultCall(node, callVirtRef, out outputFlixCode))
+                            return true;
+
                         outputFlixCode = call("Callvirt", node, callVirtRef);
                         return true;
                     }
