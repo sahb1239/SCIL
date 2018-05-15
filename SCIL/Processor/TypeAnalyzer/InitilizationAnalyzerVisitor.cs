@@ -57,7 +57,7 @@ namespace SCIL.Processor.TypeAnalyzer
             if (_visitor.InitilizationPoints.ContainsKey(type.Definition))
             {
                 // Get initilization points
-                type.InitilizationPoints = _visitor.InitilizationPoints[type.Definition].Distinct().ToList();
+                type.SetInitilizationPoints(_visitor.InitilizationPoints[type.Definition]);
             }
 
             // Also visit subtypes

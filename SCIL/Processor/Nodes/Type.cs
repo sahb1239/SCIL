@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Mono.Cecil;
 using SCIL.Processor.Nodes.Visitor;
 
@@ -9,6 +10,7 @@ namespace SCIL.Processor.Nodes
     {
         private readonly List<Method> _methods = new List<Method>();
         private readonly List<Type> _nestedTypes = new List<Type>();
+        private readonly List<Node> _initilizationPoints = new List<Node>();
 
         public Type(TypeDefinition type, IEnumerable<Method> methods) : this(type, methods, null)
         {
@@ -28,12 +30,19 @@ namespace SCIL.Processor.Nodes
         }
 
         public TypeDefinition Definition { get; }
-        public IReadOnlyCollection<Method> Methods => _methods.AsReadOnly();
+        public IEnumerable<Method> Methods => _methods.AsReadOnly();
         public Module Module { get; set; }
-        public IReadOnlyCollection<Type> NestedTypes => _nestedTypes.AsReadOnly();
+        public IEnumerable<Type> NestedTypes => _nestedTypes.AsReadOnly();
 
         public bool IsGeneratedTaskType { get; set; }
-        public List<Node> InitilizationPoints { get; set; }
+
+        public IEnumerable<Node> InitilizationPoints => _initilizationPoints.AsReadOnly();
+
+        public void SetInitilizationPoints(IEnumerable<Node> nodes)
+        {
+            _initilizationPoints.Clear();
+            _initilizationPoints.AddRange(nodes.Distinct());
+        }
 
         public override void Accept(IVisitor visitor)
         {
