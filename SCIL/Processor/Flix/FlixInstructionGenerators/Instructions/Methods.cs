@@ -29,6 +29,10 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
                 case Code.Callvirt:
                     if (node.Operand is MethodReference callVirtRef)
                     {
+                        // Handle results
+                        if (IsResultCall(node, callVirtRef, out outputFlixCode))
+                            return true;
+
                         outputFlixCode = call("Callvirt", node, callVirtRef);
                         return true;
                     }
@@ -92,14 +96,14 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
 
                 // Get instance type
                 var instanceType = (GenericInstanceType) method.DeclaringType;
-                flixCode = $"SetResultStm(\"{initilizationPoint.Definition.FullName}\", {node.PopStackNames.First()},\"{instanceType.GenericArguments.Single().FullName}\").";
+                flixCode = $"SetResultStm(\"{initilizationPoint.Definition.NameOnly()}\", {node.PopStackNames.First()},\"{instanceType.GenericArguments.Single().FullName}\").";
                 return true;
             }
             else if (method.DeclaringType.FullName.StartsWith("System.Runtime.CompilerServices.TaskAwaiter`1") &&
                      method.FullName.StartsWith("!0 System.Runtime.CompilerServices.TaskAwaiter`1<") &&
                      method.FullName.EndsWith(">::GetResult()"))
             {
-                flixCode = $"GetResultStm({node.PushStackNames.First()}, \"{node.TaskMethod.FullName}\").";
+                flixCode = $"GetResultStm({node.PushStackNames.First()}, \"{node.TaskMethod.NameOnly()}\").";
                 return true;
             }
 
@@ -139,11 +143,16 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
             // Detect void stm
             if (method.ReturnType.FullName == "System.Void")
             {
-                output.AppendLine($"{callType}Stm(\"NIL\", \"\", \"{method.NameOnly()}\", \"{method.ReturnType}\").");
+                output.AppendLine($"{callType}Stm(\"NIL\", \"\", \"{method.NameOnly()}\", \"{method.ReturnType}\", 0).");
+            }
+            else if (method.ReturnType.Namespace == "System.Threading.Tasks" && method.Name == "Task")
+            {
+                // Detect tasks
+                output.AppendLine($"{callType}Stm({node.PushStackNames.First()}, \"RET_{method.NameOnly()}\", \"{method.NameOnly()}\", \"{method.ReturnType}\", 1).");
             }
             else
             {
-                output.AppendLine($"{callType}Stm({node.PushStackNames.First()}, \"RET_{method.NameOnly()}\", \"{method.NameOnly()}\", \"{method.ReturnType}\").");
+                output.AppendLine($"{callType}Stm({node.PushStackNames.First()}, \"RET_{method.NameOnly()}\", \"{method.NameOnly()}\", \"{method.ReturnType}\", 0).");
             }
 
             //output.AppendLine($"{callType}Stm({node.PushStackNames.First()}, \"RET_{method.FullName}\", \"{method.FullName}\").");
