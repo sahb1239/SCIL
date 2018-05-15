@@ -1,17 +1,15 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace SimpleCILProgram
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            var nasty = Console.ReadLine();
+            var kk = await System.IO.File.ReadAllTextAsync("path", System.Text.Encoding.ASCII);
 
-            if (nasty == "john")
-                Console.WriteLine(nasty);
-            else
-                Console.WriteLine("not nasty");
+            Console.WriteLine(kk);
         }
     }
 }
