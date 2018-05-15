@@ -40,6 +40,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MethodOverloading", "TestPr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VariableCasting", "TestPrograms\VariableCasting\VariableCasting.csproj", "{19BA59BF-8196-41BB-9AB7-18555B8198A5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncFileRead", "TestPrograms\AsyncFileRead\AsyncFileRead.csproj", "{63ED104C-9BB8-4926-8C47-C5FBBD5CC612}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -110,6 +112,10 @@ Global
 		{19BA59BF-8196-41BB-9AB7-18555B8198A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{19BA59BF-8196-41BB-9AB7-18555B8198A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{19BA59BF-8196-41BB-9AB7-18555B8198A5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{63ED104C-9BB8-4926-8C47-C5FBBD5CC612}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{63ED104C-9BB8-4926-8C47-C5FBBD5CC612}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{63ED104C-9BB8-4926-8C47-C5FBBD5CC612}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{63ED104C-9BB8-4926-8C47-C5FBBD5CC612}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -128,6 +134,7 @@ Global
 		{B63D0B81-E497-449E-AD61-8A3A9BC010FB} = {28162F5F-AC82-41E4-BCB2-6628E3638EC9}
 		{F2B90539-74B8-45EC-AF83-0DA6455BC085} = {28162F5F-AC82-41E4-BCB2-6628E3638EC9}
 		{19BA59BF-8196-41BB-9AB7-18555B8198A5} = {28162F5F-AC82-41E4-BCB2-6628E3638EC9}
+		{63ED104C-9BB8-4926-8C47-C5FBBD5CC612} = {28162F5F-AC82-41E4-BCB2-6628E3638EC9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {32DD5CE7-92E4-4A99-8E8B-4554A8CC0DCB}
