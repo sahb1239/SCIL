@@ -92,14 +92,14 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
 
                 // Get instance type
                 var instanceType = (GenericInstanceType) method.DeclaringType;
-                flixCode = $"SetResultStm(\"{initilizationPoint.Definition.FullName}\", {node.PopStackNames.First()},\"{instanceType.GenericArguments.Single().FullName}\").";
+                flixCode = $"SetResultStm(\"{initilizationPoint.Definition.NameOnly()}\", {node.PopStackNames.First()},\"{instanceType.GenericArguments.Single().FullName}\").";
                 return true;
             }
             else if (method.DeclaringType.FullName.StartsWith("System.Runtime.CompilerServices.TaskAwaiter`1") &&
                      method.FullName.StartsWith("!0 System.Runtime.CompilerServices.TaskAwaiter`1<") &&
                      method.FullName.EndsWith(">::GetResult()"))
             {
-                flixCode = $"GetResultStm({node.PushStackNames.First()}, \"{node.TaskMethod.FullName}\").";
+                flixCode = $"GetResultStm({node.PushStackNames.First()}, \"{node.TaskMethod.NameOnly()}\").";
                 return true;
             }
 
