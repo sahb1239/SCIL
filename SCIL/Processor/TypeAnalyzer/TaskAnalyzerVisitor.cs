@@ -10,14 +10,9 @@ using Type = SCIL.Processor.Nodes.Type;
 
 namespace SCIL.Processor.TypeAnalyzer
 {
-    [RegistrerAnalyzer]
+    [RegistrerVisitor(RegistrerVisitorAttribute.AnalyzerOrder + 1)]
     public class TaskAnalyzerVisitor : BaseVisitor
     {
-        public override void Visit(Module module)
-        {
-            base.Visit(module);
-        }
-
         public override void Visit(Type type)
         {
             if (type.Definition.Interfaces.Any(implementedInterface =>
