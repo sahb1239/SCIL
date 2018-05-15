@@ -10,7 +10,7 @@ using SCIL.Processor.Nodes.Visitor;
 
 namespace SCIL.Processor.ControlFlow.SSA
 {
-    [RegistrerVisitor(RegistrerVisitorAttribute.RewriterOrder + 1)]
+    [RegistrerVisitor(RegistrerVisitorAttribute.SSAOrder)]
     public class StaticSingleAssignmentVisitor : BaseVisitor
     {
         public override void Visit(Module module)

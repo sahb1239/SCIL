@@ -10,7 +10,7 @@ using Type = SCIL.Processor.Nodes.Type;
 
 namespace SCIL.Processor.TypeAnalyzer
 {
-    [RegistrerVisitor(RegistrerVisitorAttribute.RewriterOrder + 1)]
+    [RegistrerAnalyzer]
     public class InitilizationAnalyzerVisitor : BaseVisitor
     {
         private readonly InitilizationPopulateVisitor _visitor = new InitilizationPopulateVisitor();

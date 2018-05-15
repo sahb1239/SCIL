@@ -10,7 +10,7 @@ using Type = SCIL.Processor.Nodes.Type;
 
 namespace SCIL.Processor.TypeAnalyzer
 {
-    [RegistrerVisitor(RegistrerVisitorAttribute.RewriterOrder + 2)]
+    [RegistrerAnalyzer]
     public class TaskAnalyzerVisitor : BaseVisitor
     {
         public override void Visit(Module module)

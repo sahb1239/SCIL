@@ -6,6 +6,8 @@ namespace SCIL.Processor
     public class RegistrerVisitorAttribute : Attribute
     {
         public const uint RewriterOrder = 10;
+        public const uint SSAOrder = 20;
+        public const uint AnalyzerOrder = 30;
 
         public RegistrerVisitorAttribute()
         {
