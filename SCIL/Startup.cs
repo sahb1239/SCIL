@@ -15,7 +15,7 @@ namespace SCIL
                 .RegistrerAllTypes<IVisitor>()
                 .RegistrerAllTypes<IFlixInstructionGenerator>()
                 .AddSingleton<ControlFlowGraph>()
-                .AddSingleton<FlixCodeGeneratorVisitor>()
+                .AddSingleton<FlixCodeGeneratorFactory>()
                 .AddSingleton<IFlixExecutor, FlixExecutor>()
                 .AddSingleton(logger)
                 .AddSingleton<FileProcessor>()

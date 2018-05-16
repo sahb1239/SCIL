@@ -15,10 +15,10 @@ namespace SCIL
 {
     public class ModuleProcessor
     {
-        public ModuleProcessor(ILogger logger, FlixCodeGeneratorVisitor flixCodeGenerator, ControlFlowGraph controlFlowGraph, IEnumerable<IVisitor> visitors, Configuration configuration)
+        public ModuleProcessor(ILogger logger, FlixCodeGeneratorFactory flixCodeGeneratorFactory, ControlFlowGraph controlFlowGraph, IEnumerable<IVisitor> visitors, Configuration configuration)
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            FlixCodeGenerator = flixCodeGenerator ?? throw new ArgumentNullException(nameof(flixCodeGenerator));
+            FlixCodeGeneratorFactory = flixCodeGeneratorFactory ?? throw new ArgumentNullException(nameof(flixCodeGeneratorFactory));
             ControlFlowGraph = controlFlowGraph ?? throw new ArgumentNullException(nameof(controlFlowGraph));
             Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 
@@ -34,13 +34,12 @@ namespace SCIL
                 }).Where(e => e.attribute != null)
                 .Where(e => !e.attribute.Ignored)
                 .OrderBy(e => e.attribute.Order)
-                .Select(e => e.visitor)
-                .Concat(new List<IVisitor>() {FlixCodeGenerator});
+                .Select(e => e.visitor);
         }
 
         public ILogger Logger { get; }
 
-        public FlixCodeGeneratorVisitor FlixCodeGenerator { get; }
+        public FlixCodeGeneratorFactory FlixCodeGeneratorFactory { get; }
 
         public ControlFlowGraph ControlFlowGraph { get; }
 
@@ -66,6 +65,10 @@ namespace SCIL
                 visitor.Visit(moduleBlock);
             }
 
+            // Run code generator
+            var codeGeneratorVisitor = FlixCodeGeneratorFactory.Generate();
+            codeGeneratorVisitor.Visit(moduleBlock);
+
             // Write output to file
             var file = new FileInfo(Path.Combine(Configuration.OutputPath, GetSafePath(module.Name) + ".flix"));
 
@@ -74,11 +77,10 @@ namespace SCIL
 
             using (var stream = new StreamWriter(File.Open(file.FullName, FileMode.Create), encoder))// File.CreateText(file.FullName))
             {
-                await stream.WriteAsync(FlixCodeGenerator.ToString());
+                await stream.WriteAsync(codeGeneratorVisitor.GetGeneratedCode());
             }
 
-            // Clear code generator
-            FlixCodeGenerator.Clear();
+            Logger.Log("Processed module " + module.Name);
 
             // Return file name
             return file.ToString();
