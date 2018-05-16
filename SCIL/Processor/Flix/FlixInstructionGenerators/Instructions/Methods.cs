@@ -101,8 +101,11 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
                     return false;
                 }
 
+                // Check we only have one initilization point
+                Debug.Assert(type.InitilizationPoints.Count() == 1);
+
                 // Get inititilization method
-                var initilizationPoint = type.InitilizationPoints.Single().Block.Method;
+                var initilizationPoint = type.InitilizationPoints.First().Block.Method;
 
                 // Get instance type
                 var instanceType = (GenericInstanceType) method.DeclaringType;
