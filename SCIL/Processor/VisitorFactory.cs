@@ -22,7 +22,7 @@ namespace SCIL
             return _serviceProvider.GetServices<IVisitor>().Select(visitor => new
                 {
                     visitor,
-                    attribute = CustomAttributeExtensions.GetCustomAttribute<RegistrerVisitorAttribute>((MemberInfo) visitor.GetType())
+                    attribute = visitor.GetType().GetCustomAttribute<RegistrerVisitorAttribute>()
                 }).Where(e => e.attribute != null)
                 .Where(e => !e.attribute.Ignored)
                 .OrderBy(e => e.attribute.Order)
