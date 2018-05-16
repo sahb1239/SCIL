@@ -42,7 +42,7 @@ namespace Test
             var logger = new TestLogger(logs);
 
             // Create configuration
-            var configuration = new Configuration(opts.Excluded, opts.OutputPath);
+            var configuration = new Configuration(opts.Excluded, opts.OutputPath, false);
 
             // Registrer services
             var serviceCollection = new ServiceCollection();
