@@ -75,15 +75,15 @@ namespace SCIL.Processor
                     {
                         if (FilterXamarinAssembliesDlls(assembly))
                         {
-                            Logger.Log("Loading Xamarin dll: " + assembly.FullName);
+                            Logger.Log("[Load]: Xamarin dll " + assembly.FullName);
                         }
                         else if (FilterUnityAssembliesDlls(assembly))
                         {
-                            Logger.Log("Loading Unity dll: " + assembly.FullName);
+                            Logger.Log("[Load]: Unity dll: " + assembly.FullName);
                         }
                         else
                         {
-                            Logger.Log("Loading Unknown dll: " + assembly.FullName);
+                            Logger.Log("[Load]: Unknown dll: " + assembly.FullName);
                         }
 
                         // Copy file over to stream
@@ -165,7 +165,7 @@ namespace SCIL.Processor
                     }
 
                     // Read bundle
-                    Logger.Log("Loading " + selectedLibMonoDroidBundle.FullName);
+                    Logger.Log("[Load]: Bundle " + selectedLibMonoDroidBundle.FullName);
                     using (var stream = new MemoryStream())
                     {
                         await selectedLibMonoDroidBundle.Open().CopyToAsync(stream);

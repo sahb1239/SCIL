@@ -61,11 +61,11 @@ namespace SCIL
             // Check if we should ignore the module 
             if (Configuration.ExcludedModules.Contains(module.Name))
             {
-                Logger.Log("Skipping excluded module: " + module.Name);
+                Logger.Log("[Skipped]: " + module.Name);
                 return null;
             }
 
-            Logger.Log("Processing module " + module.Name);
+            Logger.Log("[Analyzing]: " + module.Name);
 
             // Get visitors
             var visitors = VisitorFactory.GetVisitors();
@@ -92,7 +92,7 @@ namespace SCIL
                 await stream.WriteAsync(codeGeneratorVisitor.GetGeneratedCode());
             }
 
-            Logger.Log("Processed module " + module.Name);
+            Logger.Log("[Processed]: " + module.Name);
 
             // Return file name
             return file.ToString();
