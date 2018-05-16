@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Mono.Cecil;
 using SCIL.Decompressor;
 using SCIL.Logger;
 
@@ -16,10 +18,13 @@ namespace SCIL.Processor
 
         public ModuleProcessor ModuleProcessor { get; }
 
-        public FileProcessor(ILogger logger, ModuleProcessor moduleProcessor)
+        public Configuration Configuration { get; }
+
+        public FileProcessor(ILogger logger, ModuleProcessor moduleProcessor, Configuration configuration)
         {
-            ModuleProcessor = moduleProcessor;
-            Logger = logger;
+            ModuleProcessor = moduleProcessor ?? throw new ArgumentNullException(nameof(moduleProcessor));
+            Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task<IEnumerable<string>> ProcessFile(FileInfo fileInfo)
@@ -33,14 +38,17 @@ namespace SCIL.Processor
             {
                 // TODO : Detect dll and exe
                 // Just jump out into the water and see if we survive (no exceptions)
-                var createdFile = await ProcessAssembly(fileInfo.OpenRead());
-                if (createdFile != null)
+                using (var module = ModuleDefinition.ReadModule(fileInfo.OpenRead()))
                 {
-                    return new[] {createdFile};
-                }
-                else
-                {
-                    return new string[] { };
+                    var createdFile = await ProcessAssembly(module);
+                    if (createdFile != null)
+                    {
+                        return new[] {createdFile};
+                    }
+                    else
+                    {
+                        return new string[] { };
+                    }
                 }
             }
         }
@@ -51,6 +59,88 @@ namespace SCIL.Processor
 
             // Open zip file
             using (var zipFile = ZipFile.OpenRead(fileInfo.FullName))
+            {
+                // Create list of module definitions
+                List<ModuleDefinition> moduleDefinitions = new List<ModuleDefinition>();
+                var moduleResolver = new ModuleDefinitionsResolver(moduleDefinitions);
+
+                try
+                {
+                    // Read all bundled assemblies
+                    moduleDefinitions.AddRange(await ReadBundledAssemblies(zipFile, moduleResolver));
+
+                    // Process assemblies
+                    var assemblies = zipFile.Entries.Where(entry => FilterXamarinAssembliesDlls(entry) || FilterUnityAssembliesDlls(entry)).ToList();
+                    foreach (var assembly in assemblies)
+                    {
+                        if (FilterXamarinAssembliesDlls(assembly))
+                        {
+                            Logger.Log("Loading Xamarin dll: " + assembly.FullName);
+                        }
+                        else if (FilterUnityAssembliesDlls(assembly))
+                        {
+                            Logger.Log("Loading Unity dll: " + assembly.FullName);
+                        }
+                        else
+                        {
+                            Logger.Log("Loading Unknown dll: " + assembly.FullName);
+                        }
+
+                        // Copy file over to stream
+                        var stream = new MemoryStream();
+                        await assembly.Open().CopyToAsync(stream);
+
+                        // Set position 0
+                        stream.Position = 0;
+
+                        moduleDefinitions.Add(ModuleDefinition.ReadModule(stream,
+                            new ReaderParameters { AssemblyResolver = moduleResolver }));
+                    }
+
+                    // Process all modules
+                    if (Configuration.Async)
+                    {
+                        createdFiles.AddRange(
+                            (await Task.WhenAll(moduleDefinitions.Select(AsyncProcessAssembly))).Where(createdFile =>
+                                createdFile != null));
+                    }
+                    else
+                    {
+                        foreach (var module in moduleDefinitions)
+                        {
+                            var createdFile = await ProcessAssembly(module);
+                            if (createdFile != null)
+                            {
+                                createdFiles.Add(createdFile);
+                            }
+                        }
+                    }
+                }
+                finally
+                {
+                    foreach (var module in moduleDefinitions)
+                    {
+                        try
+                        {
+                            module.Dispose();
+                        }
+                        catch (Exception)
+                        {
+                            // Ignored
+                        }
+                    }
+                }
+
+            }
+
+            return createdFiles;
+        }
+
+        private async Task<IEnumerable<ModuleDefinition>> ReadBundledAssemblies(ZipArchive zipFile, IAssemblyResolver resolver)
+        {
+            List<ModuleDefinition> definitions = new List<ModuleDefinition>();
+
+            try
             {
                 // Detect if file is containing a bundle so file
                 var libmonodroidbundle = zipFile.Entries.Where(entry =>
@@ -86,55 +176,33 @@ namespace SCIL.Processor
                         var files = await XamarinBundleUnpack.GetGzippedAssemblies(stream.ToArray());
                         foreach (var file in files)
                         {
-                            using (var memStream = new MemoryStream(file))
-                            {
-                                var createdFile = await ProcessAssembly(memStream);
-                                if (createdFile != null)
-                                {
-                                    createdFiles.Add(createdFile);
-                                }
-                            }
+                            // Load all files
+                            definitions.Add(ModuleDefinition.ReadModule(new MemoryStream(file),
+                                new ReaderParameters { AssemblyResolver = resolver }));
                         }
                     }
                 }
 
-                // Process assemblies
-                var assemblies = zipFile.Entries.Where(entry => FilterXamarinAssembliesDlls(entry) || FilterUnityAssembliesDlls(entry)).ToList();
-                foreach (var assembly in assemblies)
-                {
-                    {
-                        if (FilterXamarinAssembliesDlls(assembly))
-                        {
-                            Logger.Log("Loading Xamarin dll: " + assembly.FullName);
-                        }
-                        else if (FilterUnityAssembliesDlls(assembly))
-                        {
-                            Logger.Log("Loading Unity dll: " + assembly.FullName);
-                        }
-                        else
-                        {
-                            Logger.Log("Loading Unknown dll: " + assembly.FullName);
-                        }
-
-                        using (var stream = new MemoryStream())
-                        {
-                            await assembly.Open().CopyToAsync(stream);
-
-                            // Set position 0
-                            stream.Position = 0;
-
-                            var createdFile = await ProcessAssembly(stream);
-                            if (createdFile != null)
-                            {
-                                createdFiles.Add(createdFile);
-                            }
-                        }
-                    }
-                }
-
+                return definitions;
             }
+            catch (Exception)
+            {
+                // Dispose all initilized definitions
+                foreach (var module in definitions)
+                {
+                    try
+                    {
+                        module.Dispose();
+                    }
+                    catch (Exception)
+                    {
+                        // Ignored
+                    }
+                }
 
-            return createdFiles;
+                // Rethrow exception
+                throw;
+            }
         }
 
         private bool FilterXamarinAssembliesDlls(ZipArchiveEntry entry)
@@ -149,9 +217,44 @@ namespace SCIL.Processor
                    entry.FullName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase);
         }
 
-        private Task<string> ProcessAssembly(Stream stream)
+        private Task<string> AsyncProcessAssembly(ModuleDefinition module)
         {
-            return ModuleProcessor.ProcessAssembly(stream);
+            return Task.Run(() => ProcessAssembly(module));
+        }
+
+        private Task<string> ProcessAssembly(ModuleDefinition module)
+        {
+            return ModuleProcessor.ReadModule(module);
+        }
+
+        private class ModuleDefinitionsResolver : BaseAssemblyResolver
+        {
+            private readonly IEnumerable<ModuleDefinition> _moduleDefinitions;
+            private readonly DefaultAssemblyResolver _defaultResolver;
+
+            public ModuleDefinitionsResolver(List<ModuleDefinition> moduleDefinitions)
+            {
+                _defaultResolver = new DefaultAssemblyResolver();
+                _moduleDefinitions = moduleDefinitions;
+            }
+
+            public override AssemblyDefinition Resolve(AssemblyNameReference name)
+            {
+                // Try first to match from the list of assemblies
+                // Get all the assemblies which are matching
+                var matchingAssemblies = _moduleDefinitions.Select(module => module.Assembly)
+                    .Where(assembly => name.FullName == assembly.FullName).ToList();
+
+                if (matchingAssemblies.Any())
+                {
+                    // Just take the first assembly
+                    Debug.Assert(matchingAssemblies.Count == 1);
+                    return matchingAssemblies.First();
+                }
+
+                // Use default resolver
+                return _defaultResolver.Resolve(name);
+            }
         }
     }
 }

@@ -46,7 +46,7 @@ namespace SCIL
             var logger = new ConsoleLogger(opts.Verbose, opts.Wait);
             
             // Create configuration
-            var configuration = new Configuration(opts.Excluded.Concat(configurationFile.IgnoredAssemblies), opts.OutputPath);
+            var configuration = new Configuration(opts.Excluded.Concat(configurationFile.IgnoredAssemblies), opts.OutputPath, opts.Async);
 
             // Registrer services
             var serviceCollection = new ServiceCollection();
@@ -142,6 +142,9 @@ namespace SCIL
 
         [Option("NoFlix", Required = false, HelpText = "Disable running flix")]
         public bool NoFlix { get; set; }
+
+        [Option("Async", Required = false, HelpText = "Async processing of files")]
+        public bool Async { get; set; }
 
         [Option("FlixArgs", Required = false, HelpText = "Additional flix args")]
         public IEnumerable<string> FlixArgs { get; set; }

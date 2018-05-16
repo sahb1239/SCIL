@@ -48,29 +48,16 @@ namespace SCIL
 
         public Configuration Configuration { get; }
 
-        public async Task<string> ProcessAssembly(Stream stream)
-        {
-            // Load Module using Mono.Cecil
-            Logger.Log("Loading module", true);
-            using (var module = ModuleDefinition.ReadModule(stream))
-            {
-                // Check if we should ignore the module
-                if (Configuration.ExcludedModules.Contains(module.Name))
-                {
-                    Logger.Log("Skipping excluded module: " + module.Name);
-                    return null;
-                }
-                else
-                {
-                    Logger.Log("Results from module " + module.Name);
-                    return await ReadModule(module).ConfigureAwait(false);
-                }
-            }
-        }
-
         public async Task<string> ReadModule(ModuleDefinition module)
         {
-            Logger.Log("Reading module", true);
+            // Check if we should ignore the module 
+            if (Configuration.ExcludedModules.Contains(module.Name))
+            {
+                Logger.Log("Skipping excluded module: " + module.Name);
+                return null;
+            }
+
+            Logger.Log("Processing module " + module.Name);
 
             // Run all visitors
             var moduleBlock = ControlFlowGraph.GenerateModule(module);
