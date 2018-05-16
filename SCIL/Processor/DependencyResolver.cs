@@ -22,8 +22,8 @@ namespace SCIL.Processor
             // Registrer services
             foreach (var foundType in foundTypes)
             {
-                services.AddSingleton(foundType, foundType);
-                services.AddSingleton(type, serviceProvider => serviceProvider.GetRequiredService(foundType));
+                services.AddTransient(foundType, foundType);
+                services.AddTransient(type, serviceProvider => serviceProvider.GetRequiredService(foundType));
             }
 
             return services;

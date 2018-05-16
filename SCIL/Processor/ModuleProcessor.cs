@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Mono.Cecil;
 using SCIL.Logger;
 using SCIL.Processor;
@@ -13,21 +14,18 @@ using SCIL.Processor.Nodes.Visitor;
 
 namespace SCIL
 {
-    public class ModuleProcessor
+    public class VisitorFactory
     {
-        public ModuleProcessor(ILogger logger, FlixCodeGeneratorFactory flixCodeGeneratorFactory, ControlFlowGraph controlFlowGraph, IEnumerable<IVisitor> visitors, Configuration configuration)
+        private readonly IServiceProvider _serviceProvider;
+
+        public VisitorFactory(IServiceProvider serviceProvider)
         {
-            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            FlixCodeGeneratorFactory = flixCodeGeneratorFactory ?? throw new ArgumentNullException(nameof(flixCodeGeneratorFactory));
-            ControlFlowGraph = controlFlowGraph ?? throw new ArgumentNullException(nameof(controlFlowGraph));
-            Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _serviceProvider = serviceProvider;
+        }
 
-            if (visitors == null)
-            {
-                throw new ArgumentNullException(nameof(visitors));
-            }
-
-            Visitors = visitors.Select(visitor => new
+        public IEnumerable<IVisitor> GetVisitors()
+        {
+            return _serviceProvider.GetServices<IVisitor>().Select(visitor => new
                 {
                     visitor,
                     attribute = visitor.GetType().GetCustomAttribute<RegistrerVisitorAttribute>()
@@ -36,14 +34,25 @@ namespace SCIL
                 .OrderBy(e => e.attribute.Order)
                 .Select(e => e.visitor);
         }
+    }
+
+    public class ModuleProcessor
+    {
+        public ModuleProcessor(ILogger logger, FlixCodeGeneratorFactory flixCodeGeneratorFactory, ControlFlowGraph controlFlowGraph, VisitorFactory visitorFactory, Configuration configuration)
+        {
+            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            FlixCodeGeneratorFactory = flixCodeGeneratorFactory ?? throw new ArgumentNullException(nameof(flixCodeGeneratorFactory));
+            ControlFlowGraph = controlFlowGraph ?? throw new ArgumentNullException(nameof(controlFlowGraph));
+            VisitorFactory = visitorFactory ?? throw new ArgumentNullException(nameof(visitorFactory));
+            Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        }
 
         public ILogger Logger { get; }
 
         public FlixCodeGeneratorFactory FlixCodeGeneratorFactory { get; }
 
         public ControlFlowGraph ControlFlowGraph { get; }
-
-        public IEnumerable<IVisitor> Visitors { get; }
+        public VisitorFactory VisitorFactory { get; }
 
         public Configuration Configuration { get; }
 
@@ -58,9 +67,12 @@ namespace SCIL
 
             Logger.Log("Processing module " + module.Name);
 
+            // Get visitors
+            var visitors = VisitorFactory.GetVisitors();
+
             // Run all visitors
             var moduleBlock = ControlFlowGraph.GenerateModule(module);
-            foreach (var visitor in Visitors)
+            foreach (var visitor in visitors)
             {
                 visitor.Visit(moduleBlock);
             }
