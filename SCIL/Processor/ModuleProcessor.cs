@@ -1,41 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using Mono.Cecil;
 using SCIL.Logger;
-using SCIL.Processor;
 using SCIL.Processor.FlixInstructionGenerators;
-using SCIL.Processor.Nodes.Visitor;
 
 namespace SCIL
 {
-    public class VisitorFactory
-    {
-        private readonly IServiceProvider _serviceProvider;
-
-        public VisitorFactory(IServiceProvider serviceProvider)
-        {
-            _serviceProvider = serviceProvider;
-        }
-
-        public IEnumerable<IVisitor> GetVisitors()
-        {
-            return _serviceProvider.GetServices<IVisitor>().Select(visitor => new
-                {
-                    visitor,
-                    attribute = visitor.GetType().GetCustomAttribute<RegistrerVisitorAttribute>()
-                }).Where(e => e.attribute != null)
-                .Where(e => !e.attribute.Ignored)
-                .OrderBy(e => e.attribute.Order)
-                .Select(e => e.visitor);
-        }
-    }
-
     public class ModuleProcessor
     {
         public ModuleProcessor(ILogger logger, FlixCodeGeneratorFactory flixCodeGeneratorFactory, ControlFlowGraph controlFlowGraph, VisitorFactory visitorFactory, Configuration configuration)
