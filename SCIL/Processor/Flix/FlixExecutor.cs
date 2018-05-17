@@ -11,13 +11,15 @@ namespace SCIL.Flix
     public class FlixExecutor : IFlixExecutor
     {
         private readonly ILogger _logger;
+        private readonly Configuration _configuration;
         private readonly string _tempPath;
         private readonly List<string> _compileFlixList = new List<string>();
         private string _flixPath;
 
-        public FlixExecutor(ILogger logger)
+        public FlixExecutor(ILogger logger, Configuration configuration)
         {
             _logger = logger;
+            _configuration = configuration;
             _tempPath = Path.Combine(Path.GetTempPath(), "SCIL", Guid.NewGuid().ToString());
             Directory.CreateDirectory(_tempPath);
 
@@ -60,16 +62,16 @@ namespace SCIL.Flix
             }
         }
 
-        public void ExecuteFlix(params string[] args)
+        private void ExecuteFlix(string[] javaArgs, string[] flixArgs)
         {
             var fileName = "java";
-            var arguments = GetArguments(args);
+            var arguments = GetArguments(javaArgs, flixArgs);
 
             ProcessStartInfo processInfo = new ProcessStartInfo
             {
                 FileName = fileName,
                 Arguments = arguments,
-                CreateNoWindow = true,
+                CreateNoWindow = !_configuration.ShowFlixWindow,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true
             };
@@ -88,14 +90,17 @@ namespace SCIL.Flix
             process.WaitForExit();
         }
 
-        private string GetArguments(params string[] args)
+        private string GetArguments(string[] javaArgs, string[] flixArgs)
         {
-            var listArguments = new List<string>
-            {
-                $"-Xmx16g -jar {QuotePath(_flixPath)}"
-            };
+            var listArguments = new List<string>();
+
+            // Add Java args
+            listArguments.AddRange(javaArgs);
+            listArguments.Add($"-jar {QuotePath(_flixPath)}");
+
+            // Add Flix args
             listArguments.AddRange(_compileFlixList.Select(QuotePath));
-            listArguments.AddRange(args);
+            listArguments.AddRange(flixArgs);
 
             return string.Join(" ", listArguments);
         }
@@ -114,23 +119,36 @@ namespace SCIL.Flix
             }
         }
 
-        public void Execute(IEnumerable<string> files, params string[] args)
+        public void Execute(IEnumerable<string> files)
         {
-            var arguments = files.Select(QuotePath);
-
-            if (args.Any())
+            // Java args
+            IEnumerable<string> javaArgs;
+            if (_configuration.JavaArgs.Any())
             {
-                arguments = arguments.Concat(args);
+                javaArgs = _configuration.JavaArgs;
             }
             else
             {
-                arguments = arguments.Concat(new List<string>()
+                // Use max heap of 16 gb
+                javaArgs = new[] {"-Xmx16g"};
+            }
+
+            // Flix args
+            var flixArgs = files.Select(QuotePath);
+            if (_configuration.FlixArgs.Any())
+            {
+                flixArgs = flixArgs.Concat(_configuration.FlixArgs);
+            }
+            else
+            {
+                flixArgs = flixArgs.Concat(new List<string>()
                 {
                     "--print Sources,Sinks,TaintListStack,TaintListLocalVar,TaintListArg,TaintListTask,PointerTable,StringLattice,SecretStrings,Results"
                 });
             }
 
-            ExecuteFlix(arguments.ToArray());
+            // Execute flix
+            ExecuteFlix(javaArgs.ToArray(), flixArgs.ToArray());
         }
     }
 }

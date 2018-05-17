@@ -42,7 +42,7 @@ namespace Test
             var logger = new TestLogger(logs);
 
             // Create configuration
-            var configuration = new Configuration(opts.Excluded, opts.OutputPath, false);
+            var configuration = new Configuration(opts.Excluded, opts.OutputPath, false, new List<string>(), new List<string>(), false);
 
             // Registrer services
             var serviceCollection = new ServiceCollection();
@@ -109,7 +109,7 @@ namespace Test
             // Execute
             if (!opts.NoFlix)
             {
-                executor.Execute(generatedFiles, opts.FlixArgs.ToArray());
+                executor.Execute(generatedFiles);
             }
         }
 

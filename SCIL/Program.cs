@@ -20,7 +20,10 @@ namespace SCIL
                 .WithParsed<ConsoleOptions>(RunOptionsAndReturnExitCode)
                 .WithNotParsed(error => {});
 #if DEBUG
-            Console.ReadKey();
+            while (true)
+            {
+                Console.ReadKey();
+            }
 #endif
         }
 
@@ -39,14 +42,21 @@ namespace SCIL
             }
 
             // Read configuration
-            var configurationFileText = File.ReadAllText("Configuration.json");
-            var configurationFile = JsonConvert.DeserializeObject<ConfigurationFile>(configurationFileText);
-            
+            IEnumerable<string> ignoredAssemblies = opts.Excluded;
+            if (File.Exists("Configuration.json"))
+            {
+                string configurationFileText = File.ReadAllText("Configuration.json");
+                ConfigurationFile configurationFile = JsonConvert.DeserializeObject<ConfigurationFile>(configurationFileText);
+
+                // Concatinate with the ignored files from the arguments
+                ignoredAssemblies = ignoredAssemblies.Concat(configurationFile.IgnoredAssemblies);
+            }
+
             // Create logger
             var logger = new ConsoleLogger(opts.Verbose, opts.Wait);
             
             // Create configuration
-            var configuration = new Configuration(opts.Excluded.Concat(configurationFile.IgnoredAssemblies), opts.OutputPath, opts.Async);
+            var configuration = new Configuration(ignoredAssemblies, opts.OutputPath, opts.Async, opts.JavaArgs, opts.FlixArgs, opts.ShowFlixWindow);
 
             // Registrer services
             var serviceCollection = new ServiceCollection();
@@ -113,7 +123,7 @@ namespace SCIL
             // Execute
             if (!opts.NoFlix)
             {
-                executor.Execute(generatedFiles, opts.FlixArgs.ToArray());
+                executor.Execute(generatedFiles);
             }
         }
     }
@@ -140,11 +150,17 @@ namespace SCIL
         [Option("verbose", Required = false, HelpText = "Verbose output")]
         public bool Verbose { get; set; }
 
-        [Option("NoFlix", Required = false, HelpText = "Disable running flix")]
+        [Option("NoFlix", Required = false, HelpText = "Disable running Flix")]
         public bool NoFlix { get; set; }
+
+        [Option("ShowFlix", Required = false, HelpText = "Show Flix window")]
+        public bool ShowFlixWindow { get; set; }
 
         [Option("Async", Required = false, HelpText = "Async processing of files")]
         public bool Async { get; set; }
+
+        [Option("JavaArgs", Required = false, HelpText = "Additional java args")]
+        public IEnumerable<string> JavaArgs { get; set; }
 
         [Option("FlixArgs", Required = false, HelpText = "Additional flix args")]
         public IEnumerable<string> FlixArgs { get; set; }
