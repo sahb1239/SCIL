@@ -22,6 +22,7 @@ namespace Test
                 OutputPath = @"./bin/Debug/netcoreapp2.0/Output/",
                 NoFlix = false,
                 Excluded = new List<string>(),
+                JavaArgs = new List<string>(),
                 FlixArgs = new List<string> { "--print Results" },
                 Verbose = false,
                 Wait = false,
@@ -42,7 +43,7 @@ namespace Test
             var logger = new TestLogger(logs);
 
             // Create configuration
-            var configuration = new Configuration(opts.Excluded, opts.OutputPath, false, new List<string>(), new List<string>(), false);
+            var configuration = new Configuration(opts.Excluded, opts.OutputPath, opts.Async, opts.JavaArgs, opts.FlixArgs, opts.ShowFlixWindow);
 
             // Registrer services
             var serviceCollection = new ServiceCollection();
