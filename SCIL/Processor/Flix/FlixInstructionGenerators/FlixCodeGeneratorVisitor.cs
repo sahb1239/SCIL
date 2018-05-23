@@ -90,12 +90,7 @@ namespace SCIL.Processor.FlixInstructionGenerators
             base.Visit(node);
         }
 
-        public void Clear()
-        {
-            Builder.Clear();
-        }
-
-        public override string ToString()
+        public string GetGeneratedCode()
         {
             return Builder.ToString().TrimEnd();
         }

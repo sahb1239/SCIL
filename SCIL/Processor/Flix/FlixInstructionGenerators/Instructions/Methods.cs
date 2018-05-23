@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using SCIL.Processor.Nodes;
 
 namespace SCIL.Processor.FlixInstructionGenerators.Instructions
 {
@@ -91,8 +92,20 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
                 // This should be generated task type
                 Debug.Assert(type.IsGeneratedTaskType);
 
+                // Debug assert that there are any initilization points
+                Debug.Assert(type.InitilizationPoints.Any());
+
+                if (!type.InitilizationPoints.Any())
+                {
+                    flixCode = "";
+                    return false;
+                }
+
+                // Check we only have one initilization point
+                Debug.Assert(type.InitilizationPoints.Count() == 1);
+
                 // Get inititilization method
-                var initilizationPoint = type.InitilizationPoints.Single().Block.Method;
+                var initilizationPoint = type.InitilizationPoints.First().Block.Method;
 
                 // Get instance type
                 var instanceType = (GenericInstanceType) method.DeclaringType;
@@ -103,6 +116,13 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
                      method.FullName.StartsWith("!0 System.Runtime.CompilerServices.TaskAwaiter`1<") &&
                      method.FullName.EndsWith(">::GetResult()"))
             {
+                Debug.Assert(node.TaskMethod != null);
+                if (node.TaskMethod == null)
+                {
+                    flixCode = "";
+                    return false;
+                }
+
                 flixCode = $"GetResultStm({node.PushStackNames.First()}, \"{node.TaskMethod.NameOnly()}\").";
                 return true;
             }

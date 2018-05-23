@@ -189,7 +189,7 @@ namespace SCIL.Processor.ControlFlow.SSA
             {
                 if (node.Value.Any())
                 {
-                    node.Key.InsertNodesAtIndex(0, node.Value.Where(e => e.Parents.Count > 1).ToArray());
+                    node.Key.InsertNodesAtIndex(0, node.Value.Where(e => e.Parents.Count > 1).ToArray<Node>());
                 }
             }
         }

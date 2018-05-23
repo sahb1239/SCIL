@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Mono.Cecil;
@@ -10,14 +11,9 @@ using Type = SCIL.Processor.Nodes.Type;
 
 namespace SCIL.Processor.TypeAnalyzer
 {
-    [RegistrerAnalyzer]
+    [RegistrerVisitor(RegistrerVisitorAttribute.AnalyzerOrder + 1)]
     public class TaskAnalyzerVisitor : BaseVisitor
     {
-        public override void Visit(Module module)
-        {
-            base.Visit(module);
-        }
-
         public override void Visit(Type type)
         {
             if (type.Definition.Interfaces.Any(implementedInterface =>
@@ -57,12 +53,15 @@ namespace SCIL.Processor.TypeAnalyzer
 
                         // Set task method
                         node.TaskMethod = methodCall;
+
+                        return;
                     }
                 }
             }
 
             // Pop from stack and push to stack/to variables
-            var set = taskMethodReferencesStack.SingleOrDefault(task => node.PopStackNames.Contains(task.Key)).Value;
+            Debug.Assert( taskMethodReferencesStack.Count(task => node.PopStackNames.Contains(task.Key)) <= 1);
+            var set = taskMethodReferencesStack.FirstOrDefault(task => node.PopStackNames.Contains(task.Key)).Value;
             if (set != null)
             {
                 // Update node
@@ -71,6 +70,10 @@ namespace SCIL.Processor.TypeAnalyzer
                 // Handle all pushes (just add to all)
                 foreach (var push in node.PushStackNames)
                 {
+                    if (taskMethodReferencesStack.ContainsKey(push))
+                    {
+                        continue;
+                    }
                     taskMethodReferencesStack.Add(push, set);
                 }
 
@@ -88,9 +91,11 @@ namespace SCIL.Processor.TypeAnalyzer
             // Load variable
             if (node.VariableName != null)
             {
+                Debug.Assert(taskMethodReferencesVariables.Count(variable => variable.Key == node.VariableName) <= 1);
+
                 // Get variable method
                 var variableMethod = taskMethodReferencesVariables
-                    .SingleOrDefault(variable => variable.Key == node.VariableName).Value;
+                    .FirstOrDefault(variable => variable.Key == node.VariableName).Value;
                 
                 if (variableMethod != null)
                 {
@@ -111,9 +116,14 @@ namespace SCIL.Processor.TypeAnalyzer
             // Handle phi var node
             if (node is PhiVariableNode phiVariableNode)
             {
-                var variableMethod = taskMethodReferencesVariables
+                var variableMethods = taskMethodReferencesVariables
                     .Where(variable => phiVariableNode.Parents.Any(parent => parent.VariableName == variable.Key))
-                    .Select(e => e.Value).Distinct().SingleOrDefault();
+                    .Select(e => e.Value).Distinct();
+
+                // There should only be one
+                Debug.Assert(variableMethods.Count() <= 1);
+
+                var variableMethod = variableMethods.FirstOrDefault();
 
                 if (variableMethod != null)
                 {

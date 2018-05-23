@@ -26,15 +26,23 @@ namespace SCIL.Processor.TypeAnalyzer
                     // Get type
                     if (node.Operand is MethodReference methodReference)
                     {
-                        var type = methodReference.DeclaringType.Resolve();
-
-                        // Add to the list
-                        if (!InitilizationPoints.ContainsKey(type))
+                        try
                         {
-                            InitilizationPoints.Add(type, new List<Node>());
-                        }
+                            TypeDefinition type = methodReference.DeclaringType.Resolve();
 
-                        InitilizationPoints[type].Add(node);
+                            // Add to the list
+                            if (!InitilizationPoints.ContainsKey(type))
+                            {
+                                InitilizationPoints.Add(type, new List<Node>());
+                            }
+
+                            InitilizationPoints[type].Add(node);
+                        }
+                        catch (AssemblyResolutionException ex)
+                        {
+                            // We currently cannot handle cross module references
+                            Console.WriteLine(ex);
+                        }
                     }
                     else
                     {
