@@ -10,7 +10,7 @@ namespace MethodOverloadingWithSinks
 
             var funnyTextPrinter = new FunnyTextPrinter();
 
-            funnyTextPrinter.Print(userInput);
+            funnyTextPrinter.Print(5, userInput);
         }
     }
 
@@ -35,7 +35,7 @@ namespace MethodOverloadingWithSinks
                 result = result + " LOL";
             }
 
-            Console.WriteLine(result);
+            Console.WriteLine("No use of tainted values");
         }
     }
 }

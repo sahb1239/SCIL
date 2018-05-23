@@ -12,15 +12,8 @@ namespace Test
         {
             var logs = new List<string>();
 
-            var expected = new List<Result>
-            {
-                new Result
-                {
-                    Source = "System.Console::ReadLine()",
-                    Sink   = "System.Console::WriteLine(System.String)",
-                    Type   = "System.String"
-                }
-            };
+            // Should not trigger any results
+            var expected = new List<Result>();
 
             await Helper.AnalyzeTestProgram("MethodOverloadingWithSinks", logs);
             var actual = Helper.ParseResults(logs);
