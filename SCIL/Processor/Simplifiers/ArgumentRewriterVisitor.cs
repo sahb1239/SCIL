@@ -17,6 +17,12 @@ namespace SCIL.Processor.Simplifiers
                     node.OverrideOperand = (sbyte)(node.Instruction.OpCode.Code - Code.Ldarg_0);
                     node.OverrideOpCode = OpCodes.Ldarg;
                     break;
+                case Code.Ldarg_S:
+                    node.OverrideOpCode = OpCodes.Ldarg;
+                    break;
+                case Code.Ldarga_S:
+                    node.OverrideOpCode = OpCodes.Ldarga;
+                    break;
             }
 
             base.Visit(node);
