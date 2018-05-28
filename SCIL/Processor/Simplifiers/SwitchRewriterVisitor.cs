@@ -63,7 +63,7 @@ namespace SCIL.Processor.Simplifiers
                     newNodes.Add(new Node(node.Instruction, node.Block) {OverrideOpCode = OpCodes.Dup});
 
                     // Load compare to onto stack
-                    newNodes.Add(new Node(node.Instruction, node.Block) { OverrideOpCode = OpCodes.Ldc_I4, OverrideOperand = i });
+                    newNodes.Add(new Node(node.Instruction, node.Block) { OverrideOpCode = OpCodes.Ldc_I8, OverrideOperand = (long) i });
 
                     // Compare the two values
                     // Compare equal stm
