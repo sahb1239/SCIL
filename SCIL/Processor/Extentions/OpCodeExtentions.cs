@@ -74,6 +74,8 @@ namespace SCIL.Processor.Extentions
                 case Code.Ldloc_S:
                 case Code.Ldloca:
                 case Code.Ldloca_S:
+                case Code.Stloc:
+                case Code.Stloc_S:
                     if (operand is VariableDefinition variableDefinition)
                         return variableDefinition.Index;
                     if (operand is sbyte index)
@@ -85,6 +87,11 @@ namespace SCIL.Processor.Extentions
                 case Code.Ldloc_2:
                 case Code.Ldloc_3:
                     return opCode.Code - Code.Ldloc_0;
+                case Code.Stloc_0:
+                case Code.Stloc_1:
+                case Code.Stloc_2:
+                case Code.Stloc_3:
+                    return opCode.Code - Code.Stloc_0;
             }
 
             throw new ArgumentOutOfRangeException(nameof(opCode), "Opcode is not a argument opcode");
