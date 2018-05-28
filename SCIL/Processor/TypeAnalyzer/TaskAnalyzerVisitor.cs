@@ -40,7 +40,7 @@ namespace SCIL.Processor.TypeAnalyzer
         {
             base.Visit(node);
 
-            if (node.OpCode.Code == Code.Call)
+            if (node.OpCode.Code == Code.Call || node.OpCode.Code == Code.Calli || node.OpCode.Code == Code.Callvirt)
             {
                 if (node.Operand is MethodReference methodCall)
                 {
@@ -119,17 +119,15 @@ namespace SCIL.Processor.TypeAnalyzer
                 var variableMethods = taskMethodReferencesVariables
                     .Where(variable => phiVariableNode.Parents.Any(parent => parent.VariableName == variable.Key))
                     .Select(e => e.Value).Distinct();
-
-                // There should only be one
-                Debug.Assert(variableMethods.Count() <= 1);
-
-                var variableMethod = variableMethods.FirstOrDefault();
-
-                if (variableMethod != null)
+                
+                foreach (var variableMethod in variableMethods.ToList())
                 {
-                    node.TaskMethod = variableMethod;
+                    if (variableMethod != null)
+                    {
+                        node.TaskMethod = variableMethod;
 
-                    taskMethodReferencesVariables.Add(node.VariableName, variableMethod);
+                        taskMethodReferencesVariables.TryAdd(node.VariableName, variableMethod);
+                    }
                 }
             }
 
