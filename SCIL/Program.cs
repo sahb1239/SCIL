@@ -41,6 +41,15 @@ namespace SCIL
                 outputPathInfo.Create();
             }
 
+            // Update ignored assemblies
+            if (opts.UpdateIgnored && File.Exists("Configuration.json"))
+            {
+                string configurationFileText = File.ReadAllText("Configuration.json");
+                ConfigurationFile configurationFile = JsonConvert.DeserializeObject<ConfigurationFile>(configurationFileText);
+
+
+            }
+
             // Read configuration
             IEnumerable<string> ignoredAssemblies = opts.Excluded;
             if (File.Exists("Configuration.json"))
@@ -56,7 +65,7 @@ namespace SCIL
             var logger = new ConsoleLogger(opts.Verbose, opts.Wait);
             
             // Create configuration
-            var configuration = new Configuration(ignoredAssemblies, opts.OutputPath, opts.Async, opts.JavaArgs, opts.FlixArgs, opts.ShowFlixWindow);
+            var configuration = new Configuration(ignoredAssemblies, opts.OutputPath, opts.Async, opts.JavaArgs, opts.FlixArgs, opts.ShowFlixWindow, opts.NoStringAnalysis, opts.UpdateIgnored);
 
             // Registrer services
             var serviceCollection = new ServiceCollection();
@@ -130,7 +139,7 @@ namespace SCIL
 
     internal class ConfigurationFile
     {
-        public IEnumerable<string> IgnoredAssemblies { get; set; }
+        public List<string> IgnoredAssemblies { get; set; }
     }
 
     public class ConsoleOptions
@@ -149,6 +158,9 @@ namespace SCIL
 
         [Option("verbose", Required = false, HelpText = "Verbose output")]
         public bool Verbose { get; set; }
+
+        [Option("UpdateIgnored", Required = false, HelpText = "Prompts the user asking if each assembly should be ignored")]
+        public bool UpdateIgnored { get; set; }
 
         [Option("NoFlix", Required = false, HelpText = "Disable running Flix")]
         public bool NoFlix { get; set; }

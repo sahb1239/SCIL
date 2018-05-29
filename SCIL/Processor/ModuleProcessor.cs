@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Mono.Cecil;
+using Newtonsoft.Json;
 using SCIL.Logger;
 using SCIL.Processor.FlixInstructionGenerators;
 
@@ -31,6 +32,27 @@ namespace SCIL
 
         public async Task<string> ReadModule(ModuleDefinition module)
         {
+            if (Configuration.UpdateIgnored && !Configuration.ExcludedModules.Contains(module.Name))
+            {
+                Console.Write($"Do you want to ignore {module.Name}? Press Y/N ");
+
+                var answer = Console.ReadKey().Key.ToString().ToLower();
+                Console.WriteLine();
+
+                if (answer == "y" && !Configuration.ExcludedModules.Contains(module.Name))
+                {
+                    string configurationFileText = File.ReadAllText("Configuration.json");
+                    ConfigurationFile configurationFile = JsonConvert.DeserializeObject<ConfigurationFile>(configurationFileText);
+                    configurationFile.IgnoredAssemblies.Add(module.Name);
+                    Configuration.ExcludedModules.Add(module.Name);
+                    File.WriteAllText("Configuration.json", JsonConvert.SerializeObject(configurationFile, Formatting.Indented));
+                    Logger.Log("[Skipped]: " + module.Name);
+                }
+
+                // Do not analyze
+                return null;
+            }
+
             // Check if we should ignore the module 
             if (Configuration.ExcludedModules.Contains(module.Name))
             {

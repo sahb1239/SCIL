@@ -27,6 +27,7 @@ namespace Test
                 Verbose = false,
                 Wait = false,
                 Recursive = false,
+                UpdateIgnored = false,
                 NoStringAnalysis = false
             }, logs);
         }
@@ -44,7 +45,7 @@ namespace Test
             var logger = new TestLogger(logs);
 
             // Create configuration
-            var configuration = new Configuration(opts.Excluded, opts.OutputPath, opts.Async, opts.JavaArgs, opts.FlixArgs, opts.ShowFlixWindow);
+            var configuration = new Configuration(opts.Excluded, opts.OutputPath, opts.Async, opts.JavaArgs, opts.FlixArgs, opts.ShowFlixWindow, opts.NoStringAnalysis, opts.UpdateIgnored);
 
             // Registrer services
             var serviceCollection = new ServiceCollection();
