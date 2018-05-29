@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -98,27 +96,8 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
             throw new NotImplementedException("Could not find operand index");
         }
 
-        private string ldarg(Node node)
-        {
-            var allOverrides = node.Block.Method.Definition.GetAllOverridesIncludingSelf().Select(MethodReferenceExtentions.NameOnly).ToList();
-            Debug.Assert(allOverrides.Distinct().Count() == allOverrides.Count);
-
-            return string.Join(Environment.NewLine, allOverrides.Select(overrideMethod =>
-                $"LdargStm({node.PushStackNames.First()}, \"{overrideMethod}\", {GetOperandIndex(node)})."));
-            //return
-            //    $"LdargStm({node.PushStackNames.First()}, \"{node.Block.Method.Definition.NameOnly()}\", {GetOperandIndex(node)}).";
-        }
-
-        private string ldarga(Node node)
-        {
-            var allOverrides = node.Block.Method.Definition.GetAllOverridesIncludingSelf().Select(MethodReferenceExtentions.NameOnly).ToList();
-            Debug.Assert(allOverrides.Distinct().Count() == allOverrides.Count);
-
-            return string.Join(Environment.NewLine, allOverrides.Select(overrideMethod =>
-                $"LdargaStm({node.PushStackNames.First()}, \"{overrideMethod}\", {GetOperandIndex(node)})."));
-            //return
-            //    $"LdargaStm({node.PushStackNames.First()}, \"{node.Block.Method.Definition.NameOnly()}\", {GetOperandIndex(node)}).";
-        }
+        private string ldarg(Node node) => $"LdargStm({node.PushStackNames.First()}, \"{node.Block.Method.Definition.NameOnly()}\", {GetOperandIndex(node)}).";
+        private string ldarga(Node node) => $"LdargaStm({node.PushStackNames.First()}, \"{node.Block.Method.Definition.NameOnly()}\", {GetOperandIndex(node)}).";
 
         private string starg(Node node, uint argNo) =>
             $"StargStm({node.ArgumentName}, {node.PopStackNames.First()}, {argNo}, \"{GetVariableDefinition(node).ParameterType.FullName}\").";
