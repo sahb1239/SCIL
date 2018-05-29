@@ -34,6 +34,8 @@
     "Analytics.Abstractions.dll",
     "Analytics.dll",
     "AndHUD.dll",
+    "Appmachine.dll",
+    "Appmachine.StaticResources.dll",
     "ArtiCom.Plugin.IdleTimer.Droid.dll",
     "ArtiCom.Plugin.IdleTimer.dll",
     "ArtiCom.Plugin.Permissions.Droid.dll",
