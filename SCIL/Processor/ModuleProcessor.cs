@@ -64,13 +64,6 @@ namespace SCIL
 
             var file = new FileInfo(Path.Combine(Configuration.OutputPath, GetSafePath(module.Name) + ".flix"));
 
-            if (file.Exists)
-            {
-                Logger.Log("Already analyzed. Skipping.");
-                return file.ToString();
-            }
-
-
             // Get visitors
             var visitors = VisitorFactory.GetVisitors();
 
