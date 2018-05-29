@@ -165,6 +165,9 @@ namespace SCIL
         [Option("FlixArgs", Required = false, HelpText = "Additional flix args")]
         public IEnumerable<string> FlixArgs { get; set; }
 
+        [Option("NoStringAnalysis", Required = false, HelpText ="Disable string analysis")]
+        public bool NoStringAnalysis { get; set; }
+
         [Option('w', "wait",  Required = false, HelpText = "Wait for some error messages")]
         public bool Wait { get; set; }
 

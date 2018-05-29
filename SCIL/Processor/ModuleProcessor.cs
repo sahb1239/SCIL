@@ -40,6 +40,15 @@ namespace SCIL
 
             Logger.Log("[Analyzing]: " + module.Name);
 
+            var file = new FileInfo(Path.Combine(Configuration.OutputPath, GetSafePath(module.Name) + ".flix"));
+
+            if (file.Exists)
+            {
+                Logger.Log("Already analyzed. Skipping.");
+                return file.ToString();
+            }
+
+
             // Get visitors
             var visitors = VisitorFactory.GetVisitors();
 
@@ -53,9 +62,6 @@ namespace SCIL
             // Run code generator
             var codeGeneratorVisitor = FlixCodeGeneratorFactory.Generate();
             codeGeneratorVisitor.Visit(moduleBlock);
-
-            // Write output to file
-            var file = new FileInfo(Path.Combine(Configuration.OutputPath, GetSafePath(module.Name) + ".flix"));
 
             // Get UTF-8 encoding without BOM (default for File.CreateText which was used before) and just ignore invalid UTF-8 chars
             var encoder = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: false);

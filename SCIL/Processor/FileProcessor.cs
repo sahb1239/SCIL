@@ -57,6 +57,8 @@ namespace SCIL.Processor
         {
             List<string> createdFiles = new List<string>();
 
+            Logger.Log("[Start]: " + fileInfo.FullName);
+
             // Open zip file
             using (var zipFile = ZipFile.OpenRead(fileInfo.FullName))
             {

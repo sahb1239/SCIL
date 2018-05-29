@@ -26,7 +26,8 @@ namespace Test
                 FlixArgs = new List<string> { "--print Results" },
                 Verbose = false,
                 Wait = false,
-                Recursive = false
+                Recursive = false,
+                NoStringAnalysis = false
             }, logs);
         }
 

@@ -133,6 +133,7 @@
     "Geofence.Plugin.dll",
     "GoogleAnalytics.Android.dll",
     "GoogleAnalytics.dll",
+    "GoogleMapsExtension.dll",
     "GoogleMapsUtility.Android.dll",
     "GoogleMapsUtility.dll",
     "GooglePlayServices.dll",

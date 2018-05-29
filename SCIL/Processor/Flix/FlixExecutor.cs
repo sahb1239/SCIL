@@ -134,17 +134,21 @@ namespace SCIL.Flix
             }
 
             // Flix args
-            var flixArgs = files.Select(QuotePath);
+            var flixArgs = files.Select(QuotePath).ToList();
+
+            if (_configuration.NoStringAnalysis)
+                flixArgs.Remove("Definitions/StringAnalysis.flix");
+
             if (_configuration.FlixArgs.Any())
             {
-                flixArgs = flixArgs.Concat(_configuration.FlixArgs);
+                flixArgs = flixArgs.Concat(_configuration.FlixArgs).ToList();
             }
             else
             {
                 flixArgs = flixArgs.Concat(new List<string>()
                 {
                     "--print Sources,Sinks,TaintListStack,TaintListLocalVar,TaintListArg,TaintListTask,PointerTable,StringLattice,SecretStrings,Results"
-                });
+                }).ToList();
             }
 
             // Execute flix
