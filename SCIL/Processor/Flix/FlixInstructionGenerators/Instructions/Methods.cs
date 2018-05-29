@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using SCIL.Processor.Extentions;
 using SCIL.Processor.Nodes;
 
 namespace SCIL.Processor.FlixInstructionGenerators.Instructions

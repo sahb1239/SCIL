@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using SCIL.Processor.ControlFlow.SSA.Helpers;
+using SCIL.Processor.Extentions;
 using SCIL.Processor.Nodes;
 using SCIL.Processor.Nodes.Visitor;
 

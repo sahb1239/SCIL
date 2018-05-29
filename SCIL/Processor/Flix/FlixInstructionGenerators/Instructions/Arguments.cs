@@ -2,6 +2,7 @@
 using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using SCIL.Processor.Extentions;
 
 namespace SCIL.Processor.FlixInstructionGenerators.Instructions
 {
