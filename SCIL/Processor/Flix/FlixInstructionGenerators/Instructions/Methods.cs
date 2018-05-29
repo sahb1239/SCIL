@@ -6,6 +6,7 @@ using Mono.Cecil;
 using Mono.Cecil.Cil;
 using SCIL.Processor.Extentions;
 using SCIL.Processor.Nodes;
+using SCIL.Processor.TypeAnalyzer;
 
 namespace SCIL.Processor.FlixInstructionGenerators.Instructions
 {
@@ -52,7 +53,11 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
                     }
                     else
                     {
-                        outputFlixCode = $"RetStm(\"RET_{methodBody.Method.NameOnly()}\", {node.PopStackNames.First()}).";
+                        var allOverrides = node.Block.Method.Definition.GetAllOverridesIncludingSelf().Select(MethodReferenceExtentions.NameOnly).ToList();
+                        Debug.Assert(allOverrides.Distinct().Count() == allOverrides.Count);
+
+                        outputFlixCode = string.Join(Environment.NewLine, allOverrides.Select(overrideMethod =>
+                            $"RetStm(\"RET_{overrideMethod}\", {node.PopStackNames.First()})."));
                     }
                     
                     return true;
