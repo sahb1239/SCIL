@@ -2,5 +2,5 @@ version: '{build}'
 image: Visual Studio 2017
 build_script:
   - cmd: git submodule update --init --recursive
-  - ps: dotnet build SCIL.sln
-  - ps: dotnet test Test/Test.csproj
+  - ps: dotnet build SCIL.sln --configuration Release
+  - ps: dotnet test Test/Test.csproj --configuration Release --blame
