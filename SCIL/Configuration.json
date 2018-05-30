@@ -335,6 +335,7 @@
     "Plugin.VersionTracking.dll",
     "Plugin.XamJam.Screen.Abstractions.dll",
     "Plugin.XamJam.Screen.dll",
+    "Polly.dll",
     "PullToRefresharp.dll",
     "PushNotification.Plugin.Abstractions.dll",
     "PushNotification.Plugin.dll",
