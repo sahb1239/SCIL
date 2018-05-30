@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Mono.Cecil;
+using Mono.Cecil.Rocks;
 
 namespace SCIL.Processor.Extentions
 {
@@ -31,6 +32,23 @@ namespace SCIL.Processor.Extentions
 
             // Get method definition
             var methodDefinition = methodReference.Resolve();
+
+            // Get base method
+            // Possible not correct with generic parameters due to https://github.com/jbevain/cecil/issues/180
+            var originalBaseMethod = methodDefinition.GetOriginalBaseMethod();
+
+            // Check if base method is not equal to currentMethodDefinition
+            if (originalBaseMethod != methodDefinition)
+            {
+                // Get overrides from the base method
+                foreach (var overridedMethodReference in GetAllOverridesIncludingSelf(originalBaseMethod))
+                {
+                    yield return overridedMethodReference;
+                }
+
+                // We don't need to use the overrides field since we already used Mono.Cecil.Rocks to find overrided method
+                yield break;
+            }
 
             // Get all overrides
             if (methodDefinition.HasOverrides)
