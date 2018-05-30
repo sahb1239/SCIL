@@ -42,6 +42,12 @@ namespace SCIL.Flix
                     continue;
                 }
 
+                // Skip StringAnalysis.flix is option to ignore string analysis is set to true
+                if (_configuration.NoStringAnalysis && resource.EndsWith("SCIL.Analysis.Analysis.Definitions.StringAnalysis.flix"))
+                {
+                    continue;
+                }
+
                 // Extract file
                 var outputPath = Path.Combine(_tempPath, resource);
                 using (var fileStream = File.OpenWrite(outputPath))
@@ -190,9 +196,6 @@ namespace SCIL.Flix
 
             // Flix args
             var flixArgs = files.Select(QuotePath).ToList();
-
-            if (_configuration.NoStringAnalysis)
-                flixArgs.Remove("Definitions/StringAnalysis.flix");
 
             if (_configuration.FlixArgs.Any())
             {

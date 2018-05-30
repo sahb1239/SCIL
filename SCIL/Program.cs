@@ -19,7 +19,7 @@ namespace SCIL
             CommandLine.Parser.Default.ParseArguments<ConsoleOptions>(args)
                 .WithParsed<ConsoleOptions>(RunOptionsAndReturnExitCode)
                 .WithNotParsed(error => {});
-
+            
 #if DEBUG
             while (true)
             {
