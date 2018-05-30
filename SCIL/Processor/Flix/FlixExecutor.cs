@@ -43,7 +43,7 @@ namespace SCIL.Flix
                 }
 
                 // Skip StringAnalysis.flix is option to ignore string analysis is set to true
-                if (_configuration.NoStringAnalysis && resource.EndsWith("SCIL.Analysis.Analysis.Definitions.StringAnalysis.flix"))
+                if (_configuration.NoStringAnalysis && (resource.EndsWith("SCIL.Analysis.Analysis.Definitions.StringAnalysis.flix") || resource.EndsWith("SCIL.Analysis.Analysis.SecretStrings.flix")))
                 {
                     continue;
                 }
