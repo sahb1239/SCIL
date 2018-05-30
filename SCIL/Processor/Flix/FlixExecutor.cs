@@ -71,6 +71,8 @@ namespace SCIL.Flix
         {
             Console.CancelKeyPress += (sender, eventArgs) =>
             {
+                eventArgs.Cancel = true;
+
                 var copy = _currentProcesses.ToList();
                 foreach (var sem in copy)
                 {
