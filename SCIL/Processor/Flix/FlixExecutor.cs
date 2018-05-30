@@ -112,15 +112,26 @@ namespace SCIL.Flix
                 SemaphoreSlim semaphore = new SemaphoreSlim(0, 1);
                 {
                     // Attach on process exited
-                    process.Exited += (sender, eventArgs) => semaphore.Release();
+                    process.Exited += (sender, eventArgs) =>
+                    {
+                        semaphore.Release();
+
+                        // Try to remove from currentProcesses
+                        _currentProcesses.TryRemove(semaphore, out _);
+                    };
                     process.EnableRaisingEvents = true;
+
+                    // Check if process has already exited
                     if (process.HasExited)
                     {
                         semaphore.Release();
                     }
+                    else
+                    {
 
-                    if (!_currentProcesses.TryAdd(semaphore, process))
-                        throw new Exception();
+                        if (!_currentProcesses.TryAdd(semaphore, process))
+                            throw new Exception();
+                    }
 
                     // Wait for either Console.Cancel or Exit
                     await semaphore.WaitAsync().ConfigureAwait(false);
