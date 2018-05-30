@@ -13,6 +13,7 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test", "Test\Test.csproj", "{3B96A147-4262-46AD-A2E6-F2F22D30FAF8}"
 	ProjectSection(ProjectDependencies) = postProject
 		{63ED104C-9BB8-4926-8C47-C5FBBD5CC612} = {63ED104C-9BB8-4926-8C47-C5FBBD5CC612}
+		{01CAE57C-FF17-4E3B-9699-D57537D17D32} = {01CAE57C-FF17-4E3B-9699-D57537D17D32}
 		{9FBADFE0-FAE9-4A51-88E3-404F2F0925AD} = {9FBADFE0-FAE9-4A51-88E3-404F2F0925AD}
 	EndProjectSection
 EndProject
@@ -46,7 +47,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VariableCasting", "TestProg
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsyncFileRead", "TestPrograms\AsyncFileRead\AsyncFileRead.csproj", "{63ED104C-9BB8-4926-8C47-C5FBBD5CC612}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MethodOverloadingWithSinks", "TestPrograms\MethodOverloadingWithSinks\MethodOverloadingWithSinks.csproj", "{9FBADFE0-FAE9-4A51-88E3-404F2F0925AD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MethodOverloadingWithSinks", "TestPrograms\MethodOverloadingWithSinks\MethodOverloadingWithSinks.csproj", "{9FBADFE0-FAE9-4A51-88E3-404F2F0925AD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VirtualMethod", "TestPrograms\VirtualMethod\VirtualMethod.csproj", "{01CAE57C-FF17-4E3B-9699-D57537D17D32}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -126,6 +129,10 @@ Global
 		{9FBADFE0-FAE9-4A51-88E3-404F2F0925AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9FBADFE0-FAE9-4A51-88E3-404F2F0925AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9FBADFE0-FAE9-4A51-88E3-404F2F0925AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01CAE57C-FF17-4E3B-9699-D57537D17D32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01CAE57C-FF17-4E3B-9699-D57537D17D32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01CAE57C-FF17-4E3B-9699-D57537D17D32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01CAE57C-FF17-4E3B-9699-D57537D17D32}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -146,6 +153,7 @@ Global
 		{19BA59BF-8196-41BB-9AB7-18555B8198A5} = {28162F5F-AC82-41E4-BCB2-6628E3638EC9}
 		{63ED104C-9BB8-4926-8C47-C5FBBD5CC612} = {28162F5F-AC82-41E4-BCB2-6628E3638EC9}
 		{9FBADFE0-FAE9-4A51-88E3-404F2F0925AD} = {28162F5F-AC82-41E4-BCB2-6628E3638EC9}
+		{01CAE57C-FF17-4E3B-9699-D57537D17D32} = {28162F5F-AC82-41E4-BCB2-6628E3638EC9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {32DD5CE7-92E4-4A99-8E8B-4554A8CC0DCB}
