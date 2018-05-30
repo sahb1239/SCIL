@@ -92,6 +92,11 @@ namespace SCIL.Flix
 
         private async Task ExecuteFlix(string[] javaArgs, string[] flixArgs)
         {
+            // Create working directory
+            var workingDir = Path.Combine(_tempPath, "Workdir", Guid.NewGuid().ToString());
+            Directory.CreateDirectory(workingDir);
+
+            // Add processInfo
             var fileName = "java";
             var arguments = GetArguments(javaArgs, flixArgs);
 
@@ -101,7 +106,8 @@ namespace SCIL.Flix
                 Arguments = arguments,
                 CreateNoWindow = !_configuration.ShowFlixWindow,
                 RedirectStandardOutput = true,
-                RedirectStandardError = true
+                RedirectStandardError = true,
+                WorkingDirectory = workingDir
             };
 
             try
@@ -157,16 +163,17 @@ namespace SCIL.Flix
 
             // Add Java args
             listArguments.AddRange(javaArgs);
-            listArguments.Add($"-jar {QuotePath(_flixPath)}");
+            listArguments.Add($"-jar {FullQuotePath(_flixPath)}");
 
             // Add Flix args
-            listArguments.AddRange(_compileFlixList.Select(QuotePath));
+            listArguments.AddRange(_compileFlixList.Select(FullQuotePath));
             listArguments.AddRange(flixArgs);
 
             return string.Join(" ", listArguments);
         }
 
         private string QuotePath(string path) => $"\"{path}\"";
+        private string FullQuotePath(string path) => QuotePath(new FileInfo(path).FullName);
 
         public void Dispose()
         {
@@ -195,7 +202,7 @@ namespace SCIL.Flix
             }
 
             // Flix args
-            var flixArgs = files.Select(QuotePath).ToList();
+            var flixArgs = files.Select(FullQuotePath).ToList();
 
             if (_configuration.FlixArgs.Any())
             {
