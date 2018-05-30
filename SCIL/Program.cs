@@ -19,6 +19,7 @@ namespace SCIL
             CommandLine.Parser.Default.ParseArguments<ConsoleOptions>(args)
                 .WithParsed<ConsoleOptions>(RunOptionsAndReturnExitCode)
                 .WithNotParsed(error => {});
+
 #if DEBUG
             while (true)
             {
@@ -86,7 +87,7 @@ namespace SCIL
                     if (fileInfo.Exists)
                     {
                         var files = await fileProcessor.ProcessFile(fileInfo);
-                        ProcessFlix(files, executor, opts);
+                        await ProcessFlix(files, executor, opts);
                     }
                     else
                     {
@@ -112,7 +113,7 @@ namespace SCIL
                         {
                             var fileInfo = new FileInfo(file);
                             var files = await fileProcessor.ProcessFile(fileInfo);
-                            ProcessFlix(files, executor, opts);
+                            await ProcessFlix(files, executor, opts);
                         }
                     }
                     else
@@ -127,12 +128,12 @@ namespace SCIL
             }
         }
 
-        public static void ProcessFlix(IEnumerable<string> generatedFiles, IFlixExecutor executor, ConsoleOptions opts)
+        public static async Task ProcessFlix(IEnumerable<string> generatedFiles, IFlixExecutor executor, ConsoleOptions opts)
         {
             // Execute
             if (!opts.NoFlix)
             {
-                executor.Execute(generatedFiles);
+                await executor.Execute(generatedFiles);
             }
         }
     }

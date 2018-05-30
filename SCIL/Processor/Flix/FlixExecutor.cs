@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using SCIL.Logger;
 
 namespace SCIL.Flix
@@ -62,7 +65,24 @@ namespace SCIL.Flix
             }
         }
 
-        private void ExecuteFlix(string[] javaArgs, string[] flixArgs)
+        private static readonly ConcurrentDictionary<SemaphoreSlim, Process> _currentProcesses = new ConcurrentDictionary<SemaphoreSlim, Process>();
+
+        static FlixExecutor()
+        {
+            Console.CancelKeyPress += (sender, eventArgs) =>
+            {
+                var copy = _currentProcesses.ToList();
+                foreach (var sem in copy)
+                {
+                    if (_currentProcesses.TryRemove(sem.Key, out Process p))
+                    {
+                        p.Kill();
+                    }
+                }
+            };
+        }
+
+        private async Task ExecuteFlix(string[] javaArgs, string[] flixArgs)
         {
             var fileName = "java";
             var arguments = GetArguments(javaArgs, flixArgs);
@@ -76,18 +96,40 @@ namespace SCIL.Flix
                 RedirectStandardError = true
             };
 
-            Process process = Process.Start(processInfo);
+            try
+            {
+                Process process = Process.Start(processInfo);
 
-            // Attach handlers for process
-            process.OutputDataReceived += (sender, eventArgs) => _logger.Log(eventArgs.Data);
-            process.ErrorDataReceived += (sender, eventArgs) => _logger.Log(eventArgs.Data);
+                // Attach handlers for process
+                process.OutputDataReceived += (sender, eventArgs) => _logger.Log(eventArgs.Data);
+                process.ErrorDataReceived += (sender, eventArgs) => _logger.Log(eventArgs.Data);
 
-            // Asynchronously read the standard output of the spawned process. 
-            // This raises OutputDataReceived events for each line of output.
-            process.BeginOutputReadLine();
-            process.BeginErrorReadLine();
+                // Asynchronously read the standard output of the spawned process. 
+                // This raises OutputDataReceived events for each line of output.
+                process.BeginOutputReadLine();
+                process.BeginErrorReadLine();
 
-            process.WaitForExit();
+                SemaphoreSlim semaphore = new SemaphoreSlim(0, 1);
+                {
+                    // Attach on process exited
+                    process.Exited += (sender, eventArgs) => semaphore.Release();
+                    process.EnableRaisingEvents = true;
+                    if (process.HasExited)
+                    {
+                        semaphore.Release();
+                    }
+
+                    if (!_currentProcesses.TryAdd(semaphore, process))
+                        throw new Exception();
+
+                    // Wait for either Console.Cancel or Exit
+                    await semaphore.WaitAsync().ConfigureAwait(false);
+                }
+            }
+            catch(Exception ex)
+            {
+                throw;
+            }
         }
 
         private string GetArguments(string[] javaArgs, string[] flixArgs)
@@ -119,7 +161,7 @@ namespace SCIL.Flix
             }
         }
 
-        public void Execute(IEnumerable<string> files)
+        public async Task Execute(IEnumerable<string> files)
         {
             // Java args
             IEnumerable<string> javaArgs;
@@ -152,7 +194,7 @@ namespace SCIL.Flix
             }
 
             // Execute flix
-            ExecuteFlix(javaArgs.ToArray(), flixArgs.ToArray());
+            await ExecuteFlix(javaArgs.ToArray(), flixArgs.ToArray());
         }
     }
 }

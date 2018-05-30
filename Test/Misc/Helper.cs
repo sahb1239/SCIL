@@ -66,7 +66,7 @@ namespace Test
                     if (fileInfo.Exists)
                     {
                         var files = await fileProcessor.ProcessFile(fileInfo);
-                        ProcessFlix(files, executor, opts);
+                        await ProcessFlix(files, executor, opts);
                     }
                     else
                     {
@@ -92,7 +92,7 @@ namespace Test
                         {
                             var fileInfo = new FileInfo(file);
                             var files = await fileProcessor.ProcessFile(fileInfo);
-                            ProcessFlix(files, executor, opts);
+                            await ProcessFlix(files, executor, opts);
                         }
                     }
                     else
@@ -107,12 +107,12 @@ namespace Test
             }
         }
 
-        public static void ProcessFlix(IEnumerable<string> generatedFiles, IFlixExecutor executor, ConsoleOptions opts)
+        public static async Task ProcessFlix(IEnumerable<string> generatedFiles, IFlixExecutor executor, ConsoleOptions opts)
         {
             // Execute
             if (!opts.NoFlix)
             {
-                executor.Execute(generatedFiles);
+                await executor.Execute(generatedFiles);
             }
         }
 
