@@ -23,7 +23,7 @@ namespace MethodOverloadingWithSinks
 
         public void Print(string s)
         {
-            Console.WriteLine(s + " LOL");
+            Console.WriteLine(s);
         }
 
         public void Print(int numberOfLOLs, string s)
