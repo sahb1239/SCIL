@@ -3,4 +3,4 @@ image: Visual Studio 2017
 build_script:
   - cmd: git submodule update --init --recursive
   - ps: dotnet build SCIL.sln
-  - ps: dotnet test Test/Test.csproj --configuration Release -p:ParallelizeTestCollections=false
+  - ps: dotnet test Test/Test.csproj --configuration Release -p:ParallelizeTestCollections=false -p:ParallelizeAssembly=false
