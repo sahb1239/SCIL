@@ -42,15 +42,6 @@ namespace SCIL
                 outputPathInfo.Create();
             }
 
-            // Update ignored assemblies
-            if (opts.UpdateIgnored && File.Exists("Configuration.json"))
-            {
-                string configurationFileText = File.ReadAllText("Configuration.json");
-                ConfigurationFile configurationFile = JsonConvert.DeserializeObject<ConfigurationFile>(configurationFileText);
-
-
-            }
-
             // Read configuration
             IEnumerable<string> ignoredAssemblies = opts.Excluded;
             if (File.Exists("Configuration.json"))
