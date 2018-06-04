@@ -514,6 +514,7 @@
     "System.Runtime.Serialization.Xml.dll",
     "System.Runtime.Serialization.dll",
     "System.Runtime.dll",
+    "System.Security.Cryptography.X509Certificates.dll",
     "System.ServiceModel.Http.dll",
     "System.ServiceModel.Internals.dll",
     "System.ServiceModel.Primitives.dll",
