@@ -143,7 +143,6 @@ namespace SCIL.Processor.TypeAnalyzer
                 {
                     node.TaskMethod = stackMethod;
 
-
                     // Handle all pushes (just add to all)
                     foreach (var push in node.PushStackNames)
                     {
