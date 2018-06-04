@@ -102,9 +102,17 @@ namespace SCIL
                                 .Concat(Directory.GetFiles(pathInfo.FullName, "*.exe", searchOption))
                                 .Concat(Directory.GetFiles(pathInfo.FullName, "*.dll", searchOption)))
                         {
-                            var fileInfo = new FileInfo(file);
-                            var files = await fileProcessor.ProcessFile(fileInfo);
-                            await ProcessFlix(files, executor, opts);
+                            try
+                            {
+                                var fileInfo = new FileInfo(file);
+                                var files = await fileProcessor.ProcessFile(fileInfo);
+                                await ProcessFlix(files, executor, opts);
+                            }
+                            catch (Exception ex)
+                            {
+                                // Log and ignore exceptions
+                                logger.Log($"[EXP]: {ex.Message}{Environment.NewLine}{ex.ToString()}{Environment.NewLine}{ex.StackTrace.ToString()}");
+                            }
                         }
                     }
                     else
