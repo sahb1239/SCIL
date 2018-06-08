@@ -32,6 +32,24 @@ namespace Test
             }, logs);
         }
 
+        public static async Task StringAnalysisOnTestProgram(string name, List<string> logs)
+        {
+            await Helper.Run(new ConsoleOptions
+            {
+                InputFile = @"..\..\..\..\TestPrograms\" + name + @"\bin\Debug\netcoreapp2.0\" + name + ".dll",
+                OutputPath = @"./bin/Debug/netcoreapp2.0/Output/",
+                NoFlix = false,
+                Excluded = new List<string>(),
+                JavaArgs = new List<string>(),
+                FlixArgs = new List<string> { "--print SecretStrings" },
+                Verbose = false,
+                Wait = false,
+                Recursive = false,
+                UpdateIgnored = false,
+                NoStringAnalysis = false
+            }, logs);
+        }
+
         public static async Task Run(ConsoleOptions opts, List<string> logs)
         {
             // Check output path
@@ -135,12 +153,32 @@ namespace Test
                         Sink = result[1],
                         Type = result[2]
                     });
-
-                    var i = 3;
                 }
             }
 
+            return results.Skip(1).ToList();
+        }
 
+        public static List<StringAnalysisResult> ParseStringAnalysisResults(List<string> rawLog)
+        {
+            var results = new List<StringAnalysisResult>();
+
+            foreach (var entry in rawLog)
+            {
+                if (entry == null)
+                    continue;
+
+                if (entry.StartsWith("|"))
+                {
+                    var result = entry.Replace(" ", string.Empty).Split('|', StringSplitOptions.RemoveEmptyEntries);
+
+                    results.Add(new StringAnalysisResult
+                    {
+                        Name = result[0],
+                        Charset = result[1]
+                    });
+                }
+            }
 
             return results.Skip(1).ToList();
         }
@@ -181,6 +219,21 @@ namespace Test
                 && (Source == result.Source)
                 && (Sink == result.Sink)
                 && (Type == result.Type);
+        }
+    }
+
+    public class StringAnalysisResult
+    {
+        public string Name { get; set; }
+        public string Charset { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            StringAnalysisResult result = obj as StringAnalysisResult;
+
+            return (obj != null)
+                && (Name == result.Name)
+                && (Charset == result.Charset);
         }
     }
 }
