@@ -16,7 +16,7 @@ namespace Test
             // Nothing should be flagged
             var expected = new List<StringAnalysisResult>();
 
-            await Helper.StringAnalysisOnTestProgram("HttpBasicNegativeConcat", logs);
+            await Helper.StringAnalysisOnTestProgram("HttpBasicAuthNegative", logs);
             var actual = Helper.ParseStringAnalysisResults(logs);
 
             Assert.Equal(expected, actual);
