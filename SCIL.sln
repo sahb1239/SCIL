@@ -54,11 +54,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MethodOverloadingWithSinks"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VirtualMethod", "TestPrograms\VirtualMethod\VirtualMethod.csproj", "{01CAE57C-FF17-4E3B-9699-D57537D17D32}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpBasicAuthSimple", "TestPrograms\HttpBasicAuthSimple\HttpBasicAuthSimple.csproj", "{BA9C2658-71A0-45B0-A993-35E8A1AD3726}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HttpBasicAuthSimple", "TestPrograms\HttpBasicAuthSimple\HttpBasicAuthSimple.csproj", "{BA9C2658-71A0-45B0-A993-35E8A1AD3726}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpBasicAuthConcat", "TestPrograms\HttpBasicAuthConcat\HttpBasicAuthConcat.csproj", "{CB3BFBDE-71A9-47AD-8851-2C14310A9C9B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HttpBasicAuthConcat", "TestPrograms\HttpBasicAuthConcat\HttpBasicAuthConcat.csproj", "{CB3BFBDE-71A9-47AD-8851-2C14310A9C9B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpBasicAuthNegative", "TestPrograms\HttpBasicAuthNegative\HttpBasicAuthNegative.csproj", "{38590BCB-1D88-4420-9BC5-6550E68028CF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HttpBasicAuthNegative", "TestPrograms\HttpBasicAuthNegative\HttpBasicAuthNegative.csproj", "{38590BCB-1D88-4420-9BC5-6550E68028CF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SCILRunner", "SCILRunner\SCILRunner.csproj", "{06A6A2C8-616B-4A89-869C-CB0FB1D681C9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -154,6 +156,10 @@ Global
 		{38590BCB-1D88-4420-9BC5-6550E68028CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{38590BCB-1D88-4420-9BC5-6550E68028CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{38590BCB-1D88-4420-9BC5-6550E68028CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06A6A2C8-616B-4A89-869C-CB0FB1D681C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06A6A2C8-616B-4A89-869C-CB0FB1D681C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06A6A2C8-616B-4A89-869C-CB0FB1D681C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06A6A2C8-616B-4A89-869C-CB0FB1D681C9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

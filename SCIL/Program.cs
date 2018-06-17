@@ -70,60 +70,17 @@ namespace SCIL
                 // Get file processor
                 var fileProcessor = services.GetRequiredService<FileProcessor>();
 
-                // Check for input file
-                if (!string.IsNullOrWhiteSpace(opts.InputFile))
+                // Check if path is input file
+                var fileInfo = new FileInfo(opts.InputFile);
+                if (fileInfo.Exists)
                 {
-                    // Check if path is input file
-                    var fileInfo = new FileInfo(opts.InputFile);
-                    if (fileInfo.Exists)
-                    {
-                        var files = await fileProcessor.ProcessFile(fileInfo);
-                        await ProcessFlix(files, executor, opts);
-                    }
-                    else
-                    {
-                        logger.Log($"File {opts.InputFile} not found");
-                    }
-
-                    return;
+                    var files = await fileProcessor.ProcessFile(fileInfo);
+                    await ProcessFlix(files, executor, opts);
                 }
-
-                // Check for input path
-                if (!string.IsNullOrWhiteSpace(opts.InputPath))
+                else
                 {
-                    var pathInfo = new DirectoryInfo(opts.InputPath);
-                    if (pathInfo.Exists)
-                    {
-                        var searchOption =
-                            opts.Recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
-
-                        foreach (var file in
-                            Directory.GetFiles(pathInfo.FullName, "*.apk", searchOption)
-                                .Concat(Directory.GetFiles(pathInfo.FullName, "*.exe", searchOption))
-                                .Concat(Directory.GetFiles(pathInfo.FullName, "*.dll", searchOption)))
-                        {
-                            try
-                            {
-                                var fileInfo = new FileInfo(file);
-                                var files = await fileProcessor.ProcessFile(fileInfo);
-                                await ProcessFlix(files, executor, opts);
-                            }
-                            catch (Exception ex)
-                            {
-                                // Log and ignore exceptions
-                                logger.Log($"[EXP]: {ex.Message}{Environment.NewLine}{ex.ToString()}{Environment.NewLine}{ex.StackTrace.ToString()}");
-                            }
-                        }
-                    }
-                    else
-                    {
-                        logger.Log($"Path {opts.InputPath} not found");
-                    }
-
-                    return;
+                    logger.Log($"File {opts.InputFile} not found");
                 }
-
-                logger.Log("Please select file or path");
             }
         }
 
@@ -144,11 +101,8 @@ namespace SCIL
 
     public class ConsoleOptions
     {
-        [Option('f', "InputFile", Required = false, HelpText = "Apk files to be processed.")]
+        [Option('f', "InputFile", Required = true, HelpText = "Apk files to be processed.")]
         public string InputFile { get; set; }
-
-        [Option('p', "InputPath", Required = false, HelpText = "Input path to search for apk or dll/exe files")]
-        public string InputPath { get; set; }
 
         [Option('o', "OutputPath", Required = true, HelpText = "Output path")]
         public string OutputPath { get; set; }

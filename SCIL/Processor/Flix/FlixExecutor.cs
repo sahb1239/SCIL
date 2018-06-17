@@ -114,6 +114,9 @@ namespace SCIL.Flix
             {
                 Process process = Process.Start(processInfo);
 
+                // Log pid
+                _logger.Log("FlixPID:" + process.Id);
+
                 // Attach handlers for process
                 process.OutputDataReceived += (sender, eventArgs) => _logger.Log(eventArgs.Data);
                 process.ErrorDataReceived += (sender, eventArgs) => _logger.Log(eventArgs.Data);
