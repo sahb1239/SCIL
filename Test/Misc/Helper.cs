@@ -77,51 +77,17 @@ namespace Test
                 var fileProcessor = services.GetRequiredService<FileProcessor>();
 
                 // Check for input file
-                if (!string.IsNullOrWhiteSpace(opts.InputFile))
+                // Check if path is input file
+                var fileInfo = new FileInfo(opts.InputFile);
+                if (fileInfo.Exists)
                 {
-                    // Check if path is input file
-                    var fileInfo = new FileInfo(opts.InputFile);
-                    if (fileInfo.Exists)
-                    {
-                        var files = await fileProcessor.ProcessFile(fileInfo);
-                        await ProcessFlix(files, executor, opts);
-                    }
-                    else
-                    {
-                        logger.Log($"File {opts.InputFile} not found");
-                    }
-
-                    return;
+                    var files = await fileProcessor.ProcessFile(fileInfo);
+                    await ProcessFlix(files, executor, opts);
                 }
-
-                // Check for input path
-                if (!string.IsNullOrWhiteSpace(opts.InputPath))
+                else
                 {
-                    var pathInfo = new DirectoryInfo(opts.InputPath);
-                    if (pathInfo.Exists)
-                    {
-                        var searchOption =
-                            opts.Recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
-
-                        foreach (var file in
-                            Directory.GetFiles(pathInfo.FullName, "*.apk", searchOption)
-                                .Concat(Directory.GetFiles(pathInfo.FullName, "*.exe", searchOption))
-                                .Concat(Directory.GetFiles(pathInfo.FullName, "*.dll", searchOption)))
-                        {
-                            var fileInfo = new FileInfo(file);
-                            var files = await fileProcessor.ProcessFile(fileInfo);
-                            await ProcessFlix(files, executor, opts);
-                        }
-                    }
-                    else
-                    {
-                        logger.Log($"Path {opts.InputPath} not found");
-                    }
-
-                    return;
+                    logger.Log($"File {opts.InputFile} not found");
                 }
-
-                logger.Log("Please select file or path");
             }
         }
 
