@@ -148,12 +148,32 @@ namespace SCILRunner
                 semaphore.Release();
             }
 
+            bool shouldCancelTask = false;
+            var task = Task.Run(async () =>
+            {
+                while (!shouldCancelTask)
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(10), token);
+                    
+                }
+
+            }, token);
+
             try
             {
                 // Wait for either Console.Cancel or Exit
                 await semaphore.WaitAsync(token).ConfigureAwait(false);
             }
             catch(OperationCanceledException ex)
+            {
+            }
+
+            try
+            {
+                shouldCancelTask = true;
+                await task;
+            }
+            catch (OperationCanceledException ex)
             {
             }
 
