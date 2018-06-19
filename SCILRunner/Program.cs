@@ -65,7 +65,8 @@ namespace SCILRunner
                         FilePath = file,
                         OutputPath = outputPath,
                         Status = ScanStatus.Started,
-                        Finished = false
+                        Finished = false,
+                        StartTime = DateTime.Now
                     };
                     context.Add(dbScan);
                     await context.SaveChangesAsync();
@@ -90,6 +91,7 @@ namespace SCILRunner
         {
             // Set scan entry to starting
             scan.Status = ScanStatus.Started;
+            scan.StartTime = DateTime.Now;
             dataContext.Update(scan);
             await dataContext.SaveChangesAsync(token);
             
@@ -153,8 +155,9 @@ namespace SCILRunner
             {
                 while (!shouldCancelTask)
                 {
+                    var memorySum = managedProcesses.ToList().Select(x => x.WorkingSet64).Sum();
+                    scan.Datapoint.Add(new DataPoint {MemoryUsage = process.WorkingSet64 + memorySum, Timestamp = DateTime.Now});
                     await Task.Delay(TimeSpan.FromSeconds(10), token);
-                    
                 }
 
             }, token);
@@ -195,15 +198,16 @@ namespace SCILRunner
                 Console.WriteLine($"[Stopped]: {file}");
 
                 // Set scan entry to starting
-                scan.Finished = true;
                 scan.Status = ScanStatus.Unsuccessful;
             }
             else
             {
                 // Set scan entry to starting
-                scan.Finished = true;
                 scan.Status = ScanStatus.Succeeded;
             }
+
+            scan.Finished = true;
+            scan.EndTime = DateTime.Now;
 
             // Write process output
             var processOutputFile = Path.Combine(outputPath, "process_output.txt");

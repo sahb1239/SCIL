@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace SCILRunner.Model
 {
@@ -16,5 +17,18 @@ namespace SCILRunner.Model
         public bool Finished { get; set; }
 
         public ScanStatus Status { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime? EndTime { get; set; }
+        public virtual ICollection<DataPoint> Datapoint { get; set; } = new List<DataPoint>();
+
+    }
+
+    public class DataPoint
+    {
+        [Key]
+        public long Id { get; set; }
+        public DateTime Timestamp { get; set; }
+        public long MemoryUsage { get; set; }
+
     }
 }
