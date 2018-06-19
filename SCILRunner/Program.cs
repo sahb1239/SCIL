@@ -162,8 +162,13 @@ namespace SCILRunner
                     process.Refresh();
 
                     var memorySum = managedProcesses.ToList().Select(x => x.WorkingSet64).Sum();
-                    scan.Datapoint.Add(new DataPoint {MemoryUsage = process.WorkingSet64 + memorySum, Timestamp = DateTime.Now});
-                    await Task.Delay(TimeSpan.FromSeconds(10), token);
+                    scan.Datapoint.Add(new DataPoint
+                    {
+                        MemoryUsage = process.WorkingSet64 + memorySum,
+                        Timestamp = DateTime.Now,
+                        FlixProcesses = managedProcesses.Count
+                    });
+                    await Task.Delay(TimeSpan.FromSeconds(5), token);
                 }
 
             }, token);

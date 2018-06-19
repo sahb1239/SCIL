@@ -29,6 +29,7 @@ namespace SCILRunner.Model
         public long Id { get; set; }
         public DateTime Timestamp { get; set; }
         public long MemoryUsage { get; set; }
+        public long FlixProcesses { get; set; }
 
     }
 }
