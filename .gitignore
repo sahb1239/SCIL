@@ -291,3 +291,5 @@ __pycache__/
 SCIL/target/flix/
 SCIL/Output/
 Output/
+
+*.db
