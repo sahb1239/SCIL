@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -111,7 +112,7 @@ namespace SCILRunner
             Process process = Process.Start(processInfo);
 
             // Add list of managed processes
-            List<Process> managedProcesses = new List<Process>();
+            ConcurrentBag<Process> managedProcesses = new ConcurrentBag<Process>();
 
             // Attach handlers for process
             List<string> processOutput = new List<string>();
@@ -156,6 +157,10 @@ namespace SCILRunner
                 // ReSharper disable once AccessToModifiedClosure
                 while (!shouldCancelTask)
                 {
+                    // Refresh values from processes
+                    managedProcesses.ToList().ForEach(p => p.Refresh());
+                    process.Refresh();
+
                     var memorySum = managedProcesses.ToList().Select(x => x.WorkingSet64).Sum();
                     scan.Datapoint.Add(new DataPoint {MemoryUsage = process.WorkingSet64 + memorySum, Timestamp = DateTime.Now});
                     await Task.Delay(TimeSpan.FromSeconds(10), token);
