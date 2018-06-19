@@ -5,11 +5,17 @@ namespace SimpleCILProgram
 {
     class Program
     {
-        static async Task Main(string[] args)
+        static void Main(string[] args)
         {
-            var kk = await System.IO.File.ReadAllTextAsync("path", System.Text.Encoding.ASCII);
+            var userInput = Console.ReadLine();
 
-            Console.WriteLine(kk);
+            // This is tained from the user input
+            LoLoLoLo(userInput);
+        }
+
+        public static void LoLoLoLo(string s)
+        {
+            Console.WriteLine(s);
         }
     }
 }

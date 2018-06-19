@@ -167,18 +167,21 @@ namespace SCIL.Processor.FlixInstructionGenerators.Instructions
 
             // Add call statement
             // Detect void stm
+
+            var additionalInfo = $"{method.Module}->{node.Block.Method.Definition.FullName}->{node.Instruction.Offset}";
+
             if (method.ReturnType.FullName == "System.Void")
             {
-                output.AppendLine($"{callType}Stm(\"NIL\", \"\", \"{method.NameOnly()}\", \"{method.ReturnType}\", 0).");
+                output.AppendLine($"{callType}Stm(\"NIL\", \"\", \"{method.NameOnly()}\", \"{method.ReturnType}\", 0, \"{additionalInfo}\").");
             }
             else if (method.ReturnType.Namespace == "System.Threading.Tasks" && method.ReturnType.Name.StartsWith("Task"))
             {
                 // Detect tasks
-                output.AppendLine($"{callType}Stm({node.PushStackNames.First()}, \"RET_{method.NameOnly()}\", \"{method.NameOnly()}\", \"{method.ReturnType}\", 1).");
+                output.AppendLine($"{callType}Stm({node.PushStackNames.First()}, \"RET_{method.NameOnly()}\", \"{method.NameOnly()}\", \"{method.ReturnType}\", 1, \"{additionalInfo}\").");
             }
             else
             {
-                output.AppendLine($"{callType}Stm({node.PushStackNames.First()}, \"RET_{method.NameOnly()}\", \"{method.NameOnly()}\", \"{method.ReturnType}\", 0).");
+                output.AppendLine($"{callType}Stm({node.PushStackNames.First()}, \"RET_{method.NameOnly()}\", \"{method.NameOnly()}\", \"{method.ReturnType}\", 0, \"{additionalInfo}\").");
             }
 
             //output.AppendLine($"{callType}Stm({node.PushStackNames.First()}, \"RET_{method.FullName}\", \"{method.FullName}\").");
