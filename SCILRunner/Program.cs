@@ -153,6 +153,7 @@ namespace SCILRunner
             bool shouldCancelTask = false;
             var task = Task.Run(async () =>
             {
+                // ReSharper disable once AccessToModifiedClosure
                 while (!shouldCancelTask)
                 {
                     var memorySum = managedProcesses.ToList().Select(x => x.WorkingSet64).Sum();
