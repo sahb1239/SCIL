@@ -161,20 +161,39 @@ namespace SCILRunner
                     managedProcesses.ToList().ForEach(p => p.Refresh());
                     process.Refresh();
 
+                    // Get Flix process list
+                    var flixProcessList = managedProcesses.ToList().Where(p => !p.HasExited).ToList();
+
+                    long memorySum = 0;
+
                     try
                     {
-                        var memorySum = managedProcesses.ToList().Select(x => x.WorkingSet64).Sum();
-                        scan.Datapoint.Add(new DataPoint
+                        if (!process.HasExited)
                         {
-                            MemoryUsage = process.WorkingSet64 + memorySum,
-                            Timestamp = DateTime.Now,
-                            FlixProcesses = managedProcesses.Count
-                        });
+                            memorySum = process.WorkingSet64;
+                        }
                     }
                     catch (Exception ex)
                     {
                         // In some cases this can fail if the flix process has exited
                     }
+
+                    try
+                    {
+                        memorySum += flixProcessList.Select(x => x.WorkingSet64).Sum();
+                    }
+                    catch (Exception ex)
+                    {
+                        // In some cases this can fail if the flix process has exited
+                    }
+
+                    // Add data point
+                    scan.Datapoint.Add(new DataPoint
+                    {
+                        MemoryUsage = memorySum,
+                        Timestamp = DateTime.Now,
+                        FlixProcesses = flixProcessList.Count
+                    });
 
                     await Task.Delay(TimeSpan.FromSeconds(5), token);
                 }
