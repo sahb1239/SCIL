@@ -35,9 +35,6 @@ namespace SCILRunner
 
             // Get database context
             var context = services.GetRequiredService<DataContext>();
-            context.Database.EnsureCreated();
-            
-            // Migrate
             context.Database.Migrate();
             
             // Get all files
