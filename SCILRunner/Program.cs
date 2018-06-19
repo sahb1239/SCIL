@@ -37,6 +37,9 @@ namespace SCILRunner
             var context = services.GetRequiredService<DataContext>();
             context.Database.EnsureCreated();
             
+            // Migrate
+            context.Database.Migrate();
+            
             // Get all files
             var files = Directory.GetFiles(opts.InputPath, "*.apk", SearchOption.AllDirectories);
             foreach (var file in files)
