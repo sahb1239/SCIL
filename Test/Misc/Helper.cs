@@ -15,7 +15,7 @@ namespace Test
 {
     public static class Helper
     {
-        public static async Task AnalyzeTestProgram(string name, List<string> logs)
+        private static List<string> GetFlixAdditionalArgs()
         {
             // Extract extra Flix file
             var _tempPath = Path.Combine(Path.GetTempPath(), "SCIL", Guid.NewGuid().ToString() + "-test");
@@ -49,9 +49,15 @@ namespace Test
                 _compileFlixList.Add(outputPath);
             }
 
+            // Quote paths
+            return _compileFlixList.Select(FullQuotePath).ToList();
+        }
+
+        public static async Task AnalyzeTestProgram(string name, List<string> logs)
+        {
             // Add flix arguments
             var flixArgs = new List<string>();
-            flixArgs.AddRange(_compileFlixList);
+            flixArgs.AddRange(GetFlixAdditionalArgs());
             flixArgs.Add("--print Results");
 
             // Run test
@@ -73,6 +79,11 @@ namespace Test
 
         public static async Task StringAnalysisOnTestProgram(string name, List<string> logs)
         {
+            // Add flix arguments
+            var flixArgs = new List<string>();
+            flixArgs.AddRange(GetFlixAdditionalArgs());
+            flixArgs.Add("--print SecretStrings");
+
             await Helper.Run(new ConsoleOptions
             {
                 InputFile = @"..\..\..\..\TestPrograms\" + name + @"\bin\Debug\netcoreapp2.0\" + name + ".dll",
@@ -80,7 +91,7 @@ namespace Test
                 NoFlix = false,
                 Excluded = new List<string>(),
                 JavaArgs = new List<string>(),
-                FlixArgs = new List<string> { "--print SecretStrings" },
+                FlixArgs = new List<string> { string.Join(" ", flixArgs) },
                 Verbose = false,
                 Wait = false,
                 Recursive = false,
@@ -88,6 +99,9 @@ namespace Test
                 NoStringAnalysis = false
             }, logs);
         }
+
+        private static string QuotePath(string path) => $"\"{path}\"";
+        private static string FullQuotePath(string path) => QuotePath(new FileInfo(path).FullName);
 
         public static async Task Run(ConsoleOptions opts, List<string> logs)
         {
