@@ -158,6 +158,9 @@ namespace SCIL.Flix
             {
                 throw;
             }
+
+            // Wait for exit such that output finishes
+            await Task.Delay(TimeSpan.FromSeconds(5));
         }
 
         private string GetArguments(string[] javaArgs, string[] flixArgs)
