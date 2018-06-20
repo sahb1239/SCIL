@@ -21,3 +21,7 @@ AddToSinks("System.IO.File::WriteAllLinesAsync(System.String,System.Collections.
 AddToSinks("System.IO.File::WriteAllLinesAsync(System.String,System.Collections.Generic.IEnumerable`1<System.String>,System.Text.Encoding,System.Threading.CancellationToken)").
 AddToSinks("System.IO.File::WriteAllTextAsync(System.String,System.String,System.Threading.CancellationToken)").
 AddToSinks("System.IO.File::WriteAllTextAsync(System.String,System.String,System.Text.Encoding,System.Threading.CancellationToken)").
+
+AddToSources("System.Console::ReadLine()").
+AddToSources("System.Console::ReadKey()").
+AddToSources("System.ConsoleKeyInfo::get_KeyChar()").
