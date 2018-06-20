@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -16,6 +17,44 @@ namespace Test
     {
         public static async Task AnalyzeTestProgram(string name, List<string> logs)
         {
+            // Extract extra Flix file
+            var _tempPath = Path.Combine(Path.GetTempPath(), "SCIL", Guid.NewGuid().ToString() + "-test");
+            Directory.CreateDirectory(_tempPath);
+
+            // Extra files to use
+            var _compileFlixList = new List<string>();
+
+            // Extract from assembly
+            var assembly = Assembly.GetExecutingAssembly();
+            var resources = assembly.GetManifestResourceNames();
+            foreach (var resource in resources)
+            {
+                // Skip non flix files and non Flix jar files
+                if (!resource.EndsWith(".flix"))
+                {
+                    continue;
+                }
+
+                // Extract file
+                var outputPath = Path.Combine(_tempPath, resource);
+                using (var fileStream = File.OpenWrite(outputPath))
+                {
+                    using (var resourceStrem = assembly.GetManifestResourceStream(resource))
+                    {
+                        resourceStrem.CopyTo(fileStream);
+                    }
+                }
+
+                // Set file list which should be compiled
+                _compileFlixList.Add(outputPath);
+            }
+
+            // Add flix arguments
+            var flixArgs = new List<string>();
+            flixArgs.AddRange(_compileFlixList);
+            flixArgs.Add("--print Results");
+
+            // Run test
             await Helper.Run(new ConsoleOptions
             {
                 InputFile = @"..\..\..\..\TestPrograms\" + name + @"\bin\Debug\netcoreapp2.0\" + name + ".dll",
@@ -23,7 +62,7 @@ namespace Test
                 NoFlix = false,
                 Excluded = new List<string>(),
                 JavaArgs = new List<string>(),
-                FlixArgs = new List<string> { "--print Results" },
+                FlixArgs = new List<string> { string.Join(" ", flixArgs) },
                 Verbose = false,
                 Wait = false,
                 Recursive = false,
