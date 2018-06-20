@@ -1,4 +1,4 @@
-﻿AddToSinks("System.Console::WriteLine(System.String)").
+AddToSinks("System.Console::WriteLine(System.String)").
 AddToSinks("System.Console::WriteLine(System.Int32)").
 AddToSinks("System.Console::WriteLine(System.Char)").
 AddToSinks("System.Console::WriteLine(System.Double)").
